@@ -2,19 +2,20 @@ import 'dart:io';
 
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as p;
 
 import '../domain/leak_errors.dart';
 import '../domain/leak_report_draft.dart';
+import 'photo_limits.dart';
 
-/// Tamaño máximo permitido; coincide con `system_config.photo_limits`.
-const kMaxPhotoBytes = 10 * 1024 * 1024;
-
-/// Prepara fotos: compresión, validación de tamaño y formato.
-/// NO sube nada a Storage; solo produce [PreparedPhoto] local.
+/// Prepara fotos: compresión, validación de formato/tamaño y metadatos.
+///
+/// NO sube nada a Storage: solo produce un [PreparedPhoto] local. La
+/// conversión a JPEG elimina el EXIF (privacidad: la foto no arrastra la
+/// ubicación exacta del vecino) y garantiza un MIME aceptado por el
+/// servidor.
 abstract class PhotoService {
-  /// Abre la cámara o la galería, comprime valida y devuelve la foto
-  /// preparada. Lanza [PhotoValidationException] si el resultado no cumple.
+  /// Abre la cámara o la galería, comprime y valida la foto.
+  /// Lanza [PhotoValidationException] si el resultado no cumple.
   Future<PreparedPhoto> pickAndPrepare({required bool fromCamera});
 
   /// Comprime y valida un archivo que ya está en disco.
@@ -22,12 +23,16 @@ abstract class PhotoService {
 }
 
 class ImagePickerPhotoService implements PhotoService {
+  ImagePickerPhotoService({ImagePicker? picker})
+      : _picker = picker ?? ImagePicker();
+
+  final ImagePicker _picker;
+
   @override
   Future<PreparedPhoto> pickAndPrepare({required bool fromCamera}) async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(
+    final picked = await _picker.pickImage(
       source: fromCamera ? ImageSource.camera : ImageSource.gallery,
-      // Precompresión del picker: límite razonable para cámaras modernas.
+      preferredCameraDevice: CameraDevice.rear,
       imageQuality: 80,
       maxWidth: 1920,
       maxHeight: 1920,
@@ -48,23 +53,14 @@ class ImagePickerPhotoService implements PhotoService {
       );
     }
 
-    final extension = p.extension(path).toLowerCase();
-    final allowed = extension == '.jpg' ||
-        extension == '.jpeg' ||
-        extension == '.png' ||
-        extension == '.webp';
-    if (!allowed) {
-      throw const PhotoValidationException(
-        'Formato no admitido. Usa JPG, PNG o WebP.',
-      );
-    }
-
-    // Compresión local para asegurar el límite de tamaño y quitar EXIF
-    // (privacidad: la foto no arrastra la ubicación exacta del usuario).
-    final compressedPath = p.setExtension(
-      '${p.withoutExtension(path)}_gota',
-      '.jpg',
+    // 1. Validación cliente (formato y tamaño antes de comprimir).
+    validatePickedPhoto(
+      path: path,
+      sizeBytes: await original.length(),
     );
+
+    // 2. Compresión a JPEG ≤ 10 MB.
+    final compressedPath = '${path}_gota.jpg';
     final compressed = await FlutterImageCompress.compressAndGetFile(
       path,
       compressedPath,
@@ -77,27 +73,20 @@ class ImagePickerPhotoService implements PhotoService {
       );
     }
 
+    // 3. Validación cliente del resultado.
     final sizeBytes = await File(compressed.path).length();
-    if (sizeBytes > kMaxPhotoBytes) {
-      throw const PhotoValidationException(
-        'La foto es demasiado grande incluso comprimida. Elige otra.',
-      );
-    }
-
-    // Dimensiones leídas del resultado del compresor (FlutterImageCompress
-    // no expone el decodificado directo; image package sería una
-    // dependencia extra). Se guardan 0 y la UI usa aspect ratio del file.
-    const width = 0;
-    const height = 0;
+    validateCompressedPhoto(sizeBytes: sizeBytes);
 
     return PreparedPhoto(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       originalPath: path,
       compressedPath: compressed.path,
-      mimeType: 'image/jpeg',
+      mimeType: kReportPhotoContentType,
       sizeBytes: sizeBytes,
-      width: width,
-      height: height,
+      // Las dimensiones exactas las determina el servidor a partir del
+      // binario; aquí se dejan en 0 (sin metadatos inventados).
+      width: 0,
+      height: 0,
     );
   }
 }

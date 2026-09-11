@@ -83,6 +83,11 @@ class LeakReportState {
 
 /// Controller del flujo Reportar fuga.
 class LeakReportController extends Notifier<LeakReportState> {
+  /// True cuando el usuario ya confirmó que su fuga es distinta de un
+  /// candidato detectado ("es otra fuga"): se envía a la RPC como
+  /// `p_ignore_duplicate`.
+  bool _ignoreDuplicate = false;
+
   LocationService get _locationService => ref.watch(locationServiceProvider);
 
   @override
@@ -233,10 +238,17 @@ class LeakReportController extends Notifier<LeakReportState> {
     }
   }
 
-  /// El usuario declara "es otra fuga": continúa como reporte nuevo
-  /// pese al duplicado, con la misma ubicación ya revisada.
-  void continueAsNewLeak() =>
-      state = state.copyWith(currentStep: ReportStep.review, clearMessage: true);
+  /// El usuario declara "es otra fuga": se crea el reporte pese al
+  /// candidato (REQ-025). Reenvía con la confirmación explícita, porque
+  /// el backend solo acepta el override con esa señal.
+  Future<void> continueAsNewLeak() async {
+    _ignoreDuplicate = true;
+    state = state.copyWith(
+      currentStep: ReportStep.review,
+      clearMessage: true,
+    );
+    await submit();
+  }
 
   /// El usuario acepta usar el reporte existente: cierra el flujo sin
   /// duplicar.
@@ -258,7 +270,7 @@ class LeakReportController extends Notifier<LeakReportState> {
     try {
       final outcome = await ref
           .watch(leakReportRepositoryProvider)
-          .createReport(state.draft);
+          .createReport(state.draft, ignoreDuplicate: _ignoreDuplicate);
       switch (outcome) {
         case ReportCreated(:final reportId):
           state = state.copyWith(

@@ -17,3 +17,5 @@ port = 54323
 [auth]
 enabled = true
 site_url = "http://localhost:3000"
+# Requerido por docs/SETUP.md (Anonymous Sign-ins) para el arranque de la app.
+enable_anonymous_sign_ins = true

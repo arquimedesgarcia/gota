@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 import 'gota_auth.dart';
 import 'gota_database.dart';
+import 'gota_storage.dart';
 
 /// Cliente de Supabase.
 ///
@@ -18,4 +19,8 @@ final gotaAuthProvider = Provider<GotaAuth>(
 
 final gotaDatabaseProvider = Provider<GotaDatabase>(
   (ref) => SupabaseGotaDatabase(ref.watch(supabaseClientProvider)),
+);
+
+final gotaStorageProvider = Provider<GotaStorage>(
+  (ref) => SupabaseGotaStorage(ref.watch(supabaseClientProvider)),
 );

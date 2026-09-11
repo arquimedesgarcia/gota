@@ -45,3 +45,18 @@ class PhotoUploadException extends LeakFlowException {
     super.userMessage = 'No pudimos subir tus fotos. Intenta de nuevo.',
   ]);
 }
+
+/// La limpieza de binarios temporales falló: nunca se oculta, para no
+/// dejar archivos huérfanos en silencio.
+class PhotoCleanupException extends LeakFlowException {
+  const PhotoCleanupException([
+    super.userMessage = 'No pudimos limpiar las fotos temporales de este '
+        'intento. Vuelve a intentarlo.',
+  ]);
+}
+
+/// El backend (RPC `create_leak_report`) rechazó la creación del reporte.
+/// El mensaje ya viene redactado para el usuario final.
+class ReportCreationException extends LeakFlowException {
+  const ReportCreationException(super.userMessage);
+}
