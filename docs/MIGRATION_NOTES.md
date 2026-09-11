@@ -91,4 +91,21 @@ descriptivas sin predicción).
 | Lectura de la UI | Lista pública de eventos por `fetchRecentWaterEvents` (sin `created_by`); detalle y estado propio vía RPC `get_water_event_detail`. |
 | RLS | `water_events` lectura pública, INSERT/UPDATE/DELETE solo por RPC. `water_event_validations` sin acceso cliente (igual que `report_validations`). |
 | Operación crítica | SQL protegido (`security definer`, `set search_path = ''`) para `register_water_event`, `validate_water_event`, `get_water_event_detail`. GRANT EXECUTE solo a `authenticated`. |
-| Navegación | Pestaña "Agua" integrada en AppShell (índice 3), reemplaza PlaceholderScreen. |
+| Pestaña "Agua" | Integrada en AppShell (índice 3), reemplaza PlaceholderScreen. |
+
+## Auditoría Sprint 01 — decisiones de corrección (AUD-S1-*)
+
+Correcciones aplicadas en la migración `20260911000015_audit_sprint01_fixes.sql`
+(aditiva e idempotente; no reescribe migraciones ya aplicadas).
+
+| Tema | Decisión |
+|---|---|
+| `INTERNET` en release (AUD-S1-01) | Permisos añadidos al `AndroidManifest.xml` principal; verificado en el APK release. |
+| Sectores (AUD-S1-02) | **Sin siembra de datos.** Documentado el hueco operativo: el catálogo se carga por migración futura solo con fuente validada; sin sectores, `create_leak_report` responde `INVALID_SECTOR` y el flujo es inejecutable. |
+| `SUPABASE_ENV` (AUD-S1-03) | Se mantiene como **metadato de despliegue** (`isProduction` disponible, sin efecto en reglas de negocio): no altera runtime ni backend. |
+| INSERT en `app_users` (AUD-S1-04) | Retirados el GRANT de `insert` a `authenticated` y la política "Usuario crea su propio perfil". La fila la crean el trigger `handle_new_user` y `ensure_app_user()` (ambas `security definer`). |
+| PostGIS (AUD-S1-05) | `20260911000015` falla cerrado (`raise exception`) si `postgis` no está habilitada. La migración original `00001` ya aplicada no se reescribe. |
+| `ensure_app_user` sin `auth.uid()` (AUD-S1-06) | La RPC ahora firma `jsonb` y devuelve `{"status_code": "UNAUTHORIZED", "message": …}` si no hay sesión, alineada con el patrón de `validate_leak`. No inserta filas y no expone la violación NOT NULL. El cliente ya maneja el valor como excepción de dominio. |
+| `fetchAppUserByAuthId` (AUD-S1-07) | Eliminada de la interfaz, la implementación y los fakes (ningún repositorio la usaba). |
+| CI (AUD-S1-08) | Workflow GitHub Actions mínimo: `flutter analyze` + `flutter test`. Sin secretos ni deploy. |
+| README (AUD-S1-09) | Estado y lista de migraciones sincronizados con HEAD. |

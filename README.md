@@ -2,7 +2,7 @@
 
 Aplicación comunitaria móvil (Flutter + Supabase) para reportar y validar fugas de agua y registrar eventos de suministro en Isla de Margarita, Venezuela.
 
-**Estado: Sprint 03 — Validation & Resolution implementado** (Sprint 01 — Foundation y Sprint 02 — Leak Reporting, completados).
+**Estado: Sprint 04 — Water Events implementado** (Sprint 01 Foundation, Sprint 02 Leak Reporting y Sprint 03 Validation & Resolution completados). La corrección de la auditoría del Sprint 01 está aplicada (ver `docs/MIGRATION_NOTES.md` § "Auditoría Sprint 01").
 
 ## Documentación (fuente de verdad)
 
@@ -57,7 +57,7 @@ La app lee su configuración exclusivamente desde `--dart-define` (no hay secret
 |---|---|---|
 | `SUPABASE_URL` | Sí | URL pública del proyecto Supabase (`https://<proyecto>.supabase.co`). |
 | `SUPABASE_ANON_KEY` | Sí | Clave pública anónima (Settings → API → `anon public`). |
-| `SUPABASE_ENV` | No | `development` (por defecto) o `production`. |
+| `SUPABASE_ENV` | No | `development` (por defecto) o `production`. Metadato de despliegue: no altera reglas de negocio ni runtime (AUD-S1-03). |
 
 Nunca usar la `service_role` key en el cliente. Si faltan las variables obligatorias, la app arranca y muestra una pantalla de configuración ausente en lugar de fallar.
 
@@ -142,6 +142,14 @@ Reglas implementadas (server-side, en la RPC):
 
 App: lista **Fugas cerca de ti** en Inicio (`lib/features/leaks/presentation/recent_leaks_list.dart`) y pantalla de detalle (`leak_detail_screen.dart`) con contador de validaciones, progreso `n de 3`, acciones **Validar fuga** y **Sí, fue resuelta**, estados de carga/error/duplicado/bloqueado y refresco del estado real del backend.
 
+### Sprint 04 — Water Events
+
+14. `...0014_water_events` — tablas `water_events` y `water_event_validations` (acceso cliente solo lectura de eventos; validaciones solo vía RPC) y las RPC `register_water_event()`, `validate_water_event()` y `get_water_event_detail()`, siguiendo el patrón `security definer` de Sprint 03. Estadísticas descriptivas (sin predicción) y pestaña "Agua" integrada en `AppShell`.
+
+### Corrección de la auditoría del Sprint 01
+
+15. `...0015_audit_sprint01_fixes` — mínimos privilegios en `app_users` (sin `INSERT` de cliente), verificación estricta de PostGIS y `ensure_app_user()` con firma `jsonb` + `UNAUTHORIZED` controlado sin sesión. Detalle en `docs/MIGRATION_NOTES.md` § "Auditoría Sprint 01".
+
 ## Pruebas SQL y de integración
 
 Requieren una base Supabase local levantada con `supabase start` (o `SUPABASE_DB_URL` apuntando a una base con las migraciones aplicadas).
@@ -193,7 +201,7 @@ UI → Provider (Riverpod) → Repository → GotaAuth/GotaDatabase → Supabase
 ## Decisiones y problemas conocidos
 
 - **Navegación:** `UX_SPEC.md` y `FUNCTIONAL_SPEC.md` definen cinco posiciones con acción central (Reportar); cualquier otra numeración es anterior y la documentación manda.
-- **Sectores:** estructura lista; seed pendiente de fuente validada.
+- **Sectores:** estructura lista; seed pendiente de fuente validada. Sin sectores el flujo de reporte responde `INVALID_SECTOR` (ver `docs/SETUP.md` § "Seed inicial").
 - **iOS:** compatible arquitectónicamente; el release iOS puede venir después (Android es la prioridad).
 - El test RLS es un script SQL y requiere Supabase CLI/local DB para ejecutarse; no corre en `flutter test`.
 - **Fotos en el detalle:** el detalle de una fuga muestra el conteo de fotos, no los binarios de otros usuarios (Storage sigue siendo privado por carpeta). Publicarlas requiere URLs firmadas server-side y queda para un sprint posterior.

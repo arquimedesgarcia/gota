@@ -11,10 +11,6 @@ abstract class GotaDatabase {
     String municipalityId,
   );
 
-  Future<Map<String, dynamic>?> fetchAppUserByAuthId(String authUserId);
-
-  /// Crea o actualiza el perfil del usuario autenticado vía la RPC
-  /// `ensure_app_user` (idempotente) y devuelve la fila de `app_users`.
   Future<Map<String, dynamic>> ensureAppUser();
 
   /// Invoca la RPC protegida `create_leak_report` y devuelve su `jsonb`
@@ -53,25 +49,24 @@ class SupabaseGotaDatabase implements GotaDatabase {
   }
 
   @override
-  Future<Map<String, dynamic>?> fetchAppUserByAuthId(
-    String authUserId,
-  ) async {
-    final rows =
-        await _client.from('app_users').select().eq('auth_user_id', authUserId);
-    if (rows.isEmpty) return null;
-    return rows.first;
-  }
-
-  @override
   Future<Map<String, dynamic>> ensureAppUser() async {
     final data = await _client.rpc('ensure_app_user');
+    Map<String, dynamic> row;
     if (data is Map) {
-      return Map<String, dynamic>.from(data);
+      row = Map<String, dynamic>.from(data);
+    } else if (data is List && data.isNotEmpty && data.first is Map) {
+      row = Map<String, dynamic>.from(data.first as Map);
+    } else {
+      throw StateError('ensure_app_user devolvió un formato inesperado.');
     }
-    if (data is List && data.isNotEmpty && data.first is Map) {
-      return Map<String, dynamic>.from(data.first as Map);
+    // Sin sesión (sesión a medio expirar): la RPC responde UNAUTHORIZED
+    // controlado en lugar de una fila; se traduce a error de autenticación.
+    if (row['status_code'] == 'UNAUTHORIZED') {
+      throw const supabase.AuthException(
+        'Tu sesión expiró. Reinicia la app para continuar.',
+      );
     }
-    throw StateError('ensure_app_user devolvió un formato inesperado.');
+    return row;
   }
 
   @override

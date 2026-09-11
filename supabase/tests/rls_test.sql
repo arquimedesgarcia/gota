@@ -124,30 +124,50 @@ exception
     raise notice 'OK 2d: usuario A no puede modificar is_blocked';
 end $$;
 
--- 2e. A no puede insertar una fila con otro auth_user_id (RLS lo bloquea).
+-- 2e. app_users no acepta INSERT directo del cliente (AUD-S1-04: la fila
+--     la crean el trigger y ensure_app_user, ambas security definer).
 do $$
 begin
   insert into public.app_users (auth_user_id)
-  values ('22222222-2222-4222-8222-222222222222');
-  raise exception 'FALLO 2e: usuario A pudo insertar una fila ajena en app_users';
+  values ('11111111-1111-4111-8111-111111111111');
+  raise exception 'FALLO 2e: authenticated pudo hacer INSERT directo en app_users';
 exception
   when insufficient_privilege then
-    raise notice 'OK 2e: RLS bloqueó el INSERT ajeno';
+    raise notice 'OK 2e: authenticated no puede hacer INSERT directo en app_users (GRANT/RLS)';
 end $$;
 
 -- 2f. ensure_app_user es idempotente y devuelve la fila correcta.
+--     (AUD-S1-06: la RPC ahora firma jsonb y controla sesiones sin `sub`.)
 do $$
 declare
-  r1 public.app_users;
-  r2 public.app_users;
+  r1 jsonb;
+  r2 jsonb;
 begin
-  select * into r1 from public.ensure_app_user();
-  select * into r2 from public.ensure_app_user();
-  assert r1.id is not null, 'FALLO 2f: ensure_app_user devolvió null';
-  assert r1.id = r2.id, 'FALLO 2f: ensure_app_user creó o devolvió filas distintas (no idempotente)';
-  assert r1.auth_user_id = '11111111-1111-4111-8111-111111111111',
+  select public.ensure_app_user() into r1;
+  select public.ensure_app_user() into r2;
+  assert r1->>'id' is not null, 'FALLO 2f: ensure_app_user devolvió null';
+  assert r1->>'id' = r2->>'id', 'FALLO 2f: ensure_app_user creó o devolvió filas distintas (no idempotente)';
+  assert r1->>'auth_user_id' = '11111111-1111-4111-8111-111111111111',
     'FALLO 2f: ensure_app_user devolvió la fila de otro usuario';
   raise notice 'OK 2f: ensure_app_user es idempotente';
+end $$;
+
+-- 2g. ensure_app_user sin identidad (claim sub nulo): debe devolver
+--     UNAUTHORIZED controlado y NO insertar ni lanzar violación NOT NULL.
+do $$
+declare
+  r jsonb;
+  n int;
+begin
+  set local request.jwt.claims =
+    '{"role": "authenticated", "sub": null, "aud": "authenticated"}';
+  r := public.ensure_app_user();
+  assert r->>'status_code' = 'UNAUTHORIZED',
+    'FALLO 2g: ensure_app_user sin sub no devolvió UNAUTHORIZED';
+  select count(*) into n from public.app_users
+    where auth_user_id is null;
+  assert n = 0, 'FALLO 2g: ensure_app_user insertó una fila sin auth_user_id';
+  raise notice 'OK 2g: ensure_app_user sin sub devuelve UNAUTHORIZED controlado';
 end $$;
 
 -- =====================================================================

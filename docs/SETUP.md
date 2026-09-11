@@ -62,6 +62,8 @@ Crear:
 
 Los sectores se agregan mediante migraciones/seed controlado cuando exista una fuente validada.
 
+**Estado de sectores (AUD-S1-02):** la estructura (`sectors`, RLS de solo lectura sobre activos) está lista, pero el catálogo está vacío. Hasta que exista una fuente validada de los sectores de Maneiro y Arismendi, el flujo de reporte es inejecutable (`create_leak_report` responde `INVALID_SECTOR`). La carga se hará por una migración nueva posterior a `20260911000015`, con nombres verificados, nunca sembrados a mano ni por la app.
+
 ## Android
 
 Android es la plataforma prioritaria del MVP.

@@ -16,6 +16,14 @@ class AppConfig {
   /// 'development' o 'production' (dart-define `SUPABASE_ENV`).
   final String environment;
 
+  /// Verdadero cuando [environment] es 'production'.
+  ///
+  /// Metadato diagnóstico: no altera reglas de negocio ni el backend;
+  /// su uso previsto es filtrado de logs/telemetría y estadísticas de
+  /// sesiones, no separación de proyectos Supabase (eso lo define el
+  /// operador vía `SUPABASE_URL`/`SUPABASE_ANON_KEY`).
+  bool get isProduction => environment == 'production';
+
   /// Lee la configuración de las variables de compilación.
   ///
   /// Lanza [ConfigMissingException] si faltan valores o la URL no es http(s).

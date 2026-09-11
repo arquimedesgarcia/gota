@@ -112,12 +112,6 @@ class _FakeDatabase implements GotaDatabase {
     String municipalityId,
   ) async =>
       const [];
-
-  @override
-  Future<Map<String, dynamic>?> fetchAppUserByAuthId(
-    String authUserId,
-  ) async =>
-      null;
 }
 
 void main() {

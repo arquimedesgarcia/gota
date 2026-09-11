@@ -2,6 +2,8 @@
     <!-- Ubicación del reporte (solo cuando el usuario lo solicita). -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <!-- Necesario para Supabase: sin él, la app en release no tiene red. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="gota"
         android:name="${applicationName}"
