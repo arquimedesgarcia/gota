@@ -1,0 +1,5 @@
+-- Seed de datos para desarrollo local (`supabase db seed`).
+-- Los datos semilla reales (municipios: Maneiro y Arismendi) viven en la
+-- migración 20260911000006_seed_municipalities.sql para que también apliquen
+-- en producción. Este archivo queda para datos locales de desarrollo si se
+-- necesitan en el futuro.
