@@ -2,7 +2,7 @@
 
 Aplicación comunitaria móvil (Flutter + Supabase) para reportar y validar fugas de agua y registrar eventos de suministro en Isla de Margarita, Venezuela.
 
-**Estado: Sprint 02 — Leak Reporting implementado** (Sprint 01 — Foundation, completado).
+**Estado: Sprint 03 — Validation & Resolution implementado** (Sprint 01 — Foundation y Sprint 02 — Leak Reporting, completados).
 
 ## Documentación (fuente de verdad)
 
@@ -79,7 +79,9 @@ flutter analyze
 flutter test
 ```
 
-Los tests son 100 % offline (fakes/mocks de las abstracciones de red): config, auth anónima, persistencia idempotente de `app_users`, repositorio de municipios (Maneiro y Arismendi) y el widget de la app.
+Los tests son 100 % offline (fakes/mocks de las abstracciones de red): config, auth anónima, persistencia idempotente de `app_users`, repositorio de municipios (Maneiro y Arismendi), el widget de la app, el flujo **Reportar fuga** (Sprint 02) y el ciclo comunitario de Sprint 03 (repositorio de validación/resolución y pantalla de detalle: contadores, progreso, duplicado, bloqueado, resuelto, error y doble tap).
+
+Cómo se ejecutan las suites SQL/E2E y qué cubre cada una: ver [Pruebas SQL y de integración](#pruebas-sql-y-de-integración).
 
 ## Migraciones y seed
 
@@ -125,6 +127,21 @@ Contenido de las migraciones:
 
 App: flujo **Reportar fuga** (`lib/features/leaks/`) con 5 etapas (Ubicación GPS/manual → Fotos 1–3 con compresión → Datos → Revisar → Enviar), detección de duplicados con acciones "usar existente" o "es otra fuga", validación de fotos en cliente **y** servidor, y limpieza de binarios huérfanos.
 
+### Sprint 03 — Validation & Resolution
+
+13. `...0013_validation_resolution` — tablas `report_validations` y `resolution_confirmations` (con `UNIQUE (report_id, user_id)` como autoridad contra duplicados, FKs e índices, RLS sin acceso de cliente), `system_config.resolution` (umbral 3) y las RPC `validate_leak()`, `confirm_leak_resolution()` y `get_leak_report_detail()`.
+
+Reglas implementadas (server-side, en la RPC):
+
+- **Validar:** solo identidades anónimas no bloqueadas; nunca el creador del reporte; una validación por identidad y reporte.
+- **Confirmar resolución:** una confirmación por identidad y reporte; con **3 identidades distintas** el reporte pasa a `RESOLVED` y se guarda `resolved_at`.
+- **Duplicados:** la segunda acción devuelve `DUPLICATE_ACTION` sin alterar contadores ni estado (la UI muestra "Ya validaste este reporte").
+- **Atomicidad:** cada operación bloquea la fila del reporte (`for update`) e inserta la acción + incrementa el contador (+ `status`/`resolved_at` cuando se alcanza el umbral) en una única transacción. Probado con sesiones concurrentes reales.
+- **Estados:** solo `ACTIVE`/`RESOLVED`; no existe `RESOLVED → ACTIVE` y una fuga resuelta responde `REPORT_ALREADY_RESOLVED`.
+- **Campos críticos:** el cliente no puede modificar `validation_count`, `resolution_confirmation_count`, `status` ni `resolved_at` (solo `select` sobre `reports`, RPC para escribir).
+
+App: lista **Fugas cerca de ti** en Inicio (`lib/features/leaks/presentation/recent_leaks_list.dart`) y pantalla de detalle (`leak_detail_screen.dart`) con contador de validaciones, progreso `n de 3`, acciones **Validar fuga** y **Sí, fue resuelta**, estados de carga/error/duplicado/bloqueado y refresco del estado real del backend.
+
 ## Pruebas SQL y de integración
 
 Requieren una base Supabase local levantada con `supabase start` (o `SUPABASE_DB_URL` apuntando a una base con las migraciones aplicadas).
@@ -139,9 +156,13 @@ psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/storage_report_phot
 # Tablas, constraints, RLS de reportes y RPC create_leak_report
 # (validaciones, límites configurables y duplicados)
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/create_leak_report_test.sql
+
+# Sprint 03: tablas de acciones, RLS/GRANT, validación, resolución,
+# umbral, estados y consistencia de contadores
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/validate_resolve_leak_test.sql
 ```
 
-Los dos últimos scripts de `supabase/tests/*.sh` verifican el comportamiento real de la **API** (Supabase bloquea el DML directo sobre `storage.objects`, así que el borrado y el aislamiento entre usuarios solo se pueden probar por HTTP):
+Los scripts de `supabase/tests/*.sh` verifican el comportamiento real de la **API** y la concurrencia (Supabase bloquea el DML directo sobre `storage.objects`, así que el borrado y el aislamiento entre usuarios solo se pueden probar por HTTP):
 
 ```bash
 # Storage: subir/leer/borrar con dos usuarios anónimos reales (aislamiento y cleanup)
@@ -149,6 +170,13 @@ bash supabase/tests/storage_rls_e2e.sh
 
 # Camino completo: usuario anónimo → subida → RPC → ACTIVE → duplicado → cleanup
 bash supabase/tests/create_leak_report_e2e.sh
+
+# Ciclo comunitario completo por REST con usuarios anónimos reales:
+# validar, duplicado, detalle, 1/3 → 2/3 → RESOLVED y RLS de campos críticos
+bash supabase/tests/community_flow_e2e.sh
+
+# Concurrencia real: 2 sesiones validando a la vez y 4 confirmando a la vez
+bash supabase/tests/community_concurrency_e2e.sh
 ```
 
 ## Conexión Flutter ↔ Supabase
@@ -160,6 +188,7 @@ UI → Provider (Riverpod) → Repository → GotaAuth/GotaDatabase → Supabase
 - Arranque: si no hay sesión → `signInAnonymously()` → sesión persistente entre ejecuciones.
 - Después: `rpc('ensure_app_user')` crea/recupera el `app_users` asociado a `auth.users.id` sin duplicar.
 - Las consultas de municipios/sectores pasan por `MunicipalityRepository` / `SectorRepository`.
+- Las acciones comunitarias pasan por `LeakCommunityRepository` → `GotaCommunityDatabase` (RPC protegidas); el cliente nunca escribe contadores, estado ni tablas de acciones.
 
 ## Decisiones y problemas conocidos
 
@@ -167,3 +196,4 @@ UI → Provider (Riverpod) → Repository → GotaAuth/GotaDatabase → Supabase
 - **Sectores:** estructura lista; seed pendiente de fuente validada.
 - **iOS:** compatible arquitectónicamente; el release iOS puede venir después (Android es la prioridad).
 - El test RLS es un script SQL y requiere Supabase CLI/local DB para ejecutarse; no corre en `flutter test`.
+- **Fotos en el detalle:** el detalle de una fuga muestra el conteo de fotos, no los binarios de otros usuarios (Storage sigue siendo privado por carpeta). Publicarlas requiere URLs firmadas server-side y queda para un sprint posterior.

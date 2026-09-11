@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../leaks/presentation/leak_report_controller.dart';
 import '../../leaks/presentation/leak_report_screen.dart';
+import '../../leaks/presentation/recent_leaks_list.dart';
 
 /// Pantalla principal: estado de agua, acciones principales y secciones
 /// comunitarias (por ahora con estados vacíos honestos).
@@ -80,7 +81,7 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   Text('Fugas cerca de ti', style: textTheme.titleLarge),
                   const SizedBox(height: 8),
-                  const _EmptyStateCard(),
+                  const RecentLeaksList(),
                   const SizedBox(height: 24),
                   Text('Resumen comunitario', style: textTheme.titleLarge),
                   const SizedBox(height: 8),

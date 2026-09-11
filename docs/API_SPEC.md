@@ -28,18 +28,55 @@ Proceso:
 6. devolver `POSSIBLE_DUPLICATE` si corresponde o crear ACTIVE.
 
 ### validate-leak
+
+RPC `validate_leak(p_report_id uuid)`.
+
 - reporte debe existir y estar ACTIVE;
-- usuario autenticado anónimamente;
+- usuario autenticado anónimamente y no bloqueado;
 - usuario != creador;
-- una validación por usuario;
+- una validación por usuario (autoridad: `UNIQUE (report_id, user_id)`);
 - rate limit;
-- operación atómica.
+- operación atómica (una transacción; fila del reporte bloqueada).
+
+Respuesta (`jsonb`): `status_code`, `status`, `validation_count`,
+`resolution_confirmation_count`, `resolved_at`, `threshold`,
+`already_validated`.
+
+Códigos: `VALIDATED`, `DUPLICATE_ACTION`, `NOT_FOUND`, `FORBIDDEN`,
+`REPORT_ALREADY_RESOLVED`, `UNAUTHORIZED`.
 
 ### confirm-leak-resolution
+
+RPC `confirm_leak_resolution(p_report_id uuid)`.
+
 - reporte ACTIVE;
 - una confirmación por usuario;
 - rate limit;
-- transición atómica a RESOLVED al llegar a 3.
+- transición atómica a RESOLVED al llegar a 3 identidades distintas
+  (`system_config.resolution.threshold`).
+
+Respuesta (`jsonb`): `status_code`, `status`, `validation_count`,
+`resolution_confirmation_count`, `resolved_at`, `threshold`,
+`already_confirmed`. `status_code` es `CONFIRMED` mientras el reporte siga
+ACTIVE y `RESOLVED` cuando se alcanzó el umbral.
+
+Códigos: `CONFIRMED`, `RESOLVED`, `DUPLICATE_ACTION`, `NOT_FOUND`,
+`FORBIDDEN`, `REPORT_ALREADY_RESOLVED`, `UNAUTHORIZED`.
+
+### get-leak-report-detail
+
+RPC `get_leak_report_detail(p_report_id uuid)`: lectura del detalle de una
+fuga junto con el estado del usuario actual. Necesaria porque las tablas de
+acciones no son legibles por el cliente.
+
+Respuesta (`jsonb`): `report_id`, `status`, `validation_count`,
+`resolution_confirmation_count`, `threshold`, `created_at`, `resolved_at`,
+`updated_at`, `description`, `location_source`, `latitude`, `longitude`,
+`municipality_id`, `municipality_name`, `sector_id`, `sector_name`,
+`photo_count`, `is_creator`, `is_blocked`, `already_validated`,
+`already_confirmed`.
+
+Códigos: `OK`, `NOT_FOUND`, `UNAUTHORIZED`.
 
 ### register-water-event
 - validar municipio/sector;

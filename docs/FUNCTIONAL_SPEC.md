@@ -69,6 +69,15 @@ Muestra:
 
 No muestra identidad del creador.
 
+Se abre desde la lista de fugas recientes de Inicio. La lectura del detalle
+pasó por la operación protegida `get_leak-report-detail`, porque las tablas de
+acciones comunitarias no son accesibles desde el cliente.
+
+Las fotografías todavía no se publican entre usuarios (Sprint 02 decidió que
+cada usuario solo accede a sus propios binarios); el detalle muestra el
+conteo de fotos y no binarios ajenos. Publicarlas requiere URLs firmadas
+server-side y corresponde a un sprint posterior.
+
 ## 5. Validar fuga
 
 Una acción por identidad y reporte.
@@ -79,11 +88,22 @@ Si es propia:
 Si ya validó:
 - acción deshabilitada y mensaje claro.
 
+Estados de la acción: disponible, en curso (deshabilitada para evitar doble
+ejecución), validada, bloqueada y error. El creador no ve la acción
+habilitada y recibe la razón explícita ("No puedes validar tu propio
+reporte"). El contador mostrado proviene del backend tras cada operación.
+
 ## 6. Resolver fuga
 
 La UI muestra progreso `0/3`, `1/3`, `2/3`, `3/3`.
 
 La transición ACTIVE → RESOLVED ocurre únicamente en backend al alcanzar 3 identidades distintas.
+
+El umbral lo reporta el backend (`system_config.resolution.threshold`), no la
+app. Al alcanzarlo, la pantalla refresca el detalle y muestra `Fuga resuelta`
+con la fecha; una fuga resuelta no ofrece acciones de validación ni de
+confirmación. Un mensaje de éxito solo aparece después de que el backend
+confirma la operación.
 
 ## 7. Mapa
 

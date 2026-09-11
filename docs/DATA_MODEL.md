@@ -63,19 +63,25 @@ Unique: `(municipality_id, name)`.
 
 ### report_validations
 - id UUID
-- report_id
-- user_id
+- report_id FK a `reports` (on delete cascade)
+- user_id FK a `app_users` (on delete cascade)
 - created_at
 
-Unique `(report_id, user_id)`.
+Unique `(report_id, user_id)`: es la autoridad real contra duplicados (una
+identidad valida una sola vez). Índices por `report_id` y por `user_id`.
 
 ### resolution_confirmations
 - id UUID
-- report_id
-- user_id
+- report_id FK a `reports` (on delete cascade)
+- user_id FK a `app_users` (on delete cascade)
 - created_at
 
-Unique `(report_id, user_id)`.
+Unique `(report_id, user_id)`. Índices por `report_id` y por `user_id`.
+
+`report_validations` y `resolution_confirmations` no tienen acceso de cliente
+(ni lectura): el estado propio ("¿ya validé?") se obtiene por la RPC
+`get_leak_report_detail`, y toda escritura pasa por `validate_leak` /
+`confirm_leak_resolution`.
 
 ### water_events
 - id UUID
@@ -131,6 +137,9 @@ Unique `(water_event_id, user_id)`.
 - value jsonb
 - updated_at
 
+Claves sembradas: `duplicate_detection` (radio/ventana), `photo_limits`
+(cantidad/tamaño/MIME) y `resolution` (`{"threshold": 3}`).
+
 ## 3. Índices
 
 - GIST sobre `reports.location`.
@@ -150,13 +159,25 @@ Valores configurables mediante `system_config`.
 
 ## 5. Resolución
 
-La operación debe ser atómica:
+La operación es atómica y ocurre server-side (RPC
+`confirm_leak_resolution`):
 
-1. comprobar reporte ACTIVE;
-2. insertar confirmación si no existe;
-3. contar identidades distintas;
-4. si count >= 3, cambiar a RESOLVED;
-5. guardar resolved_at.
+1. autenticar y resolver el usuario de aplicación (no bloqueado);
+2. bloquear la fila del reporte (`for update`) y comprobar que sigue ACTIVE;
+3. insertar la confirmación con `on conflict do nothing` sobre
+   `UNIQUE (report_id, user_id)`;
+4. incrementar `resolution_confirmation_count` y, en la misma sentencia,
+   pasar a `RESOLVED` con `resolved_at = now()` cuando el contador alcanza el
+   umbral;
+5. registrar la auditoría.
+
+Umbral: **3 identidades distintas** (`system_config.resolution.threshold`).
+El bloqueo de la fila serializa confirmaciones concurrentes: la cuarta
+identidad recibe `REPORT_ALREADY_RESOLVED` sin alterar contadores ni
+`resolved_at`. `RESOLVED → ACTIVE` no existe en ninguna operación.
+
+Validación comunitaria (RPC `validate_leak`): mismas garantías; el creador
+del reporte no puede validarlo, y cada identidad valida una sola vez.
 
 ## 6. RLS
 
@@ -164,6 +185,11 @@ La operación debe ser atómica:
 - reportes: lectura pública según alcance del MVP.
 - identidad y datos privados: solo propietario.
 - escrituras críticas: mediante operaciones protegidas.
+- `report_validations` y `resolution_confirmations`: RLS habilitada **sin
+  políticas** y sin GRANT para `anon`/`authenticated` (denegado por defecto);
+  `reports` solo concede `select`, de modo que `validation_count`,
+  `resolution_confirmation_count`, `status` y `resolved_at` no son
+  modificables por el cliente.
 
 ## 7. Datos iniciales
 

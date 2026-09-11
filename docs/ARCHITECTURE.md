@@ -83,6 +83,16 @@ Estas deben ejecutarse server-side:
 - rate limiting;
 - notificaciones.
 
+En Sprint 02 y Sprint 03 esas operaciones se implementan como **RPC SQL
+protegidas** (`security definer`, con `search_path` vacío y `GRANT EXECUTE`
+solo a `authenticated`), no como Edge Functions: no añade infraestructura
+nueva y es la costura ya establecida. `create_leak_report`, `validate_leak`,
+`confirm_leak_resolution` y la lectura `get_leak_report_detail` viven ahí.
+
+Cada operación crítica resuelve la identidad de aplicación, aplica las reglas
+y escribe contador + registro + estado en una única transacción, bloqueando
+la fila del reporte (`for update`) para serializar accesos concurrentes.
+
 ## 6. Mapas
 
 MapLibre + OpenStreetMap inicialmente, detrás de una abstracción.
