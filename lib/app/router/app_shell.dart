@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_theme.dart';
 import '../../features/home/presentation/home_screen.dart';
-import '../../features/location/presentation/location_debug_screen.dart';
 import '../../shared/widgets/placeholder_screen.dart';
 
 /// Shell de navegación con cinco posiciones:
@@ -24,7 +23,7 @@ class _AppShellState extends State<AppShell> {
     PlaceholderScreen(title: 'Mapa'),
     PlaceholderScreen(title: 'Reportar'),
     PlaceholderScreen(title: 'Agua'),
-    LocationDebugScreen(),
+    PlaceholderScreen(title: 'Más'),
   ];
 
   void _onDestinationSelected(int index) {

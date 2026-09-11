@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gota/app/app.dart';
@@ -65,5 +66,37 @@ void main() {
     expect(find.text('Reportar'), findsOneWidget);
     expect(find.text('Agua'), findsOneWidget);
     expect(find.text('Más'), findsOneWidget);
+  });
+
+  testWidgets('Navegar a Más muestra la pantalla de placeholder',
+      (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appConfigProvider.overrideWithValue(
+            const AppConfig(
+              supabaseUrl: 'https://demo.supabase.co',
+              supabaseAnonKey: 'anon-key',
+            ),
+          ),
+          authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
+          municipalityRepositoryProvider
+              .overrideWithValue(FakeMunicipalityRepository()),
+          sectorRepositoryProvider
+              .overrideWithValue(FakeSectorRepository()),
+        ],
+        child: const GotaApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Más'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, 'Más'), findsOneWidget);
+    expect(
+      find.text('Esta función estará disponible próximamente.'),
+      findsOneWidget,
+    );
   });
 }
