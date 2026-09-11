@@ -69,3 +69,26 @@ protegida, sin Edge Functions ni infraestructura nueva).
 | Privacidad de las tablas de acciones | `report_validations` y `resolution_confirmations` no son legibles ni escribibles por el cliente (RLS sin políticas + `REVOKE ALL`). El estado propio ("¿ya validé?") llega por la RPC `get_leak_report_detail`, evitando exponer qué validó cada identidad. |
 | Lecturas de la UI | El listado de "Fugas cerca de ti" usa una lectura sencilla por SDK con RLS (recursos embebidos `sectors(name)` / `municipalities(name)`); el detalle y las acciones pasan por RPC. |
 | Pendiente declarado (fuera de Sprint 03) | Las fotografías siguen sin publicarse entre usuarios: el detalle muestra el conteo, no binarios ajenos. Publicarlas exige URLs firmadas server-side (Sprint 02 lo dejó explícitamente para un sprint posterior). |
+
+## Sprint 04 — Eventos de agua (validación comunitaria)
+
+Implementación del ciclo de eventos de agua (llegada/salida del suministro) sobre
+el patrón de Sprint 02/03 (RPC SQL protegida, validación comunitaria, estadísticas
+descriptivas sin predicción).
+
+| Tema | Decisión |
+|---|---|
+| Modelo de datos | `water_events` (id, created_by, municipality_id, sector_id, event_type, event_time, comment, validation_count, created_at, updated_at) + `water_event_validations` (id, water_event_id, user_id, created_at) con `UNIQUE (water_event_id, user_id)`. |
+| event_time vs created_at | Separados por diseño (REQ-072): `event_time` es la hora efectiva del evento (lo que el usuario declara), `created_at` es el timestamp de inserción. Nunca colapsan. |
+| Tipo de evento | Solo `WATER_ARRIVED` y `WATER_LEFT` (REQ-070), validado en la tabla y la RPC. |
+| Comentario | Opcional, máx 500 caracteres (REQ-031 del prototipo anterior), normalizado a NULL si es vacío. |
+| Validación | Patrón idéntico a Sprint 03: `UNIQUE (water_event_id, user_id)`, creador excluido (server-side en RPC), `DUPLICATE_ACTION` determinista. |
+| Contador | `validation_count` se incremente atómicamente con la inserción en `water_event_validations` dentro de la misma transacción (RPC). |
+| Privacidad de created_by | La identidad del creador se persiste pero NUNCA se expone en consultas públicas (ni en `fetchRecentWaterEvents` ni en `get_water_event_detail`). |
+| Estadísticas | Descriptivas puras (REQ-077): cuentas, últimas llegadas/salidas, duraciones promedio de pares consecutivos (ARRIVED→LEFT, LEFT→ARRIVED) del mismo sector. Sin predicción, sin tendencias. Muestra "Sin datos suficientes" si no hay pares. |
+| Rate limiting | Declarado para Sprint 07 (mismo precedente Sprint 03). REQ-091 lo asigna a "Security & abuse". |
+| Paginación | Keyset (cursor: event_time + id), default limit 20. Implementación simplificada sin filtros OR anidados (compatibilidad client SDK). |
+| Lectura de la UI | Lista pública de eventos por `fetchRecentWaterEvents` (sin `created_by`); detalle y estado propio vía RPC `get_water_event_detail`. |
+| RLS | `water_events` lectura pública, INSERT/UPDATE/DELETE solo por RPC. `water_event_validations` sin acceso cliente (igual que `report_validations`). |
+| Operación crítica | SQL protegido (`security definer`, `set search_path = ''`) para `register_water_event`, `validate_water_event`, `get_water_event_detail`. GRANT EXECUTE solo a `authenticated`. |
+| Navegación | Pestaña "Agua" integrada en AppShell (índice 3), reemplaza PlaceholderScreen. |

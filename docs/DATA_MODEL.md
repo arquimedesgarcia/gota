@@ -83,25 +83,27 @@ Unique `(report_id, user_id)`. Índices por `report_id` y por `user_id`.
 `get_leak_report_detail`, y toda escritura pasa por `validate_leak` /
 `confirm_leak_resolution`.
 
-### water_events
+### water_events (Sprint 04)
 - id UUID
-- created_by
-- municipality_id
-- sector_id
-- event_type (`WATER_ARRIVED`, `WATER_LEFT`)
-- event_time
-- comment
-- validation_count
-- created_at
-- updated_at
+- created_by UUID FK a `app_users`
+- municipality_id UUID FK a `municipalities`
+- sector_id UUID FK a `sectors`
+- event_type TEXT CHECK (`WATER_ARRIVED`, `WATER_LEFT`)
+- event_time timestamptz (la hora efectiva del evento; puede diferir de `created_at`)
+- comment TEXT nullable (max 500 chars)
+- validation_count int default 0
+- created_at timestamptz default now()
+- updated_at timestamptz default now()
 
-### water_event_validations
+Índices: `(sector_id, event_time DESC)`, `(municipality_id, event_time DESC)`, `(created_at DESC)`.
+
+### water_event_validations (Sprint 04)
 - id UUID
-- water_event_id
-- user_id
-- created_at
+- water_event_id UUID FK a `water_events`
+- user_id UUID FK a `app_users`
+- created_at timestamptz default now()
 
-Unique `(water_event_id, user_id)`.
+Unique `(water_event_id, user_id)`. Índices por `water_event_id` y `user_id`.
 
 ### notification_tokens
 - id UUID

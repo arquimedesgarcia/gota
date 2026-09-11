@@ -5,6 +5,7 @@ import 'gota_auth.dart';
 import 'gota_community_database.dart';
 import 'gota_database.dart';
 import 'gota_storage.dart';
+import 'gota_water_database.dart';
 
 /// Cliente de Supabase.
 ///
@@ -29,4 +30,9 @@ final gotaStorageProvider = Provider<GotaStorage>(
 /// Consultas y RPC del ciclo comunitario (Sprint 03).
 final gotaCommunityDatabaseProvider = Provider<GotaCommunityDatabase>(
   (ref) => SupabaseGotaCommunityDatabase(ref.watch(supabaseClientProvider)),
+);
+
+/// Consultas y RPC del ciclo de eventos de agua (Sprint 04).
+final gotaWaterDatabaseProvider = Provider<GotaWaterDatabase>(
+  (ref) => SupabaseGotaWaterDatabase(ref.watch(supabaseClientProvider)),
 );

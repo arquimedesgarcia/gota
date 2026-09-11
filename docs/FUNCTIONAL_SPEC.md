@@ -123,23 +123,47 @@ Filtros iniciales:
 
 La capa de mapa debe abstraerse para permitir cambiar proveedor.
 
-## 8. Agua
+## 8. Agua (Sprint 04)
 
 Acciones principales:
 
-- **Llegó**
-- **Se fue**
+- **Llegó** (WATER_ARRIVED)
+- **Se fue** (WATER_LEFT)
+
+Flujo de registro:
+1. Seleccionar tipo (Llegó/Se fue).
+2. Seleccionar municipio.
+3. Seleccionar sector (del municipio elegido).
+4. Indicar hora efectiva del evento (puede ser pasada, no futura).
+5. Comentario opcional (max 500 caracteres).
+6. Revisar y confirmar.
 
 Cada evento registra:
 - municipio;
 - sector;
-- event_time;
-- creador;
+- event_time (hora efectiva, declarada por el usuario);
+- creador (identidad anónima, no pública);
 - comentario opcional.
 
-Los eventos pueden ser validados por otros usuarios.
+Validación comunitaria:
+- Otros usuarios pueden validar eventos.
+- El creador no puede validar su propio evento (regla server-side).
+- Una identidad valida una sola vez el mismo evento (autoridad: `UNIQUE (water_event_id, user_id)`).
 
-La app puede calcular estadísticas descriptivas con datos existentes, pero no predicciones.
+Estadísticas descriptivas:
+- Total de eventos.
+- Cuentas: "Llegadas" y "Salidas".
+- Última llegada y última salida (timestamps).
+- Duración promedio de suministro (media de pares ARRIVED→LEFT consecutivos).
+- Duración promedio de interrupción (media de pares LEFT→ARRIVED consecutivos).
+- Muestra "Sin datos suficientes" si faltan pares completos.
+- **Sin predicciones, sin tendencias, sin promedios móviles.**
+
+Historial:
+- Lista de eventos recientes paginada (keyset, limit 20 default).
+- Ordenada por `event_time` descendente (más recientes primero).
+- Muestra tipo, hora, sector/municipio, validaciones, comentario (si existe).
+- Toque para abrir detalle (donde se puede validar).
 
 ## 9. Notificaciones
 

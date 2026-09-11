@@ -5,6 +5,7 @@ import '../../app/theme/app_theme.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/leaks/presentation/leak_report_controller.dart';
 import '../../features/leaks/presentation/leak_report_screen.dart';
+import '../../features/water/presentation/water_screen.dart';
 import '../../shared/widgets/placeholder_screen.dart';
 
 /// Shell de navegación con cinco posiciones:
@@ -30,7 +31,7 @@ class _AppShellState extends State<AppShell> {
     HomeScreen(),
     PlaceholderScreen(title: 'Mapa'),
     PlaceholderScreen(title: 'Reportar'),
-    PlaceholderScreen(title: 'Agua'),
+    WaterScreen(),
     PlaceholderScreen(title: 'Más'),
   ];
 

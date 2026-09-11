@@ -78,15 +78,43 @@ Respuesta (`jsonb`): `report_id`, `status`, `validation_count`,
 
 Códigos: `OK`, `NOT_FOUND`, `UNAUTHORIZED`.
 
-### register-water-event
-- validar municipio/sector;
-- registrar event_type y event_time;
-- aplicar rate limit.
+### register-water-event (Sprint 04)
 
-### validate-water-event
-- usuario != creador;
-- una validación por usuario;
-- rate limit.
+RPC `register_water_event(p_municipality_id, p_sector_id, p_event_type, p_event_time, p_comment)`.
+
+- Autenticar y resolver usuario de aplicación (no bloqueado).
+- Validar municipio y sector (existen, activos, relación municipio/sector).
+- Validar event_type (solo `WATER_ARRIVED` o `WATER_LEFT`).
+- Validar event_time (no nulo, no futuro).
+- Validar comentario (max 500 chars, normalizar vacío a NULL).
+- Insertar en `water_events` con `validation_count = 0`.
+- Auditar: evento `WATER_EVENT_CREATED`.
+- Devolver resumen: `status_code` (CREATED/NOT_FOUND/INVALID_SECTOR/VALIDATION_ERROR/FORBIDDEN/UNAUTHORIZED).
+
+Respuesta (`jsonb`): `status_code`, `event_id`, `event_type`, `event_time`, `created_at`.
+
+### validate-water-event (Sprint 04)
+
+RPC `validate_water_event(p_water_event_id)`.
+
+- Autenticar y resolver usuario de aplicación (no bloqueado).
+- Bloquear la fila del evento (`for update`).
+- Validar existencia (ACTIVE no existe en agua, pero evento debe existir).
+- Rechazar si creador == usuario actual.
+- Insertar en `water_event_validations` con `on conflict do nothing`.
+- Si inserción exitosa: incrementar `validation_count` atómicamente, auditar.
+- Si duplicado: devolver `DUPLICATE_ACTION` (determinista, sin alterar contador).
+- Devolver: `status_code`, `validation_count`, `already_validated`, `message`.
+
+Códigos: `VALIDATED`, `DUPLICATE_ACTION`, `NOT_FOUND`, `FORBIDDEN`, `UNAUTHORIZED`.
+
+### get-water-event-detail (Sprint 04)
+
+RPC `get_water_event_detail(p_water_event_id)`: lectura del detalle de un evento + estado del usuario actual.
+
+Respuesta (`jsonb`): `status_code` (OK/NOT_FOUND/UNAUTHORIZED), `event_id`, `event_type`, `event_time`, `comment`, `validation_count`, `created_at`, `updated_at`, `municipality_id`, `municipality_name`, `sector_id`, `sector_name`, `is_creator`, `is_blocked`, `already_validated`.
+
+**NO expone `created_by`.**
 
 ### register-notification-token
 Registra/actualiza token FCM del usuario.
