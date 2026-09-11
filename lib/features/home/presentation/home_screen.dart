@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_theme.dart';
+import '../../leaks/presentation/leak_report_controller.dart';
+import '../../leaks/presentation/leak_report_screen.dart';
 
 /// Pantalla principal: estado de agua, acciones principales y secciones
 /// comunitarias (por ahora con estados vacíos honestos).
@@ -12,6 +15,18 @@ class HomeScreen extends StatelessWidget {
   void _showSoon(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text(_soonMessage)),
+    );
+  }
+
+  void _openReport(BuildContext context) {
+    // Reinicia el borrador para este nuevo reporte.
+    final container = ProviderScope.containerOf(context, listen: false);
+    container.invalidate(leakReportProvider);
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const LeakReportScreen(),
+        fullscreenDialog: true,
+      ),
     );
   }
 
@@ -42,7 +57,7 @@ class HomeScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      onPressed: () => _showSoon(context),
+                      onPressed: () => _openReport(context),
                       child: const Text('Reportar fuga'),
                     ),
                   ),

@@ -2,7 +2,7 @@
 
 Aplicación comunitaria móvil (Flutter + Supabase) para reportar y validar fugas de agua y registrar eventos de suministro en Isla de Margarita, Venezuela.
 
-**Estado: Sprint 01 — Foundation implementado.**
+**Estado: Sprint 02 — Leak Reporting implementado** (Sprint 01 — Foundation, completado).
 
 ## Documentación (fuente de verdad)
 
@@ -61,7 +61,7 @@ La app lee su configuración exclusivamente desde `--dart-define` (no hay secret
 
 Nunca usar la `service_role` key en el cliente. Si faltan las variables obligatorias, la app arranca y muestra una pantalla de configuración ausente en lugar de fallar.
 
-## Ejecutar
+## Ejecutar la app
 
 ```bash
 flutter run \
@@ -106,15 +106,30 @@ Contenido de las migraciones:
 5. `...0005_rls` — RLS: lectura pública de municipios/sectores activos; `app_users` solo accesible por su propietario.
 6. `...0006_seed_municipalities` — seed: **Maneiro** y **Arismendi** (Nueva Esparta, Venezuela).
 
-> **Pendiente:** el seed de **sectores** queda aplazado hasta contar con una fuente validada (ver `docs/DATA_MODEL.md` §7). No inventar sectores.
+### Sprint 02 — Leak Reporting
 
-### Pruebas RLS
+7. `...0007_reports` — tabla `reports` (ACTIVE/RESOLVED, PostGIS, GPS/MANUAL) + índices GIST y de búsqueda.
+8. `...0008_report_photos` — tabla `report_photos` (máx. 3 fotos por reporte con advisory lock, orden único, FKs).
+9. `...0009_system_config_audit` — `system_config` (duplicados 50 m/48 h y límites de foto configurables) + `audit_events`.
+10. `...0010_create_leak_report` — RPC server-side `create_leak_report()`: autentica, valida municipio/sector/ubicación/fotos, busca duplicados (≤50 m y ≤48 h sobre reportes ACTIVE) y crea ACTIVE o devuelve `POSSIBLE_DUPLICATE` con distancia.
+11. `...0011_rls_reports` — RLS de reports/report_photos/audit_events/system_config. Escrituras de clientes bloqueadas; toda creación pasa por la RPC.
+12. `...0012_storage_report_photos` — bucket privado `report-photos` en Storage.
+
+App: flujo **Reportar fuga** (`lib/features/leaks/`) con 5 etapas (Ubicación GPS/manual → Fotos 1–3 con compresión → Datos → Revisar → Enviar), detección de duplicados con acciones "usar existente" o "es otra fuga", y limpieza de binarios huérfanos.
+
+## Pruebas SQL (RLS y create_leak_report)
 
 `supabase/tests/rls_test.sql` contiene un script SQL autocontenido que verifica las políticas RLS (usuario A no puede leer la fila de B, `ensure_app_user()` es idempotente, etc.). Requiere una base Supabase local levantada con `supabase start`; se ejecuta con:
 
 ```bash
 psql "$SUPABASE_DB_URL" -f supabase/tests/rls_test.sql
 # o con el wrapper del CLI si se habilita la suite de tests
+```
+
+`supabase/tests/create_leak_report_test.sql` verifica las nuevas tablas, constraints, RLS de reportes, la RPC `create_leak_report` (validaciones y duplicados 50 m/48 h) con rollback final:
+
+```bash
+psql "$SUPABASE_DB_URL" -f supabase/tests/create_leak_report_test.sql
 ```
 
 ## Conexión Flutter ↔ Supabase
