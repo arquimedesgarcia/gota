@@ -1,0 +1,21 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+
+import 'gota_auth.dart';
+import 'gota_database.dart';
+
+/// Cliente de Supabase.
+///
+/// Solo es seguro observarlo después de un [Supabase.initialize] exitoso,
+/// garantizado por el bootstrap de `main.dart`.
+final supabaseClientProvider = Provider<supabase.SupabaseClient>(
+  (ref) => supabase.Supabase.instance.client,
+);
+
+final gotaAuthProvider = Provider<GotaAuth>(
+  (ref) => SupabaseGotaAuth(ref.watch(supabaseClientProvider)),
+);
+
+final gotaDatabaseProvider = Provider<GotaDatabase>(
+  (ref) => SupabaseGotaDatabase(ref.watch(supabaseClientProvider)),
+);
