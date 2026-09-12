@@ -8,11 +8,8 @@ import '../data/geolocator_location_service.dart';
 import '../data/leak_report_repository.dart';
 import '../data/location_service.dart';
 import '../data/photo_service.dart';
+import '../data/photo_limits.dart';
 import '../domain/location_source.dart';
-import '../../location/data/municipality_repository.dart';
-import '../../location/data/sector_repository.dart';
-import '../../../shared/models/municipality.dart';
-import '../../../shared/models/sector.dart';
 
 /// Etapas del flujo Reportar fuga (UX_SPEC §4):
 /// Ubicación → Fotos → Datos → Revisar → Enviado.
@@ -28,10 +25,6 @@ class LeakReportState {
     this.submitState = ReportSubmitState.idle,
     this.message,
     this.outcome,
-    this.municipalities = const [],
-    this.sectors = const [],
-    this.municipalityError,
-    this.sectorsError,
   });
 
   final ReportStep currentStep;
@@ -41,11 +34,6 @@ class LeakReportState {
   /// Mensaje visible (error inmediato duplicado detectado, confirmación).
   final String? message;
   final CreateLeakReportOutcome? outcome;
-
-  final List<Municipality> municipalities;
-  final List<Sector> sectors;
-  final String? municipalityError;
-  final String? sectorsError;
 
   bool get canSubmit =>
       draft.location != null &&
@@ -60,12 +48,6 @@ class LeakReportState {
     String? message,
     bool clearMessage = false,
     CreateLeakReportOutcome? outcome,
-    List<Municipality>? municipalities,
-    List<Sector>? sectors,
-    String? municipalityError,
-    String? sectorsError,
-    bool clearMunicipalityError = false,
-    bool clearSectorsError = false,
   }) =>
       LeakReportState(
         currentStep: currentStep ?? this.currentStep,
@@ -73,58 +55,23 @@ class LeakReportState {
         submitState: submitState ?? this.submitState,
         message: clearMessage ? null : (message ?? this.message),
         outcome: outcome ?? this.outcome,
-        municipalities: municipalities ?? this.municipalities,
-        sectors: sectors ?? this.sectors,
-        municipalityError:
-            clearMunicipalityError ? null : (municipalityError ?? this.municipalityError),
-        sectorsError: clearSectorsError ? null : (sectorsError ?? this.sectorsError),
       );
 }
 
 /// Controller del flujo Reportar fuga.
 class LeakReportController extends Notifier<LeakReportState> {
-  /// True cuando el usuario ya confirmó que su fuga es distinta de un
-  /// candidato detectado ("es otra fuga"): se envía a la RPC como
-  /// `p_ignore_duplicate`.
-  bool _ignoreDuplicate = false;
+  /// CAP de configuración: máximo de fotos (fuente de verdad client-side
+  /// hasta leerlo de `system_config`; la RPC vuelve a validar).
+  static const photoMaxCount = kReportPhotoMaxCount;
 
   LocationService get _locationService => ref.watch(locationServiceProvider);
 
   @override
   LeakReportState build() {
-    _loadMunicipalities();
+    // AUD-S2-12: municipios/sectores viven SOLO en municipalitiesProvider /
+    // sectorsProvider (location_providers); el controller ya no duplica
+    // la carga ni el estado.
     return const LeakReportState();
-  }
-
-  Future<void> _loadMunicipalities() async {
-    try {
-      final municipalities =
-          await ref.watch(municipalityRepositoryProvider).getActive();
-      state = state.copyWith(
-        municipalities: municipalities,
-        clearMunicipalityError: true,
-      );
-    } on LeakFlowException catch (e) {
-      state = state.copyWith(municipalityError: e.userMessage);
-    } on Exception {
-      state = state.copyWith(
-        municipalityError: 'No pudimos cargar los municipios.',
-      );
-    }
-  }
-
-  Future<void> loadSectors(String municipalityId) async {
-    state = state.copyWith(draft: state.draft.copyWith(sectorId: null));
-    try {
-      final sectors = await ref
-          .watch(sectorRepositoryProvider)
-          .getByMunicipality(municipalityId);
-      state = state.copyWith(sectors: sectors, clearSectorsError: true);
-    } on LeakFlowException catch (e) {
-      state = state.copyWith(sectorsError: e.userMessage);
-    } on Exception {
-      state = state.copyWith(sectorsError: 'No pudimos cargar los sectores.');
-    }
   }
 
   // ---------- Ubicación ----------
@@ -166,9 +113,9 @@ class LeakReportController extends Notifier<LeakReportState> {
   // ---------- Fotos ----------
 
   Future<void> addPhoto({required bool fromCamera}) async {
-    if (state.draft.photos.length >= 3) {
+    if (state.draft.photos.length >= photoMaxCount) {
       state = state.copyWith(
-        message: 'Ya tienes el máximo de 3 fotos.',
+        message: 'Ya tienes el máximo de $photoMaxCount fotos.',
       );
       return;
     }
@@ -181,6 +128,9 @@ class LeakReportController extends Notifier<LeakReportState> {
         ),
         clearMessage: true,
       );
+    } on PhotoPickCanceledException {
+      // AUD-S2-14: cancelar el picker no muestra banner de error.
+      return;
     } on PhotoValidationException catch (e) {
       state = state.copyWith(message: e.userMessage);
     } on LeakFlowException catch (e) {
@@ -197,6 +147,38 @@ class LeakReportController extends Notifier<LeakReportState> {
     );
   }
 
+  /// SOLO para pruebas: inserta una foto ya preparada sin image_picker.
+  @visibleForTesting
+  void addPreparedPhotoForTest(PreparedPhoto photo) {
+    state = state.copyWith(
+      draft: state.draft.copyWith(
+        photos: [...state.draft.photos, photo],
+      ),
+      clearMessage: true,
+    );
+  }
+
+  /// SOLO para pruebas: completa el borrador con una foto sintética.
+  @visibleForTesting
+  void completeDraftForTest({
+    required PreparedPhoto photo,
+    required String municipalityId,
+    required String sectorId,
+  }) {
+    selectMunicipality(municipalityId);
+    selectSector(sectorId);
+    addPreparedPhotoForTest(photo);
+    state = state.copyWith(
+      draft: state.draft.copyWith(
+        location: SelectedLocation(
+          latitude: 10.99,
+          longitude: -63.87,
+          source: LocationSource.manual,
+        ),
+      ),
+    );
+  }
+
   // ---------- Datos ----------
 
   void selectMunicipality(String id) {
@@ -209,7 +191,6 @@ class LeakReportController extends Notifier<LeakReportState> {
       ),
       clearMessage: true,
     );
-    loadSectors(id);
   }
 
   void selectSector(String id) =>
@@ -241,25 +222,31 @@ class LeakReportController extends Notifier<LeakReportState> {
   /// El usuario declara "es otra fuga": se crea el reporte pese al
   /// candidato (REQ-025). Reenvía con la confirmación explícita, porque
   /// el backend solo acepta el override con esa señal.
+  ///
+  /// AUD-S2-04: la confirmación es un ARGUMENTO del envío, no estado del
+  /// controller. Mutar el borrador (ubicación/fotos/municipio) y volver a
+  /// enviar SIN pulsar "Es otra fuga" de nuevo viaja con
+  /// `p_ignore_duplicate: false`.
   Future<void> continueAsNewLeak() async {
-    _ignoreDuplicate = true;
     state = state.copyWith(
       currentStep: ReportStep.review,
       clearMessage: true,
     );
-    await submit();
+    await submit(ignoreDuplicate: true);
   }
 
   /// El usuario acepta usar el reporte existente: cierra el flujo sin
-  /// duplicar.
-  void useExistingReport() =>
-      state = state.copyWith(currentStep: ReportStep.result, message: 'Usaste '
-          'el reporte existente. Puedes validarlo desde el mapa cuando esté '
-          'disponible.');
+  /// duplicar (no se crea ningún reporte; la UI lo refleja como
+  /// "dup-aceptado", nunca como "enviado" — FUNCTIONAL_SPEC §12).
+  void useExistingReport() => state = state.copyWith(
+        currentStep: ReportStep.result,
+        message: 'Usaste el reporte existente. Puedes validarlo en su '
+            'detalle.',
+      );
 
   // ---------- Envío ----------
 
-  Future<void> submit() async {
+  Future<void> submit({bool ignoreDuplicate = false}) async {
     if (!state.canSubmit || state.submitState == ReportSubmitState.submitting) {
       return;
     }
@@ -270,7 +257,7 @@ class LeakReportController extends Notifier<LeakReportState> {
     try {
       final outcome = await ref
           .watch(leakReportRepositoryProvider)
-          .createReport(state.draft, ignoreDuplicate: _ignoreDuplicate);
+          .createReport(state.draft, ignoreDuplicate: ignoreDuplicate);
       switch (outcome) {
         case ReportCreated(:final reportId):
           state = state.copyWith(

@@ -40,6 +40,12 @@ class PhotoValidationException extends LeakFlowException {
   const PhotoValidationException(super.userMessage);
 }
 
+/// Cancelación explícita del selector (AUD-S2-14): no es un error visible.
+class PhotoPickCanceledException extends LeakFlowException {
+  const PhotoPickCanceledException(
+      [super.userMessage = 'No se seleccionó ninguna foto.']);
+}
+
 class PhotoUploadException extends LeakFlowException {
   const PhotoUploadException([
     super.userMessage = 'No pudimos subir tus fotos. Intenta de nuevo.',

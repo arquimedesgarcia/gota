@@ -215,7 +215,16 @@ declare v_report uuid; begin
   exception when unique_violation then
     raise notice 'OK 3b: sort_order duplicado rechazado';
   when others then
-    raise notice 'OK 3b: rechazado por el límite de fotos antes del unique';
+    -- AUD-S2-19: la aserción ya no acepta `when others` como éxito. El
+    -- trigger de límite de fotos (enforce_report_photo_limit) se dispara
+    -- ANTES de la constraint UNIQUE, así que el desenlace real es ese
+    -- error de negocio; se verifica por su mensaje y cualquier otro
+    -- error es un fallo de la aserción.
+    if sqlerrm like '%más de 3 fotos%' then
+      raise notice 'OK 3b: sort_order duplicado rechazado por el límite de fotos (mensaje verificado)';
+    else
+      raise exception 'FALLO 3b: error inesperado % (ni unique ni límite de fotos)', sqlerrm;
+    end if;
   end;
 
   begin
@@ -241,6 +250,22 @@ declare n int; begin
   assert n >= 1, 'FALLO 4a: authenticated no puede leer reports';
   raise notice 'OK 4a: lectura de reports permitida';
 end $$;
+
+-- AUD-S2-01 / AUD-S2-02: el cliente NO lee columnas de identidad (REQ-100).
+do $$ begin
+  perform (select created_by from public.reports limit 1);
+  raise exception 'FALLO 4a-priv: authenticated puede leer reports.created_by';
+exception when insufficient_privilege then
+  raise notice 'OK 4a-priv: reports.created_by no es seleccionable por authenticated';
+end $$;
+
+do $$ begin
+  perform (select storage_path from public.report_photos limit 1);
+  raise exception 'FALLO 4a-priv2: authenticated puede leer report_photos.storage_path';
+exception when insufficient_privilege then
+  raise notice 'OK 4a-priv2: report_photos (storage_path) revocado para authenticated';
+end $$;
+
 
 do $$ begin
   insert into public.reports (created_by, municipality_id, sector_id, location, location_source)
@@ -269,6 +294,15 @@ declare n int; begin
   assert n >= 1, 'FALLO 4d: anon no lee reports';
   raise notice 'OK 4d: anon lee reports pero no escribe (ver 4b)';
 end $$;
+
+-- AUD-S2-01 / AUD-S2-02 (anon): idéntico al de authenticated.
+do $$ begin
+  perform (select created_by from public.reports limit 1);
+  raise exception 'FALLO 4d-priv: anon puede leer reports.created_by';
+exception when insufficient_privilege then
+  raise notice 'OK 4d-priv: reports.created_by no es seleccionable por anon';
+end $$;
+
 
 -- =====================================================================
 -- 5. RPC: sesión y validaciones de entrada
@@ -474,8 +508,11 @@ declare resp jsonb; begin
 end $$;
 
 -- 6g. los metadatos guardados vienen de Storage, no del cliente
+-- (AUD-S2-01: report_photos ya no es legible por clientes, así que esta
+-- verificación de integridad corre como postgres, no como authenticated).
 do $$
 declare r record; begin
+  set local role postgres;
   select rp.mime_type, rp.size_bytes into r
     from public.report_photos rp
    where rp.storage_path like '%/ok1/p1.jpg';
@@ -647,9 +684,22 @@ declare resp jsonb; begin
   raise notice 'OK 8a: ≤50 m + ≤48 h → POSSIBLE_DUPLICATE con distancia';
 end $$;
 
--- 8b. el duplicado NO se crea si el usuario no confirma
+-- 8b. el duplicado NO se crea si el usuario no confirma.
+-- La verificación de persistencia corre como postgres (8b-2) porque
+-- `location` y las columnas revoked ya no permiten count(*) como
+-- authenticated (AUD-S2-01).
 do $$
 declare n int; begin
+  select count(*) into n from public.reports
+   where status = 'ACTIVE' and municipality_id = '00000000-0000-4000-8000-0000000000f1';
+  raise notice 'OK 8b-pre: authenticated puede contar con columnas concedidas (%)', n;
+end $$;
+
+-- 8b-2. (server-side) postgres confirma que no hay un reporte a ~22 m
+-- distinto del base sin confirmación.
+do $$
+declare n int; begin
+  set local role postgres;
   select count(*) into n from public.reports
    where status = 'ACTIVE'
      and extensions.st_dwithin(location,
@@ -745,6 +795,132 @@ declare n int; begin
    where event_type = 'REPORT_CREATED';
   assert n >= 1, 'FALLO 8g: no se registró auditoría de creación';
   raise notice 'OK 8g: audit_events registra REPORT_CREATED (% filas)', n;
+end $$;
+
+-- =====================================================================
+-- 9. AUD-S2-01/02: privacidad de columnas (REQ-100)
+-- =====================================================================
+-- El listado embebido que usa la app (community_flow_e2e §7) debe seguir
+-- funcionando; created_by NUNCA debe ser seleccionable.
+set role authenticated;
+set request.jwt.claims =
+  '{"role": "authenticated", "sub": "11111111-1111-4111-8111-111111111111", "aud": "authenticated"}';
+
+-- 9a. el listado de Inicio (columnas concedidas + embeds) sigue legible.
+do $$
+declare n int; begin
+  select count(*) into n
+    from public.reports r
+    left join public.sectors s on s.id = r.sector_id
+    left join public.municipalities m on m.id = r.municipality_id
+   where r.id is not null;
+  assert n >= 1, 'FALLO 9a: el listado dejó de ser legible tras el GRANT';
+  raise notice 'OK 9a: listado (id/status/contadores/created_at/… ) sigue legible';
+end $$;
+
+-- 9b. authenticated NO puede leer reports.created_by (REQ-100).
+do $$ begin
+  perform r.created_by from public.reports r limit 1;
+  raise exception 'FALLO 9b: authenticated sigue leyendo reports.created_by';
+exception when insufficient_privilege then
+  raise notice 'OK 9b: reports.created_by NO es seleccionable (authenticated)';
+end $$;
+
+-- 9c. anon tampoco.
+set role anon;
+set request.jwt.claims = '{"role": "anon", "sub": null, "aud": "anonymous"}';
+do $$ begin
+  perform r.created_by from public.reports r limit 1;
+  raise exception 'FALLO 9c: anon sigue leyendo reports.created_by';
+exception when insufficient_privilege then
+  raise notice 'OK 9c: reports.created_by NO es seleccionable (anon)';
+end $$;
+
+-- 9d. authenticated NO puede leer report_photos.storage_path (AUD-S2-01:
+-- la ruta contiene el auth.uid del creador).
+do $$ begin
+  perform rp.storage_path from public.report_photos rp limit 1;
+  raise exception 'FALLO 9d: authenticated sigue leyendo report_photos.storage_path';
+exception when insufficient_privilege then
+  raise notice 'OK 9d: report_photos.storage_path NO es seleccionable (tabla sin grants)';
+end $$;
+
+-- 9e. la tabla completa report_photos no es legible por el cliente
+-- (alternativa aceptada por la auditoría; el detalle usa photo_count por RPC).
+set role authenticated;
+set request.jwt.claims =
+  '{"role": "authenticated", "sub": "11111111-1111-4111-8111-111111111111", "aud": "authenticated"}';
+do $$ begin
+  perform rp.id from public.report_photos rp limit 1;
+  raise exception 'FALLO 9e: authenticated sigue leyendo report_photos';
+exception when insufficient_privilege then
+  raise notice 'OK 9e: report_photos sin lecturas de cliente';
+end $$;
+
+-- =====================================================================
+-- 10. AUD-S2-07: el primer candidato es el MÁS CERCANO
+-- =====================================================================
+-- Tres reportes ACTIVE a distancias distintas dentro del radio; el
+-- primero de candidates debe ser el más cercano (y del top-5 ordenado).
+do $$
+declare resp jsonb;
+        d1 int; d2 int; d3 int;
+begin
+  set local role postgres;
+  -- Punto de origen del reporte nuevo: (10.200, -63.200).
+  insert into public.reports
+    (created_by, municipality_id, sector_id, location, location_source)
+  values
+    ((select id from public.app_users where auth_user_id = '22222222-2222-4222-8222-222222222222'),
+     '00000000-0000-4000-8000-0000000000f1', '00000000-0000-4000-8000-0000000000e1',
+     extensions.st_setsrid(extensions.st_makepoint(-63.200, 10.20040), 4326)::extensions.geography, 'GPS'),
+    ((select id from public.app_users where auth_user_id = '22222222-2222-4222-8222-222222222222'),
+     '00000000-0000-4000-8000-0000000000f1', '00000000-0000-4000-8000-0000000000e1',
+     extensions.st_setsrid(extensions.st_makepoint(-63.200, 10.20025), 4326)::extensions.geography, 'GPS'),
+    ((select id from public.app_users where auth_user_id = '22222222-2222-4222-8222-222222222222'),
+     '00000000-0000-4000-8000-0000000000f1', '00000000-0000-4000-8000-0000000000e1',
+     extensions.st_setsrid(extensions.st_makepoint(-63.200, 10.20010), 4326)::extensions.geography, 'GPS');
+  set local role authenticated;
+
+  -- (Punto aislado; foto no asociada previamente: dup3 quedó libre por 8d.)
+  resp := public.create_leak_report(
+    p_municipality_id => '00000000-0000-4000-8000-0000000000f1',
+    p_sector_id => '00000000-0000-4000-8000-0000000000e1',
+    p_latitude => 10.200, p_longitude => -63.200,
+    p_location_source => 'GPS',
+    p_photos => '[{"storage_path":"report_photos/11111111-1111-4111-8111-111111111111/sort1/p2.jpg","sort_order":1}]'::jsonb);
+  assert resp->>'status_code' = 'POSSIBLE_DUPLICATE',
+    'FALLO 10: sin duplicados cerca: ' || resp::text;
+  assert jsonb_array_length(resp->'candidates') >= 3,
+    'FALLO 10-2: faltan candidatos';
+  d1 := (resp->'candidates'->0->>'distance_meters')::int;
+  d2 := (resp->'candidates'->1->>'distance_meters')::int;
+  d3 := (resp->'candidates'->2->>'distance_meters')::int;
+  assert d1 <= d2 and d2 <= d3,
+    format('FALLO 10-3: candidatos sin orden por distancia: %s, %s, %s', d1, d2, d3);
+  -- Cada distancia <= radio (todas caen en la subconsulta ordenada).
+  assert d1 <= 50, 'FALLO 10-4: el más cercano excede el radio';
+  raise notice 'OK 10: candidates ordenado por distancia (%, %, %)', d1, d2, d3;
+end $$;
+
+-- =====================================================================
+-- 11. AUD-S2-10: descripción >500 → VALIDATION_ERROR (no error de check)
+-- =====================================================================
+do $$
+declare resp jsonb;
+begin
+  resp := public.create_leak_report(
+    p_municipality_id => '00000000-0000-4000-8000-0000000000f1',
+    p_sector_id => '00000000-0000-4000-8000-0000000000e1',
+    p_latitude => 10.120, p_longitude => -63.120,
+    p_location_source => 'GPS',
+    p_description => repeat('x', 501),
+    p_photos => '[{"storage_path":"report_photos/11111111-1111-4111-8111-111111111111/dup2/p1.jpg","sort_order":1}]'::jsonb);
+  assert resp->>'status_code' = 'VALIDATION_ERROR',
+    'FALLO 11: descripción larga no devolvió VALIDATION_ERROR: ' || resp::text;
+  assert resp->>'message' like '%500%',
+    'FALLO 11-2: mensaje sin límite de 500: ' || (resp->>'message');
+  raise notice 'OK 11: descripción >500 rechazada con VALIDATION_ERROR';
 end $$;
 
 -- =====================================================================

@@ -9,7 +9,9 @@ import '../../../shared/widgets/loading_view.dart';
 import '../../location/presentation/location_providers.dart';
 import '../domain/create_leak_report_outcome.dart';
 import '../domain/location_source.dart';
+import 'leak_detail_screen.dart';
 import 'leak_report_controller.dart';
+import 'leak_report_microcopy.dart';
 
 /// Pantalla raíz del flujo Reportar fuga: barra de progreso por etapa y
 /// la página de la etapa actual (UX_SPEC §4:
@@ -261,7 +263,7 @@ class LocationStepView extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Muy pronto podrás seleccionar el punto exacto en el mapa.',
+              LeakReportCopy.manualHint,
               style: TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
           ],
@@ -312,6 +314,38 @@ class LocationStepView extends ConsumerWidget {
 class PhotosStepView extends ConsumerWidget {
   const PhotosStepView({super.key});
 
+  void _showPhotoSourceSheet(
+    BuildContext context,
+    LeakReportController controller,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text(LeakReportCopy.fromCamera),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                controller.addPhoto(fromCamera: true);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text(LeakReportCopy.fromGallery),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                controller.addPhoto(fromCamera: false);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(leakReportProvider);
@@ -329,11 +363,11 @@ class PhotosStepView extends ConsumerWidget {
                 StatusBanner(message: state.message!),
                 const SizedBox(height: 12),
               ],
-              Text('Agrega de 1 a 3 fotos de la fuga',
+              Text('Agrega de 1 a ${LeakReportController.photoMaxCount} fotos de la fuga',
                   style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 12),
               Text(
-                'Fotos agregadas: ${photos.length} de 3',
+                'Fotos agregadas: ${photos.length} de ${LeakReportController.photoMaxCount}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
@@ -347,7 +381,8 @@ class PhotosStepView extends ConsumerWidget {
               crossAxisSpacing: 8,
               mainAxisSpacing: 8,
             ),
-            itemCount: photos.length + (photos.length < 3 ? 1 : 0),
+            itemCount:
+                photos.length + (photos.length < LeakReportController.photoMaxCount ? 1 : 0),
             itemBuilder: (context, index) {
               if (index < photos.length) {
                 final photo = photos[index];
@@ -358,8 +393,11 @@ class PhotosStepView extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(10),
                         child: Image.file(
                           // Vista previa comprimida local, aún no se sube.
+                          // AUD-S2-16: cacheWidth evita decodificar a
+                          // resolución completa en la grilla.
                           File(photo.compressedPath),
                           fit: BoxFit.cover,
+                          cacheWidth: 240,
                         ),
                       ),
                     ),
@@ -387,7 +425,8 @@ class PhotosStepView extends ConsumerWidget {
               }
               return InkWell(
                 borderRadius: BorderRadius.circular(10),
-                onTap: () => controller.addPhoto(fromCamera: false),
+                // AUD-S2-09: cámara o galería (bottom sheet, UX_SPEC §4).
+                onTap: () => _showPhotoSourceSheet(context, controller),
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(color: AppColors.border),
@@ -536,6 +575,32 @@ class DataStepView extends ConsumerWidget {
   }
 }
 
+/// Nombre del municipio para el resumen de revisión: fuente única
+/// (municipalitiesProvider, AUD-S2-12).
+class _MunicipalityName extends ConsumerWidget {
+  const _MunicipalityName({required this.municipalityId});
+
+  final String? municipalityId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (municipalityId == null) return const Text('Sin municipio');
+    final municipalities = ref.watch(municipalitiesProvider);
+    return municipalities.maybeWhen(
+      data: (list) => Text(
+        list.where((m) => m.id == municipalityId).firstOrNull?.name ??
+            'Municipio',
+        style: const TextStyle(color: AppColors.textMuted),
+      ),
+      orElse: () =>
+          const Text(
+            'Municipio',
+            style: TextStyle(color: AppColors.textMuted),
+          ),
+    );
+  }
+}
+
 class _SectorsDropdown extends ConsumerWidget {
   const _SectorsDropdown({
     required this.municipalityId,
@@ -622,17 +687,8 @@ class ReviewStepView extends ConsumerWidget {
                       Text('Municipio y sector',
                           style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 4),
-                      Text(
-                        draft.municipalityId == null
-                            ? 'Sin municipio'
-                            : (state.municipalities
-                                    .where((m) =>
-                                        m.id == draft.municipalityId)
-                                    .firstOrNull
-                                    ?.name ??
-                                'Municipio'),
-                        style: const TextStyle(color: AppColors.textMuted),
-                      ),
+                      // AUD-S2-12: el nombre sale del provider único.
+                      _MunicipalityName(municipalityId: draft.municipalityId),
                       const SizedBox(height: 12),
                       Text('Descripción',
                           style: Theme.of(context).textTheme.titleMedium),
@@ -661,11 +717,40 @@ class ReviewStepView extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // Duplicado detectado: el usuario decide (UX_SPEC §5).
+              // Duplicado detectado: el usuario decide (UX_SPEC §5:
+              // Ver y validar / Es otra fuga; nada en silencio).
               if (state.submitState == ReportSubmitState.duplicate) ...[
                 StatusBanner(
                   message: state.message ??
-                      'Ya existe un reporte de fuga cerca.',
+                      LeakReportCopy.duplicateTitle,
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
+                      minimumSize: const Size.fromHeight(48),
+                    ),
+                    // AUD-S2-05: ver/validar el existente desde el
+                    // candidato que la RPC ya devolvió. La validación
+                    // vive en la pantalla de detalle (Sprint 03).
+                    onPressed: () {
+                      final outcome = state.outcome;
+                      if (outcome is! PossibleDuplicateFound) return;
+                      final candidates = outcome.candidates;
+                      if (candidates.isEmpty) return;
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => LeakDetailScreen(
+                            reportId: candidates.first.id,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text(LeakReportCopy.duplicateViewAndValidate),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
@@ -679,7 +764,7 @@ class ReviewStepView extends ConsumerWidget {
                     onPressed: () => ref
                         .read(leakReportProvider.notifier)
                         .useExistingReport(),
-                    child: const Text('Es la misma: usar ese reporte'),
+                    child: const Text(LeakReportCopy.duplicateUseExisting),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -694,7 +779,7 @@ class ReviewStepView extends ConsumerWidget {
                     onPressed: () => ref
                         .read(leakReportProvider.notifier)
                         .continueAsNewLeak(),
-                    child: const Text('Es otra fuga'),
+                    child: const Text(LeakReportCopy.duplicateOtherLeak),
                   ),
                 ),
               ] else ...[
@@ -741,66 +826,58 @@ class ReviewStepView extends ConsumerWidget {
 }
 
 /// ---------- Etapa 4b: Duplicado detectado ----------
-
-class DuplicateDialog extends ConsumerWidget {
-  const DuplicateDialog({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(leakReportProvider);
-    final outcome = state.outcome;
-    if (outcome is! PossibleDuplicateFound) {
-      return const SizedBox.shrink();
-    }
-    final nearest = outcome.candidates.first;
-    return AlertDialog(
-      title: const Text('Ya existe un reporte de fuga cerca.'),
-      content: Text(
-        'A ${nearest.distanceMeters} metros hay un reporte activo. '
-        '¿Tu fuga es la misma?',
-      ),
-      actions: [
-        TextButton(
-          onPressed: () =>
-              ref.read(leakReportProvider.notifier).useExistingReport(),
-          child: const Text('Es la misma: usar ese reporte'),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: AppColors.accent),
-          onPressed: () =>
-              ref.read(leakReportProvider.notifier).continueAsNewLeak(),
-          child: const Text('Es otra fuga'),
-        ),
-      ],
-    );
-  }
-}
+///
+/// Sin diálogo aparte: el estado duplicate se resuelve inline en
+/// ReviewStepView (ver arriba). El antiguo DuplicateDialog muerto se
+/// eliminó (AUD-S2-13).
 
 /// ---------- Etapa 5: Resultado ----------
-
+///
+/// AUD-S2-06: el título/icono se deriva del OUTCOME real
+/// (creado / duplicado-aceptado / error); nunca se anuncia "Reporte
+/// enviado" si el backend no creó el reporte (FUNCTIONAL_SPEC §12).
 class ResultStepView extends ConsumerWidget {
   const ResultStepView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(leakReportProvider);
-    final isError = state.submitState == ReportSubmitState.idle;
+    final outcome = state.outcome;
+    // useExistingReport mantiene submitState=duplicate con paso=resultado;
+    // ambos caminos caen en ese case. La ruta done exige outcome CREATED.
+
+    final (icon, iconColor, title) = switch (state.submitState) {
+      ReportSubmitState.done when outcome is ReportCreated => (
+          Icons.check_circle_outline,
+          AppColors.success,
+          'Reporte enviado',
+        ),
+      ReportSubmitState.done => (
+          Icons.error_outline,
+          AppColors.danger,
+          'No se pudo enviar',
+        ),
+      ReportSubmitState.duplicate => (
+          Icons.not_interested,
+          AppColors.textMuted,
+          'No se creó un reporte nuevo',
+        ),
+      _ => (
+          Icons.error_outline,
+          AppColors.danger,
+          'No se pudo enviar',
+        ),
+    };
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              isError ? Icons.error_outline : Icons.check_circle_outline,
-              color: isError ? AppColors.danger : AppColors.success,
-              size: 64,
-            ),
+            Icon(icon, color: iconColor, size: 64),
             const SizedBox(height: 16),
             Text(
-              state.submitState == ReportSubmitState.done
-                  ? 'Reporte enviado'
-                  : 'No se pudo enviar',
+              title,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 8),

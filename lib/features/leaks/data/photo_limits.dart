@@ -46,12 +46,3 @@ void validateCompressedPhoto({required int sizeBytes}) {
     );
   }
 }
-
-/// Comprueba que todavía se puede agregar una foto más.
-void validateCanAddPhoto(int currentCount) {
-  if (currentCount >= kReportPhotoMaxCount) {
-    throw const PhotoValidationException(
-      'Ya tienes el máximo de 3 fotos.',
-    );
-  }
-}

@@ -184,7 +184,14 @@ del reporte no puede validarlo, y cada identidad valida una sola vez.
 ## 6. RLS
 
 - municipios/sectores activos: lectura pública.
-- reportes: lectura pública según alcance del MVP.
+- reportes: lectura pública **por columnas** (`GRANT SELECT` explícito en
+  `id, municipality_id, sector_id, status, description, validation_count,
+  resolution_confirmation_count, created_at, updated_at, resolved_at`).
+  `created_by` **no** se concede al cliente (identidad del reportante no pública,
+  REQ-100; ver `docs/audits/AUDITORIA_SPRINT_02.md` AUD-S2-01/02).
+- `report_photos`: **sin** lectura de cliente (se retiró el `GRANT SELECT`); el
+  detalle expone `photo_count` vía RPC. Ni `storage_path` ni `thumbnail_path` son
+  seleccionables por `anon`/`authenticated`.
 - identidad y datos privados: solo propietario.
 - escrituras críticas: mediante operaciones protegidas.
 - `report_validations` y `resolution_confirmations`: RLS habilitada **sin

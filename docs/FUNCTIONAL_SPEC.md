@@ -49,9 +49,20 @@ Datos:
 - descripción opcional.
 
 Antes de crear:
-- backend busca posibles duplicados;
-- si encuentra candidatos, muestra distancia y acciones;
-- el usuario puede validar el existente o continuar como otra fuga.
+- backend busca posibles duplicados (50 m / 48 h configurables);
+- si encuentra candidatos, muestra distancia y **tres** acciones (REQ-025):
+  - **Ver y validar**: abre el detalle del candidato (`LeakDetailScreen`) con el
+    `id` que ya devolvió la RPC — reutiliza la pantalla de detalle de Sprint 03,
+    no implementa validación dentro del diálogo;
+  - **Es la misma: usar ese reporte**: cierra el flujo sin crear nada;
+  - **Es otra fuga**: reenvía con `p_ignore_duplicate = true` (confirmación
+    explícita, no estado pegajoso del controlador).
+- la confirmación "es otra fuga" es un argumento del envío; mutar ubicación,
+  municipio, sector o fotos y reenviar sin volver a pulsarla viaja con
+  `p_ignore_duplicate = false` (AUD-S2-04).
+- la pantalla de resultado **nunca** muestra "Reporte enviado" a menos que el
+  backend haya creado el reporte (`submitState == done`); en la ruta "usar el
+  reporte existente" muestra "No se creó un reporte nuevo" (AUD-S2-06, §12).
 
 ## 4. Detalle de fuga
 

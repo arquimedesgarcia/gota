@@ -53,6 +53,27 @@ Revisión posterior al commit `06fe3bd` (correcciones de cierre de Sprint 02):
 | Operación crítica | Sigue siendo SQL protegido (`security definer`) como en Sprint 01, no una Edge Function: no añade infraestructura nueva y es la costura ya establecida. |
 | Supuesto | La RPC lee `storage.objects`, así que el rol que aplica las migraciones necesita lectura sobre ese esquema (es el caso en Supabase local y hospedado; verificado contra la base local). Si no la tuviera, la RPC devuelve `STORAGE_ERROR` (falla cerrado) y no se crea nada. |
 
+### Cierre de auditoría Sprint 02 (`docs/audits/AUDITORIA_SPRINT_02.md`)
+
+Correcciones aplicadas en la migración `20260911000016_audit_sprint02_fixes.sql`
+(sin reescribir migraciones previas: solo `GRANT` por columnas y `CREATE OR REPLACE`
+de la RPC `create_leak_report` con la **misma firma y mismos `status_code`**).
+
+| Hallazgo | Decisión de cierre |
+|---|---|
+| AUD-S2-01 / AUD-S2-02 (privacidad, BLOQUEANTE) | `revoke all` + `grant select (columnas no sensibles)` en `public.reports`; se excluye `created_by` (y cualquier columna de identidad). En `public.report_photos` se retira **toda** lectura del cliente (el detalle ya expone `photo_count` vía RPC). Cubierto por `create_leak_report_test.sql` (4a-priv, 4a-priv2, 4d-priv, 9b/9c/9d/9e). |
+| AUD-S2-03 (ubicación manual) | Cerrado con **desviación documentada**: manual = coordenadas hasta Sprint 05 (MapLibre). No se añade geofence bbox porque los docs no definen el bbox de Nueva Esparta y la auditoría prohíbe inventarlo; la validación de rango (`INVALID_LOCATION`) ya existe en la RPC. |
+| AUD-S2-07 (candidatos sin `ORDER BY`) | El `LIMIT 5` se aplica sobre una subconsulta ya ordenada por distancia; `candidates.first` es siempre el más cercano. Cubierto por `OK 10`. |
+| AUD-S2-08 (miniaturas / dimensiones) | Cerrado de forma **honesta**: se excluyen las miniaturas en este sprint y `width`/`height` se persisten solo cuando el binario los aporta (la RPC no los inventa). El comentario de `photo_service.dart` ya no promete que \"el servidor determina las dimensiones\". No se sube un segundo binario a Storage (no hay ruta de thumbnail definida en RLS). |
+| AUD-S2-10 (longitud `description`) | La RPC devuelve `VALIDATION_ERROR` si `char_length(description) > 500` (antes `check_violation`). |
+| AUD-S2-11 (`LIKE` con `_`) | La pertenencia de la foto se comprueba con `starts_with`, no con `LIKE`. |
+| AUD-S2-18 / AUD-S2-19 (deuda/prueba) | `audit_events.user_id` NO se migra en esta sesión (riesgo): sigue usando `auth.uid()`; la inconsistencia con `app_users.id` queda documentada. La aserción 3b del test SQL se endureció (ya no acepta `when others` como éxito). |
+
+**Deuda declarada (no resuelta en Sprint 02):** rutas de Storage que contienen
+`auth.uid()` (`report_photos/{auth_user_id}/…`); dejar de exponerlo exige cambiar las
+rutas o publicar solo por URLs firmadas server-side (previsto para el sprint de fotos
+públicas). MapLibre y el plist de cámara iOS quedan fuera de alcance.
+
 ## Sprint 03 — decisiones de validación y resolución
 
 Implementación del ciclo comunitario sobre el patrón de Sprint 02 (RPC SQL

@@ -27,6 +27,13 @@ Proceso:
 5. buscar duplicados 50m/48h;
 6. devolver `POSSIBLE_DUPLICATE` si corresponde o crear ACTIVE.
 
+> **Contrato de lectura (privacidad, AUD-S2-01/02 — Sprint 02):** el cliente
+> (`anon`/`authenticated`) solo puede hacer `SELECT` por columnas sobre
+> `public.reports` — **sin `created_by`** — y **no** tiene lectura sobre
+> `public.report_photos` (ni `storage_path` ni `thumbnail_path`). El conteo de
+> fotos llega vía `get-leak-report-detail`. Cualquier lectura directa de
+> `created_by` o de `report_photos` devuelve `insufficient_privilege`.
+
 ### validate-leak
 
 RPC `validate_leak(p_report_id uuid)`.

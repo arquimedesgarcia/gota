@@ -38,8 +38,9 @@ class ImagePickerPhotoService implements PhotoService {
       maxHeight: 1920,
     );
     if (picked == null) {
-      // Cancelación del usuario: no es un error visible.
-      throw const PhotoValidationException('No se seleccionó ninguna foto.');
+      // AUD-S2-14: cancelar no es un error visible (el controller lo sabe
+      // por la excepción específica y no publica banner).
+      throw const PhotoPickCanceledException();
     }
     return prepareFromFile(picked.path);
   }
@@ -83,8 +84,9 @@ class ImagePickerPhotoService implements PhotoService {
       compressedPath: compressed.path,
       mimeType: kReportPhotoContentType,
       sizeBytes: sizeBytes,
-      // Las dimensiones exactas las determina el servidor a partir del
-      // binario; aquí se dejan en 0 (sin metadatos inventados).
+      // AUD-S2-08: este sprint NO genera miniaturas ni mide dimensiones
+      // (exclusión declarada en MIGRATION_NOTES §Sprint 02; width/height
+      // quedan en 0 y el servidor los persiste NULL, sin prometer nada).
       width: 0,
       height: 0,
     );

@@ -83,25 +83,6 @@ void main() {
   });
 
   group('cantidad (capa cliente)', () {
-    test('permite agregar hasta 3 fotos', () {
-      expect(() => validateCanAddPhoto(0), returnsNormally);
-      expect(() => validateCanAddPhoto(1), returnsNormally);
-      expect(() => validateCanAddPhoto(2), returnsNormally);
-    });
-
-    test('rechaza la cuarta', () {
-      expect(
-        () => validateCanAddPhoto(3),
-        throwsA(
-          isA<PhotoValidationException>().having(
-            (e) => e.userMessage,
-            'userMessage',
-            contains('máximo de 3'),
-          ),
-        ),
-      );
-    });
-
     test('el límite cliente coincide con el del servidor', () {
       // Debe coincidir con system_config.photo_limits (migración 00009).
       expect(kReportPhotoMaxCount, 3);

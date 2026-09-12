@@ -70,6 +70,18 @@ Android es la plataforma prioritaria del MVP.
 
 iOS debe mantenerse compatible desde arquitectura, pero su release puede venir después.
 
+### Tráfico claro en desarrollo (AUD-S2-17)
+
+Para ejecutar contra un Supabase **local** (`http://10.0.2.2:54321` en el
+emulador, o `localhost`/`127.0.0.1`), el build de **debug** habilita
+`cleartextTraffic` únicamente para esos hosts, vía
+`android/app/src/debug/res/xml/network_security_config.xml` referenciado desde
+`android/app/src/debug/AndroidManifest.xml`. **No** se activa en release: el
+manifest de release no incluye `networkSecurityConfig`, así que Android bloquea
+`http://` por defecto y la app debe apuntar a un proyecto `https://`.
+
+Las pruebas E2E (`supabase/tests/*.sh`) asumen ese Supabase local.
+
 ## Regla
 
 No agregar Firebase, Railway, Redis ni otro backend al camino crítico sin una decisión explícita.

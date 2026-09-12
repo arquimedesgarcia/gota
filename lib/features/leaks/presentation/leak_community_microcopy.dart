@@ -18,7 +18,6 @@ abstract final class LeakCommunityCopy {
   static const listError = 'No pudimos cargar las fugas cercanas.';
   static const emptyList = 'Sin datos todavía';
   static const retry = 'Reintentar';
-  static const noLocation = 'Ubicación no disponible';
 
   static String validationCount(int count) =>
       count == 1 ? '1 validación' : '$count validaciones';
