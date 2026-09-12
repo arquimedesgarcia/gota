@@ -29,9 +29,7 @@ class WaterRegisterStepComment extends ConsumerWidget {
               .setComment(value),
           decoration: InputDecoration(
             hintText: WaterCopy.commentHelper,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             counterText: '${state.comment.length}/500',
           ),
         ),

@@ -58,7 +58,10 @@ void main() {
         throwsA(isA<ConfigMissingException>()),
       );
       expect(
-        () => AppConfig.fromValues(supabaseUrl: 'no-es-una-url', supabaseAnonKey: 'k'),
+        () => AppConfig.fromValues(
+          supabaseUrl: 'no-es-una-url',
+          supabaseAnonKey: 'k',
+        ),
         throwsA(isA<ConfigMissingException>()),
       );
     });

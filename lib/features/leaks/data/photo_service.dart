@@ -24,7 +24,7 @@ abstract class PhotoService {
 
 class ImagePickerPhotoService implements PhotoService {
   ImagePickerPhotoService({ImagePicker? picker})
-      : _picker = picker ?? ImagePicker();
+    : _picker = picker ?? ImagePicker();
 
   final ImagePicker _picker;
 
@@ -55,10 +55,7 @@ class ImagePickerPhotoService implements PhotoService {
     }
 
     // 1. Validación cliente (formato y tamaño antes de comprimir).
-    validatePickedPhoto(
-      path: path,
-      sizeBytes: await original.length(),
-    );
+    validatePickedPhoto(path: path, sizeBytes: await original.length());
 
     // 2. Compresión a JPEG ≤ 10 MB.
     final compressedPath = '${path}_gota.jpg';

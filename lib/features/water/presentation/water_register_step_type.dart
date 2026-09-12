@@ -20,7 +20,10 @@ class WaterRegisterStepType extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(WaterCopy.stepType, style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          WaterCopy.stepType,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: 16),
         _TypeButton(
           type: WaterEventType.arrived,
@@ -55,7 +58,9 @@ class _TypeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = type == WaterEventType.arrived ? AppColors.primary : AppColors.danger;
+    final color = type == WaterEventType.arrived
+        ? AppColors.primary
+        : AppColors.danger;
 
     return GestureDetector(
       onTap: onPressed,
@@ -67,7 +72,9 @@ class _TypeButton extends StatelessWidget {
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
-          color: isSelected ? color.withValues(alpha: 0.08) : Colors.transparent,
+          color: isSelected
+              ? color.withValues(alpha: 0.08)
+              : Colors.transparent,
         ),
         child: Row(
           children: [
@@ -76,15 +83,17 @@ class _TypeButton extends StatelessWidget {
             Expanded(
               child: Text(
                 type.label,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: color,
-                    ),
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(color: color),
               ),
             ),
             if (isSelected)
               Icon(Icons.check_circle, color: color)
             else
-              const Icon(Icons.radio_button_unchecked, color: AppColors.textMuted),
+              const Icon(
+                Icons.radio_button_unchecked,
+                color: AppColors.textMuted,
+              ),
           ],
         ),
       ),

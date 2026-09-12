@@ -45,17 +45,16 @@ class WaterRegisterState {
     WaterRegisterSubmitStatus? submitStatus,
     String? errorMessage,
     bool clearError = false,
-  }) =>
-      WaterRegisterState(
-        municipalityId: municipalityId ?? this.municipalityId,
-        municipalityName: municipalityName ?? this.municipalityName,
-        sectorId: sectorId ?? this.sectorId,
-        sectorName: sectorName ?? this.sectorName,
-        eventTime: eventTime ?? this.eventTime,
-        comment: comment ?? this.comment,
-        submitStatus: submitStatus ?? this.submitStatus,
-        errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      );
+  }) => WaterRegisterState(
+    municipalityId: municipalityId ?? this.municipalityId,
+    municipalityName: municipalityName ?? this.municipalityName,
+    sectorId: sectorId ?? this.sectorId,
+    sectorName: sectorName ?? this.sectorName,
+    eventTime: eventTime ?? this.eventTime,
+    comment: comment ?? this.comment,
+    submitStatus: submitStatus ?? this.submitStatus,
+    errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+  );
 }
 
 /// Controller del flujo de registro de un evento de agua. Las reglas de
@@ -66,24 +65,22 @@ class WaterRegisterController extends Notifier<WaterRegisterState> {
   WaterRegisterState build() => const WaterRegisterState();
 
   void selectMunicipality(Municipality municipality) => state = state.copyWith(
-        municipalityId: municipality.id,
-        municipalityName: municipality.name,
-        // El sector depende del municipio: se reinicia al cambiarlo.
-        sectorId: null,
-        sectorName: null,
-        clearError: true,
-      );
+    municipalityId: municipality.id,
+    municipalityName: municipality.name,
+    // El sector depende del municipio: se reinicia al cambiarlo.
+    sectorId: null,
+    sectorName: null,
+    clearError: true,
+  );
 
   void selectSector(Sector sector) => state = state.copyWith(
-        sectorId: sector.id,
-        sectorName: sector.name,
-        clearError: true,
-      );
+    sectorId: sector.id,
+    sectorName: sector.name,
+    clearError: true,
+  );
 
-  void selectEventTime(DateTime eventTime) => state = state.copyWith(
-        eventTime: eventTime,
-        clearError: true,
-      );
+  void selectEventTime(DateTime eventTime) =>
+      state = state.copyWith(eventTime: eventTime, clearError: true);
 
   void setComment(String comment) =>
       state = state.copyWith(comment: comment, clearError: true);
@@ -163,5 +160,5 @@ class WaterRegisterController extends Notifier<WaterRegisterState> {
 
 final waterRegisterControllerProvider =
     NotifierProvider<WaterRegisterController, WaterRegisterState>(
-  WaterRegisterController.new,
-);
+      WaterRegisterController.new,
+    );

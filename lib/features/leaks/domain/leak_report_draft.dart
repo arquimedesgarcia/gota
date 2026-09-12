@@ -59,14 +59,13 @@ class LeakReportDraft {
     String? municipalityId,
     String? sectorId,
     String? description,
-  }) =>
-      LeakReportDraft(
-        location: location ?? this.location,
-        photos: photos ?? this.photos,
-        municipalityId: municipalityId ?? this.municipalityId,
-        sectorId: sectorId ?? this.sectorId,
-        description: description ?? this.description,
-      );
+  }) => LeakReportDraft(
+    location: location ?? this.location,
+    photos: photos ?? this.photos,
+    municipalityId: municipalityId ?? this.municipalityId,
+    sectorId: sectorId ?? this.sectorId,
+    description: description ?? this.description,
+  );
 
   bool get hasPhotos => photos.isNotEmpty;
 }

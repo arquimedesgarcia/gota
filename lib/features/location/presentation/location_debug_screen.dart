@@ -21,8 +21,7 @@ class LocationDebugScreen extends ConsumerWidget {
       body: municipalities.when(
         loading: () => const LoadingView(message: 'Cargando municipios…'),
         error: (error, _) => ErrorView(
-          message:
-              error is AppException ? error.userMessage : '$error',
+          message: error is AppException ? error.userMessage : '$error',
           onRetry: () => ref.invalidate(municipalitiesProvider),
         ),
         data: (municipalities) => ListView(
@@ -37,8 +36,9 @@ class LocationDebugScreen extends ConsumerWidget {
                       ? const Icon(Icons.expand_less)
                       : const Icon(Icons.expand_more),
                   onTap: () {
-                    final notifier =
-                        ref.read(selectedMunicipalityProvider.notifier);
+                    final notifier = ref.read(
+                      selectedMunicipalityProvider.notifier,
+                    );
                     if (selectedId == municipality.id) {
                       notifier.clear();
                     } else {
@@ -49,10 +49,7 @@ class LocationDebugScreen extends ConsumerWidget {
               ),
             if (selectedId != null) ...[
               const SizedBox(height: 16),
-              Text(
-                'Sectores',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+              Text('Sectores', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 8),
               _SectorsList(municipalityId: selectedId),
             ],
@@ -88,12 +85,7 @@ class _SectorsList extends ConsumerWidget {
           : Column(
               children: [
                 for (final sector in sectors)
-                  Card(
-                    child: ListTile(
-                      dense: true,
-                      title: Text(sector.name),
-                    ),
-                  ),
+                  Card(child: ListTile(dense: true, title: Text(sector.name))),
               ],
             ),
     );

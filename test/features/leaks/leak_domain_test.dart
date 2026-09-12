@@ -9,8 +9,7 @@ LocationService fakeLocationService({
   Object? throw_,
   double lat = 10.99,
   double lng = -63.87,
-}) =>
-    _FakeLocationService(throw_: throw_, lat: lat, lng: lng);
+}) => _FakeLocationService(throw_: throw_, lat: lat, lng: lng);
 
 class _FakeLocationService implements LocationService {
   _FakeLocationService({this.throw_, this.lat = 10.99, this.lng = -63.87});
@@ -64,9 +63,7 @@ void main() {
     });
 
     test('copyWith preserva y reemplaza campos', () {
-      final draft = const LeakReportDraft().copyWith(
-        municipalityId: 'm1',
-      );
+      final draft = const LeakReportDraft().copyWith(municipalityId: 'm1');
       expect(draft.municipalityId, 'm1');
       expect(draft.sectorId, isNull);
     });

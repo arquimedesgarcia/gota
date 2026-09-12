@@ -14,9 +14,8 @@ class HomeScreen extends StatelessWidget {
   static const _soonMessage = 'Esta función estará disponible próximamente.';
 
   void _showSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text(_soonMessage)),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text(_soonMessage)));
   }
 
   void _openReport(BuildContext context) {
@@ -111,9 +110,8 @@ class _GotaHeader extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             'GOTA',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
-                ),
+            style: Theme.of(context).textTheme.headlineMedium
+                ?.copyWith(color: Colors.white),
           ),
         ],
       ),

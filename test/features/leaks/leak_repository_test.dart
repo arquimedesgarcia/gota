@@ -29,16 +29,16 @@ class _FakeAuth implements GotaAuth {
 }
 
 supabase.Session _session() => supabase.Session(
-      accessToken: 'token',
-      tokenType: 'bearer',
-      user: const supabase.User(
-        id: _uid,
-        appMetadata: {},
-        userMetadata: {},
-        aud: 'authenticated',
-        createdAt: '2026-01-01T00:00:00.000Z',
-      ),
-    );
+  accessToken: 'token',
+  tokenType: 'bearer',
+  user: const supabase.User(
+    id: _uid,
+    appMetadata: {},
+    userMetadata: {},
+    aud: 'authenticated',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  ),
+);
 
 class _FakeStorage implements GotaStorage {
   _FakeStorage({this.failUploadAt = -1, this.failRemove = false});
@@ -79,8 +79,7 @@ class _FakeStorage implements GotaStorage {
   Future<List<String>> list({
     required String bucket,
     required String prefix,
-  }) async =>
-      const [];
+  }) async => const [];
 }
 
 class _FakeDatabase implements GotaDatabase {
@@ -110,8 +109,7 @@ class _FakeDatabase implements GotaDatabase {
   @override
   Future<List<Map<String, dynamic>>> fetchSectorsForMunicipality(
     String municipalityId,
-  ) async =>
-      const [];
+  ) async => const [];
 }
 
 void main() {
@@ -132,37 +130,36 @@ void main() {
   }
 
   LeakReportDraft draftWith(int photoCount) => LeakReportDraft(
-        location: const SelectedLocation(
-          latitude: 10.99,
-          longitude: -63.87,
-          source: LocationSource.gps,
+    location: const SelectedLocation(
+      latitude: 10.99,
+      longitude: -63.87,
+      source: LocationSource.gps,
+    ),
+    photos: [
+      for (var i = 0; i < photoCount; i++)
+        PreparedPhoto(
+          id: 'p$i',
+          originalPath: photoFile('orig_$i.jpg'),
+          compressedPath: photoFile('c_$i.jpg'),
+          mimeType: 'image/jpeg',
+          sizeBytes: 1024,
+          width: 0,
+          height: 0,
         ),
-        photos: [
-          for (var i = 0; i < photoCount; i++)
-            PreparedPhoto(
-              id: 'p$i',
-              originalPath: photoFile('orig_$i.jpg'),
-              compressedPath: photoFile('c_$i.jpg'),
-              mimeType: 'image/jpeg',
-              sizeBytes: 1024,
-              width: 0,
-              height: 0,
-            ),
-        ],
-        municipalityId: 'm1',
-        sectorId: 's1',
-      );
+    ],
+    municipalityId: 'm1',
+    sectorId: 's1',
+  );
 
   SupabaseLeakReportRepository repo({
     required _FakeDatabase database,
     required _FakeStorage storage,
     supabase.Session? session,
-  }) =>
-      SupabaseLeakReportRepository(
-        database,
-        storage,
-        _FakeAuth(session: session ?? _session()),
-      );
+  }) => SupabaseLeakReportRepository(
+    database,
+    storage,
+    _FakeAuth(session: session ?? _session()),
+  );
 
   group('subida de fotos', () {
     test('usa la carpeta del propio usuario (RLS del bucket)', () async {
@@ -171,24 +168,21 @@ void main() {
         response: const {'status_code': 'CREATED', 'report_id': 'r1'},
       );
 
-      await repo(database: database, storage: storage).createReport(
-        draftWith(2),
-      );
+      await repo(
+        database: database,
+        storage: storage,
+      ).createReport(draftWith(2));
 
       expect(storage.uploaded, hasLength(2));
       for (final path in storage.uploaded) {
         expect(path, startsWith('report_photos/$_uid/'));
         expect(path, endsWith('.jpg'));
       }
-      final photos =
-          (database.lastParams!['p_photos'] as List).cast<Map>();
+      final photos = (database.lastParams!['p_photos'] as List).cast<Map>();
       expect(photos, hasLength(2));
       expect(photos.first['sort_order'], 1);
       expect(photos.last['sort_order'], 2);
-      expect(
-        photos.first['storage_path'],
-        startsWith('report_photos/$_uid/'),
-      );
+      expect(photos.first['storage_path'], startsWith('report_photos/$_uid/'));
     });
 
     test('sin sesión no sube nada y avisa al usuario', () async {
@@ -214,8 +208,10 @@ void main() {
         response: const {'status_code': 'CREATED', 'report_id': 'r1'},
       );
 
-      final outcome = await repo(database: database, storage: storage)
-          .createReport(draftWith(1));
+      final outcome = await repo(
+        database: database,
+        storage: storage,
+      ).createReport(draftWith(1));
 
       expect(outcome, isA<ReportCreated>());
       expect(storage.removed, isEmpty);
@@ -253,8 +249,10 @@ void main() {
         },
       );
 
-      final outcome = await repo(database: database, storage: storage)
-          .createReport(draftWith(1));
+      final outcome = await repo(
+        database: database,
+        storage: storage,
+      ).createReport(draftWith(1));
 
       expect(outcome, isA<PossibleDuplicateFound>());
       expect(
@@ -280,24 +278,26 @@ void main() {
       expect(database.lastParams, isNull);
     });
 
-    test('reintenta el borrado y falla de forma visible, no silenciosa',
-        () async {
-      final storage = _FakeStorage(failRemove: true);
-      final database = _FakeDatabase(
-        response: const {
-          'status_code': 'POSSIBLE_DUPLICATE',
-          'candidates': <dynamic>[],
-        },
-      );
+    test(
+      'reintenta el borrado y falla de forma visible, no silenciosa',
+      () async {
+        final storage = _FakeStorage(failRemove: true);
+        final database = _FakeDatabase(
+          response: const {
+            'status_code': 'POSSIBLE_DUPLICATE',
+            'candidates': <dynamic>[],
+          },
+        );
 
-      await expectLater(
-        repo(database: database, storage: storage).createReport(draftWith(1)),
-        throwsA(isA<PhotoCleanupException>()),
-      );
+        await expectLater(
+          repo(database: database, storage: storage).createReport(draftWith(1)),
+          throwsA(isA<PhotoCleanupException>()),
+        );
 
-      // Dos intentos antes de rendirse; nunca se oculta el fallo.
-      expect(storage.removed, hasLength(2));
-    });
+        // Dos intentos antes de rendirse; nunca se oculta el fallo.
+        expect(storage.removed, hasLength(2));
+      },
+    );
   });
 
   group('respuestas del backend', () {
@@ -330,26 +330,30 @@ void main() {
         response: const {'status_code': 'UNAUTHORIZED'},
       );
 
-      final outcome = await repo(database: database, storage: storage)
-          .createReport(draftWith(1));
+      final outcome = await repo(
+        database: database,
+        storage: storage,
+      ).createReport(draftWith(1));
 
       expect(outcome, isA<LeakReportUnauthorized>());
     });
 
-    test('la confirmación "es otra fuga" viaja como p_ignore_duplicate',
-        () async {
-      final storage = _FakeStorage();
-      final database = _FakeDatabase(
-        response: const {'status_code': 'CREATED', 'report_id': 'r2'},
-      );
+    test(
+      'la confirmación "es otra fuga" viaja como p_ignore_duplicate',
+      () async {
+        final storage = _FakeStorage();
+        final database = _FakeDatabase(
+          response: const {'status_code': 'CREATED', 'report_id': 'r2'},
+        );
 
-      await repo(database: database, storage: storage).createReport(
-        draftWith(1),
-        ignoreDuplicate: true,
-      );
+        await repo(
+          database: database,
+          storage: storage,
+        ).createReport(draftWith(1), ignoreDuplicate: true);
 
-      expect(database.lastParams!['p_ignore_duplicate'], isTrue);
-    });
+        expect(database.lastParams!['p_ignore_duplicate'], isTrue);
+      },
+    );
 
     test('por defecto no se ignora el duplicado', () async {
       final storage = _FakeStorage();
@@ -357,9 +361,10 @@ void main() {
         response: const {'status_code': 'CREATED', 'report_id': 'r3'},
       );
 
-      await repo(database: database, storage: storage).createReport(
-        draftWith(1),
-      );
+      await repo(
+        database: database,
+        storage: storage,
+      ).createReport(draftWith(1));
 
       expect(database.lastParams!['p_ignore_duplicate'], isFalse);
       expect(database.lastParams!['p_location_source'], 'GPS');

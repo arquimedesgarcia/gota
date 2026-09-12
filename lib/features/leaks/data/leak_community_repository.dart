@@ -27,6 +27,18 @@ abstract class LeakCommunityRepository {
 
   /// Confirma que una fuga parece resuelta (REQ-050..REQ-053).
   Future<CommunityActionResult> confirmResolution(String reportId);
+
+  /// Fugas geolocalizadas con filtros para Mapa y Lista (Sprint 05: Map).
+  Future<List<LeakSummary>> mapReports({
+    String? status,
+    String? sectorId,
+    double? minLat,
+    double? minLng,
+    double? maxLat,
+    double? maxLng,
+    String orderBy = 'recent',
+    int limit = 100,
+  });
 }
 
 class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
@@ -51,10 +63,42 @@ class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
   }
 
   @override
+  Future<List<LeakSummary>> mapReports({
+    String? status,
+    String? sectorId,
+    double? minLat,
+    double? minLng,
+    double? maxLat,
+    double? maxLng,
+    String orderBy = 'recent',
+    int limit = 100,
+  }) async {
+    try {
+      final rows = await _database.rpcGetMapReports(
+        status: status,
+        sectorId: sectorId,
+        minLat: minLat,
+        minLng: minLng,
+        maxLat: maxLat,
+        maxLng: maxLng,
+        orderBy: orderBy,
+        limit: limit,
+      );
+      return rows.map(LeakSummary.fromJson).toList();
+    } on SocketException {
+      throw const NetworkException();
+    } on http.ClientException {
+      throw const NetworkException();
+    } on supabase.PostgrestException {
+      throw const QueryException();
+    } on supabase.AuthException {
+      throw const QueryException();
+    }
+  }
+
+  @override
   Future<LeakDetail> reportDetail(String reportId) async {
-    final data = await _rpc(
-      () => _database.rpcLeakReportDetail(reportId),
-    );
+    final data = await _rpc(() => _database.rpcLeakReportDetail(reportId));
 
     switch (data['status_code']) {
       case 'OK':
@@ -144,7 +188,6 @@ class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
 }
 
 final leakCommunityRepositoryProvider = Provider<LeakCommunityRepository>(
-  (ref) => SupabaseLeakCommunityRepository(
-    ref.watch(gotaCommunityDatabaseProvider),
-  ),
+  (ref) =>
+      SupabaseLeakCommunityRepository(ref.watch(gotaCommunityDatabaseProvider)),
 );

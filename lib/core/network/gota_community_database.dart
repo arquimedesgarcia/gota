@@ -18,6 +18,18 @@ abstract class GotaCommunityDatabase {
 
   /// RPC `confirm_leak_resolution`.
   Future<Map<String, dynamic>> rpcConfirmLeakResolution(String reportId);
+
+  /// RPC `get_map_reports`: fugas geolocalizadas con filtros (Sprint 05).
+  Future<List<Map<String, dynamic>>> rpcGetMapReports({
+    String? status,
+    String? sectorId,
+    double? minLat,
+    double? minLng,
+    double? maxLat,
+    double? maxLng,
+    String orderBy = 'recent',
+    int limit = 100,
+  });
 }
 
 class SupabaseGotaCommunityDatabase implements GotaCommunityDatabase {
@@ -27,7 +39,8 @@ class SupabaseGotaCommunityDatabase implements GotaCommunityDatabase {
 
   /// Columnas del listado: solo lo necesario para pintar la lista
   /// (docs/API_SPEC.md §5) y los contadores comunitarios.
-  static const _listColumns = 'id, status, validation_count, '
+  static const _listColumns =
+      'id, status, validation_count, '
       'resolution_confirmation_count, created_at, resolved_at, description, '
       'sectors(name), municipalities(name)';
 
@@ -69,6 +82,36 @@ class SupabaseGotaCommunityDatabase implements GotaCommunityDatabase {
       params: {'p_report_id': reportId},
     );
     return _asMap(data, 'confirm_leak_resolution');
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> rpcGetMapReports({
+    String? status,
+    String? sectorId,
+    double? minLat,
+    double? minLng,
+    double? maxLat,
+    double? maxLng,
+    String orderBy = 'recent',
+    int limit = 100,
+  }) async {
+    final params = <String, dynamic>{'p_order_by': orderBy, 'p_limit': limit};
+    if (status != null) params['p_status'] = status;
+    if (sectorId != null) params['p_sector_id'] = sectorId;
+    if (minLat != null) params['p_min_lat'] = minLat;
+    if (minLng != null) params['p_min_lng'] = minLng;
+    if (maxLat != null) params['p_max_lat'] = maxLat;
+    if (maxLng != null) params['p_max_lng'] = maxLng;
+
+    final data = await _client.rpc<dynamic>('get_map_reports', params: params);
+
+    if (data is List) {
+      return data
+          .whereType<Map>()
+          .map((row) => Map<String, dynamic>.from(row))
+          .toList();
+    }
+    throw StateError('get_map_reports devolvió un formato inesperado.');
   }
 
   Map<String, dynamic> _asMap(Object? data, String rpcName) {

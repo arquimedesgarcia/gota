@@ -25,82 +25,89 @@ void main() {
   });
 
   supabase.Session fakeSession() => supabase.Session.fromJson(const {
-        'access_token': 'access-token',
-        'token_type': 'bearer',
-        'user': {'id': 'auth-user-1'},
-      })!;
+    'access_token': 'access-token',
+    'token_type': 'bearer',
+    'user': {'id': 'auth-user-1'},
+  })!;
 
   Map<String, dynamic> appUserRow() => {
-        'id': 'app-user-1',
-        'auth_user_id': 'auth-user-1',
-        'created_at': '2024-01-01T00:00:00.000Z',
-        'last_seen_at': '2024-01-02T00:00:00.000Z',
-        'is_blocked': false,
-      };
+    'id': 'app-user-1',
+    'auth_user_id': 'auth-user-1',
+    'created_at': '2024-01-01T00:00:00.000Z',
+    'last_seen_at': '2024-01-02T00:00:00.000Z',
+    'is_blocked': false,
+  };
 
   group('SupabaseAuthRepository.ensureSessionAndProfile', () {
     test(
-        'sin sesión existente: inicia sesión anónima una vez y crea el perfil',
-        () async {
-      when(() => auth.currentSession()).thenReturn(null);
-      when(() => auth.signInAnonymously())
-          .thenAnswer((_) async => fakeSession());
-      when(() => database.ensureAppUser())
-          .thenAnswer((_) async => appUserRow());
+      'sin sesión existente: inicia sesión anónima una vez y crea el perfil',
+      () async {
+        when(() => auth.currentSession()).thenReturn(null);
+        when(() => auth.signInAnonymously())
+            .thenAnswer((_) async => fakeSession());
+        when(() => database.ensureAppUser())
+            .thenAnswer((_) async => appUserRow());
 
-      final user = await repository.ensureSessionAndProfile();
+        final user = await repository.ensureSessionAndProfile();
 
-      verify(() => auth.signInAnonymously()).called(1);
-      verify(() => database.ensureAppUser()).called(1);
-      expect(user.id, 'app-user-1');
-      expect(user.authUserId, 'auth-user-1');
-      expect(user.isBlocked, isFalse);
-      expect(user.lastSeenAt, isNotNull);
-    });
+        verify(() => auth.signInAnonymously()).called(1);
+        verify(() => database.ensureAppUser()).called(1);
+        expect(user.id, 'app-user-1');
+        expect(user.authUserId, 'auth-user-1');
+        expect(user.isBlocked, isFalse);
+        expect(user.lastSeenAt, isNotNull);
+      },
+    );
 
-    test('con sesión existente: no inicia sesión pero sí crea el perfil',
-        () async {
-      when(() => auth.currentSession()).thenReturn(fakeSession());
-      when(() => database.ensureAppUser())
-          .thenAnswer((_) async => appUserRow());
+    test(
+      'con sesión existente: no inicia sesión pero sí crea el perfil',
+      () async {
+        when(() => auth.currentSession()).thenReturn(fakeSession());
+        when(() => database.ensureAppUser())
+            .thenAnswer((_) async => appUserRow());
 
-      final user = await repository.ensureSessionAndProfile();
+        final user = await repository.ensureSessionAndProfile();
 
-      verifyNever(() => auth.signInAnonymously());
-      verify(() => database.ensureAppUser()).called(1);
-      expect(user.id, 'app-user-1');
-    });
+        verifyNever(() => auth.signInAnonymously());
+        verify(() => database.ensureAppUser()).called(1);
+        expect(user.id, 'app-user-1');
+      },
+    );
 
-    test('SocketException al iniciar sesión se mapea a NetworkException',
-        () async {
-      when(() => auth.currentSession()).thenReturn(null);
-      when(() => auth.signInAnonymously())
-          .thenThrow(const SocketException('sin red'));
+    test(
+      'SocketException al iniciar sesión se mapea a NetworkException',
+      () async {
+        when(() => auth.currentSession()).thenReturn(null);
+        when(() => auth.signInAnonymously())
+            .thenThrow(const SocketException('sin red'));
 
-      expect(
-        () => repository.ensureSessionAndProfile(),
-        throwsA(
-          isA<NetworkException>().having(
-            (e) => e.userMessage,
-            'userMessage',
-            'No pudimos conectar. Revisa tu conexión a internet e intenta de nuevo.',
+        expect(
+          () => repository.ensureSessionAndProfile(),
+          throwsA(
+            isA<NetworkException>().having(
+              (e) => e.userMessage,
+              'userMessage',
+              'No pudimos conectar. Revisa tu conexión a internet e intenta de nuevo.',
+            ),
           ),
-        ),
-      );
-      verifyNever(() => database.ensureAppUser());
-    });
+        );
+        verifyNever(() => database.ensureAppUser());
+      },
+    );
 
-    test('ClientException al iniciar sesión se mapea a NetworkException',
-        () async {
-      when(() => auth.currentSession()).thenReturn(null);
-      when(() => auth.signInAnonymously())
-          .thenThrow(http.ClientException('sin red'));
+    test(
+      'ClientException al iniciar sesión se mapea a NetworkException',
+      () async {
+        when(() => auth.currentSession()).thenReturn(null);
+        when(() => auth.signInAnonymously())
+            .thenThrow(http.ClientException('sin red'));
 
-      expect(
-        () => repository.ensureSessionAndProfile(),
-        throwsA(isA<NetworkException>()),
-      );
-    });
+        expect(
+          () => repository.ensureSessionAndProfile(),
+          throwsA(isA<NetworkException>()),
+        );
+      },
+    );
 
     test('AuthException de Supabase se mapea a AuthException', () async {
       when(() => auth.currentSession()).thenReturn(null);
@@ -119,17 +126,19 @@ void main() {
       );
     });
 
-    test('PostgrestException en ensureAppUser se mapea a QueryException',
-        () async {
-      when(() => auth.currentSession()).thenReturn(fakeSession());
-      when(() => database.ensureAppUser()).thenThrow(
-        const supabase.PostgrestException(message: 'error de consulta'),
-      );
+    test(
+      'PostgrestException en ensureAppUser se mapea a QueryException',
+      () async {
+        when(() => auth.currentSession()).thenReturn(fakeSession());
+        when(() => database.ensureAppUser()).thenThrow(
+          const supabase.PostgrestException(message: 'error de consulta'),
+        );
 
-      expect(
-        () => repository.ensureSessionAndProfile(),
-        throwsA(isA<QueryException>()),
-      );
-    });
+        expect(
+          () => repository.ensureSessionAndProfile(),
+          throwsA(isA<QueryException>()),
+        );
+      },
+    );
   });
 }

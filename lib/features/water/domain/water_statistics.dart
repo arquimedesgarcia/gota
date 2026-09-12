@@ -108,12 +108,8 @@ WaterStatistics computeWaterStatistics(List<WaterEventSummary> events) {
     leftCount: left,
     lastArrival: lastArrival,
     lastDeparture: lastDeparture,
-    averageSupplyDuration: supplyPairs == 0
-        ? null
-        : supplyTotal ~/ supplyPairs,
-    averageOutageDuration: outagePairs == 0
-        ? null
-        : outageTotal ~/ outagePairs,
+    averageSupplyDuration: supplyPairs == 0 ? null : supplyTotal ~/ supplyPairs,
+    averageOutageDuration: outagePairs == 0 ? null : outageTotal ~/ outagePairs,
     supplyPairCount: supplyPairs,
     outagePairCount: outagePairs,
   );

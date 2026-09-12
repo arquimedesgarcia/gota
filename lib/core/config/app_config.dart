@@ -28,13 +28,13 @@ class AppConfig {
   ///
   /// Lanza [ConfigMissingException] si faltan valores o la URL no es http(s).
   static AppConfig fromEnvironment() => fromValues(
-        supabaseUrl: const String.fromEnvironment('SUPABASE_URL'),
-        supabaseAnonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
-        environment: const String.fromEnvironment(
-          'SUPABASE_ENV',
-          defaultValue: 'development',
-        ),
-      );
+    supabaseUrl: const String.fromEnvironment('SUPABASE_URL'),
+    supabaseAnonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
+    environment: const String.fromEnvironment(
+      'SUPABASE_ENV',
+      defaultValue: 'development',
+    ),
+  );
 
   /// Punto de entrada comprobable: valida los valores y construye el objeto.
   static AppConfig fromValues({
@@ -46,7 +46,8 @@ class AppConfig {
       throw const ConfigMissingException();
     }
     final uri = Uri.tryParse(supabaseUrl);
-    final isHttp = uri != null &&
+    final isHttp =
+        uri != null &&
         (uri.scheme == 'http' || uri.scheme == 'https') &&
         uri.host.isNotEmpty;
     if (!isHttp) {

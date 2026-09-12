@@ -14,12 +14,12 @@ class AppUser {
   final bool isBlocked;
 
   factory AppUser.fromJson(Map<String, dynamic> json) => AppUser(
-        id: json['id'] as String,
-        authUserId: json['auth_user_id'] as String? ?? '',
-        createdAt: _parseDate(json['created_at']),
-        lastSeenAt: _parseDateOrNull(json['last_seen_at']),
-        isBlocked: json['is_blocked'] as bool? ?? false,
-      );
+    id: json['id'] as String,
+    authUserId: json['auth_user_id'] as String? ?? '',
+    createdAt: _parseDate(json['created_at']),
+    lastSeenAt: _parseDateOrNull(json['last_seen_at']),
+    isBlocked: json['is_blocked'] as bool? ?? false,
+  );
 
   static DateTime _parseDate(Object? value) =>
       DateTime.tryParse(value as String? ?? '') ??

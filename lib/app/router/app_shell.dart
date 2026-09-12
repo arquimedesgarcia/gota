@@ -5,6 +5,7 @@ import '../../app/theme/app_theme.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/leaks/presentation/leak_report_controller.dart';
 import '../../features/leaks/presentation/leak_report_screen.dart';
+import '../../features/map/presentation/map_screen.dart';
 import '../../features/water/presentation/water_screen.dart';
 import '../../shared/widgets/placeholder_screen.dart';
 
@@ -20,8 +21,7 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   void resetLeakReportDraft() {
     // Reinicia el borrador del reporte para el próximo flujo.
-    final container =
-        ProviderScope.containerOf(context, listen: false);
+    final container = ProviderScope.containerOf(context, listen: false);
     container.invalidate(leakReportProvider);
   }
 
@@ -29,7 +29,7 @@ class _AppShellState extends State<AppShell> {
 
   static const _tabs = [
     HomeScreen(),
-    PlaceholderScreen(title: 'Mapa'),
+    MapScreen(),
     PlaceholderScreen(title: 'Reportar'),
     WaterScreen(),
     PlaceholderScreen(title: 'Más'),
@@ -95,10 +95,7 @@ class _AppShellState extends State<AppShell> {
             selectedIcon: Icon(Icons.water_drop),
             label: 'Agua',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.menu),
-            label: 'Más',
-          ),
+          NavigationDestination(icon: Icon(Icons.menu), label: 'Más'),
         ],
       ),
     );

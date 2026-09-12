@@ -67,10 +67,7 @@ void main() {
     });
 
     test('el resultado comprimido también se valida', () {
-      expect(
-        () => validateCompressedPhoto(sizeBytes: 2048),
-        returnsNormally,
-      );
+      expect(() => validateCompressedPhoto(sizeBytes: 2048), returnsNormally);
       expect(
         () => validateCompressedPhoto(sizeBytes: kReportPhotoMaxBytes + 1),
         throwsA(isA<PhotoValidationException>()),

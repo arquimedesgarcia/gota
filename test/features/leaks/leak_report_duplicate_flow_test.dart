@@ -31,26 +31,26 @@ class _FakeLocationService implements LocationService {
 class _FakeMunicipalityRepository implements MunicipalityRepository {
   @override
   Future<List<Municipality>> getActive() async => const [
-        Municipality(
-          id: 'm1',
-          name: 'Maneiro',
-          state: 'Nueva Esparta',
-          country: 'Venezuela',
-          isActive: true,
-        ),
-      ];
+    Municipality(
+      id: 'm1',
+      name: 'Maneiro',
+      state: 'Nueva Esparta',
+      country: 'Venezuela',
+      isActive: true,
+    ),
+  ];
 }
 
 class _FakeSectorRepository implements SectorRepository {
   @override
   Future<List<Sector>> getByMunicipality(String municipalityId) async => [
-        const Sector(
-          id: 's1',
-          municipalityId: 'm1',
-          name: 'La Caranta',
-          isActive: true,
-        ),
-      ];
+    const Sector(
+      id: 's1',
+      municipalityId: 'm1',
+      name: 'La Caranta',
+      isActive: true,
+    ),
+  ];
 }
 
 /// Repositorio falso que registra el `ignoreDuplicate` de CADA envío.
@@ -75,9 +75,7 @@ class _RecordingRepository implements LeakReportRepository {
 
 /// Archivo físico mínimo para el Image.file de la grilla.
 File _fakePhotoFileSync(String name) {
-  final file = File(
-    '${Directory.systemTemp.path}/gota_audit_s2_$name.jpg',
-  );
+  final file = File('${Directory.systemTemp.path}/gota_audit_s2_$name.jpg');
   file.writeAsBytesSync(List.filled(48, 0x7f));
   return file;
 }
@@ -85,7 +83,8 @@ File _fakePhotoFileSync(String name) {
 void main() {
   // Preparación común: pantalla montada y borrador completo por hooks de
   // prueba (sin image_picker), igual que hace el flujo real en cada etapa.
-  Future<({LeakReportController controller, _RecordingRepository repo})> prepare(
+  Future<({LeakReportController controller, _RecordingRepository repo})>
+  prepare(
     WidgetTester tester, {
     required List<CreateLeakReportOutcome> outcomes,
   }) async {
@@ -93,8 +92,9 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         locationServiceProvider.overrideWithValue(_FakeLocationService()),
-        municipalityRepositoryProvider
-            .overrideWithValue(_FakeMunicipalityRepository()),
+        municipalityRepositoryProvider.overrideWithValue(
+          _FakeMunicipalityRepository(),
+        ),
         sectorRepositoryProvider.overrideWithValue(_FakeSectorRepository()),
         leakReportRepositoryProvider.overrideWithValue(repo),
         leakDetailProvider.overrideWith(
@@ -149,20 +149,21 @@ void main() {
     return (controller: controller, repo: repo);
   }
 
-  testWidgets(
-      'AUD-S2-04: "Es otra fuga" reenvía una sola vez con '
+  testWidgets('AUD-S2-04: "Es otra fuga" reenvía una sola vez con '
       'p_ignore_duplicate=true', (tester) async {
     final (:controller, :repo) = await prepare(
       tester,
       outcomes: [
-        PossibleDuplicateFound(candidates: [
-          PossibleDuplicateCandidate(
-            id: 'r-existente',
-            sectorId: 's1',
-            distanceMeters: 22,
-            createdAt: DateTime(2026),
-          ),
-        ]),
+        PossibleDuplicateFound(
+          candidates: [
+            PossibleDuplicateCandidate(
+              id: 'r-existente',
+              sectorId: 's1',
+              distanceMeters: 22,
+              createdAt: DateTime(2026),
+            ),
+          ],
+        ),
         const ReportCreated(reportId: 'r-nuevo'),
       ],
     );
@@ -171,8 +172,10 @@ void main() {
     await tester.tap(find.text('Enviar reporte'));
     await tester.pump();
     expect(repo.ignoreHistory, [false]);
-    expect(find.textContaining('Ya existe un reporte de fuga cerca'),
-        findsWidgets);
+    expect(
+      find.textContaining('Ya existe un reporte de fuga cerca'),
+      findsWidgets,
+    );
 
     // "Es otra fuga" → segundo envío CON la confirmación explícita.
     await tester.tap(find.text('Es otra fuga'));
@@ -181,39 +184,46 @@ void main() {
     expect(find.text('Reporte enviado'), findsOneWidget);
   });
 
-  testWidgets(
-      'AUD-S2-04/REQ-025 (control): el backend es el que decide; el '
-      'segundo envío sin abrir el flujo no reusa confirmaciones', (tester) async {
+  testWidgets('AUD-S2-04/REQ-025 (control): el backend es el que decide; el '
+      'segundo envío sin abrir el flujo no reusa confirmaciones', (
+    tester,
+  ) async {
     // Mismo escenario, pero el usuario da "Editar datos" y vuelve: al
     // reenviar desde "Enviar reporte" (no desde "Es otra fuga") la
     // señal NO puede ser true pegajosa.
     final (:controller, :repo) = await prepare(
       tester,
       outcomes: [
-        PossibleDuplicateFound(candidates: [
-          PossibleDuplicateCandidate(
-            id: 'r-existente',
-            sectorId: 's1',
-            distanceMeters: 22,
-            createdAt: DateTime(2026),
-          ),
-        ]),
-        PossibleDuplicateFound(candidates: [
-          PossibleDuplicateCandidate(
-            id: 'r-existente',
-            sectorId: 's1',
-            distanceMeters: 22,
-            createdAt: DateTime(2026),
-          ),
-        ]),
+        PossibleDuplicateFound(
+          candidates: [
+            PossibleDuplicateCandidate(
+              id: 'r-existente',
+              sectorId: 's1',
+              distanceMeters: 22,
+              createdAt: DateTime(2026),
+            ),
+          ],
+        ),
+        PossibleDuplicateFound(
+          candidates: [
+            PossibleDuplicateCandidate(
+              id: 'r-existente',
+              sectorId: 's1',
+              distanceMeters: 22,
+              createdAt: DateTime(2026),
+            ),
+          ],
+        ),
       ],
     );
 
     await tester.tap(find.text('Enviar reporte'));
     await tester.pump();
     expect(repo.ignoreHistory, [false]);
-    expect(find.textContaining('Ya existe un reporte de fuga cerca'),
-        findsWidgets);
+    expect(
+      find.textContaining('Ya existe un reporte de fuga cerca'),
+      findsWidgets,
+    );
 
     // El usuario acepta usar el existente (NO ES UNA CONFIRMACIÓN de
     // "otra fuga"): el estado pasa a result y NADA se crea.
@@ -229,20 +239,21 @@ void main() {
     expect(repo.ignoreHistory, [false, false]);
   });
 
-  testWidgets(
-      'AUD-S2-06: "usar el reporte existente" NUNCA muestra "Reporte '
+  testWidgets('AUD-S2-06: "usar el reporte existente" NUNCA muestra "Reporte '
       'enviado"', (tester) async {
     final (:controller, :repo) = await prepare(
       tester,
       outcomes: [
-        PossibleDuplicateFound(candidates: [
-          PossibleDuplicateCandidate(
-            id: 'r-existente',
-            sectorId: 's1',
-            distanceMeters: 8,
-            createdAt: DateTime(2026),
-          ),
-        ]),
+        PossibleDuplicateFound(
+          candidates: [
+            PossibleDuplicateCandidate(
+              id: 'r-existente',
+              sectorId: 's1',
+              distanceMeters: 8,
+              createdAt: DateTime(2026),
+            ),
+          ],
+        ),
       ],
     );
     expect(find.text('Revisa tu reporte'), findsOneWidget);
@@ -258,33 +269,40 @@ void main() {
   });
 
   testWidgets(
-      'AUD-S2-05: el estado duplicate ofrece "Ver y validar" que abre el '
-      'detalle del candidato', (tester) async {
-    final (:controller, :repo) = await prepare(
-      tester,
-      outcomes: [
-        PossibleDuplicateFound(candidates: [
-          PossibleDuplicateCandidate(
-            id: 'r-candidato',
-            sectorId: 's1',
-            distanceMeters: 12,
-            createdAt: DateTime(2026),
+    'AUD-S2-05: el estado duplicate ofrece "Ver y validar" que abre el '
+    'detalle del candidato',
+    (tester) async {
+      final (:controller, :repo) = await prepare(
+        tester,
+        outcomes: [
+          PossibleDuplicateFound(
+            candidates: [
+              PossibleDuplicateCandidate(
+                id: 'r-candidato',
+                sectorId: 's1',
+                distanceMeters: 12,
+                createdAt: DateTime(2026),
+              ),
+            ],
           ),
-        ]),
-      ],
-    );
+        ],
+      );
 
-    await tester.tap(find.text('Enviar reporte'));
-    await tester.pump();
+      await tester.tap(find.text('Enviar reporte'));
+      await tester.pump();
 
-    expect(find.text(LeakReportCopy.duplicateViewAndValidate), findsOneWidget);
-    await tester.tap(find.text(LeakReportCopy.duplicateViewAndValidate));
-    await tester.pumpAndSettle();
+      expect(
+        find.text(LeakReportCopy.duplicateViewAndValidate),
+        findsOneWidget,
+      );
+      await tester.tap(find.text(LeakReportCopy.duplicateViewAndValidate));
+      await tester.pumpAndSettle();
 
-    // LeakDetailScreen se empuja ENCIMA del flujo (el flujo queda debajo
-    // en la pila de navegación). La aserción real: se abrió el detalle
-    // del candidato y NO se creó ningún reporte nuevo.
-    expect(find.byType(LeakDetailScreen), findsOneWidget);
-    expect(repo.callCount, 1);
-  });
+      // LeakDetailScreen se empuja ENCIMA del flujo (el flujo queda debajo
+      // en la pila de navegación). La aserción real: se abrió el detalle
+      // del candidato y NO se creó ningún reporte nuevo.
+      expect(find.byType(LeakDetailScreen), findsOneWidget);
+      expect(repo.callCount, 1);
+    },
+  );
 }

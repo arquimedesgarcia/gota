@@ -18,20 +18,28 @@ class LeakSummary {
     this.sectorName,
     this.municipalityName,
     this.description,
+    this.latitude,
+    this.longitude,
+    this.sectorId,
+    this.municipalityId,
   });
 
   factory LeakSummary.fromJson(Map<String, dynamic> json) => LeakSummary(
-        id: json['id'] as String,
-        status: json['status'] as String? ?? 'ACTIVE',
-        validationCount: (json['validation_count'] as num?)?.toInt() ?? 0,
-        resolutionConfirmationCount:
-            (json['resolution_confirmation_count'] as num?)?.toInt() ?? 0,
-        createdAt: _parseDate(json['created_at']) ?? DateTime.now(),
-        resolvedAt: _parseDate(json['resolved_at']),
-        sectorName: _embeddedName(json['sectors']),
-        municipalityName: _embeddedName(json['municipalities']),
-        description: json['description'] as String?,
-      );
+    id: (json['report_id'] as String?) ?? (json['id'] as String),
+    status: json['status'] as String? ?? 'ACTIVE',
+    validationCount: (json['validation_count'] as num?)?.toInt() ?? 0,
+    resolutionConfirmationCount:
+        (json['resolution_confirmation_count'] as num?)?.toInt() ?? 0,
+    createdAt: _parseDate(json['created_at']) ?? DateTime.now(),
+    resolvedAt: _parseDate(json['resolved_at']),
+    sectorName: _parseName(json, 'sector_name', 'sectors'),
+    municipalityName: _parseName(json, 'municipality_name', 'municipalities'),
+    description: json['description'] as String?,
+    latitude: (json['latitude'] as num?)?.toDouble(),
+    longitude: (json['longitude'] as num?)?.toDouble(),
+    sectorId: json['sector_id'] as String?,
+    municipalityId: json['municipality_id'] as String?,
+  );
 
   final String id;
   final String status;
@@ -42,8 +50,13 @@ class LeakSummary {
   final String? sectorName;
   final String? municipalityName;
   final String? description;
+  final double? latitude;
+  final double? longitude;
+  final String? sectorId;
+  final String? municipalityId;
 
   bool get isResolved => status == 'RESOLVED';
+  bool get hasCoordinates => latitude != null && longitude != null;
 }
 
 /// Detalle de un reporte + estado del usuario actual, tal como lo devuelve
@@ -71,26 +84,26 @@ class LeakDetail {
   });
 
   factory LeakDetail.fromJson(Map<String, dynamic> json) => LeakDetail(
-        id: json['report_id'] as String? ?? json['id'] as String? ?? '',
-        status: json['status'] as String? ?? 'ACTIVE',
-        validationCount: (json['validation_count'] as num?)?.toInt() ?? 0,
-        resolutionConfirmationCount:
-            (json['resolution_confirmation_count'] as num?)?.toInt() ?? 0,
-        threshold: (json['threshold'] as num?)?.toInt() ?? 3,
-        createdAt: _parseDate(json['created_at']) ?? DateTime.now(),
-        resolvedAt: _parseDate(json['resolved_at']),
-        description: json['description'] as String?,
-        locationSource: json['location_source'] as String?,
-        municipalityName: json['municipality_name'] as String?,
-        sectorName: json['sector_name'] as String?,
-        latitude: (json['latitude'] as num?)?.toDouble() ?? 0,
-        longitude: (json['longitude'] as num?)?.toDouble() ?? 0,
-        photoCount: (json['photo_count'] as num?)?.toInt() ?? 0,
-        isCreator: json['is_creator'] as bool? ?? false,
-        isBlocked: json['is_blocked'] as bool? ?? false,
-        alreadyValidated: json['already_validated'] as bool? ?? false,
-        alreadyConfirmed: json['already_confirmed'] as bool? ?? false,
-      );
+    id: json['report_id'] as String? ?? json['id'] as String? ?? '',
+    status: json['status'] as String? ?? 'ACTIVE',
+    validationCount: (json['validation_count'] as num?)?.toInt() ?? 0,
+    resolutionConfirmationCount:
+        (json['resolution_confirmation_count'] as num?)?.toInt() ?? 0,
+    threshold: (json['threshold'] as num?)?.toInt() ?? 3,
+    createdAt: _parseDate(json['created_at']) ?? DateTime.now(),
+    resolvedAt: _parseDate(json['resolved_at']),
+    description: json['description'] as String?,
+    locationSource: json['location_source'] as String?,
+    municipalityName: json['municipality_name'] as String?,
+    sectorName: json['sector_name'] as String?,
+    latitude: (json['latitude'] as num?)?.toDouble() ?? 0,
+    longitude: (json['longitude'] as num?)?.toDouble() ?? 0,
+    photoCount: (json['photo_count'] as num?)?.toInt() ?? 0,
+    isCreator: json['is_creator'] as bool? ?? false,
+    isBlocked: json['is_blocked'] as bool? ?? false,
+    alreadyValidated: json['already_validated'] as bool? ?? false,
+    alreadyConfirmed: json['already_confirmed'] as bool? ?? false,
+  );
 
   final String id;
   final String status;
@@ -118,7 +131,8 @@ class LeakDetail {
   bool get isResolved => status == 'RESOLVED';
 
   /// Acciones disponibles según el estado devuelto por el servidor.
-  bool get canValidate => !isResolved && !isCreator && !alreadyValidated && !isBlocked;
+  bool get canValidate =>
+      !isResolved && !isCreator && !alreadyValidated && !isBlocked;
   bool get canConfirmResolution =>
       !isResolved && !alreadyConfirmed && !isBlocked;
 }
@@ -168,4 +182,13 @@ String? _embeddedName(Object? value) {
     return (value.first as Map)['name'] as String?;
   }
   return null;
+}
+
+String? _parseName(
+  Map<String, dynamic> json,
+  String directKey,
+  String embeddedKey,
+) {
+  if (json[directKey] is String) return json[directKey] as String;
+  return _embeddedName(json[embeddedKey]);
 }

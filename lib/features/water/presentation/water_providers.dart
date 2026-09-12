@@ -23,12 +23,11 @@ class WaterHistoryState {
     AsyncValue<List<WaterEventSummary>>? events,
     bool? isLoadingMore,
     bool? hasMore,
-  }) =>
-      WaterHistoryState(
-        events: events ?? this.events,
-        isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-        hasMore: hasMore ?? this.hasMore,
-      );
+  }) => WaterHistoryState(
+    events: events ?? this.events,
+    isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    hasMore: hasMore ?? this.hasMore,
+  );
 }
 
 /// Historial paginado (keyset) de eventos de agua. No es autoDispose: la
@@ -56,9 +55,7 @@ class WaterHistoryController extends Notifier<WaterHistoryState> {
         hasMore: page.hasMore,
       );
     } catch (error, stackTrace) {
-      state = state.copyWith(
-        events: AsyncValue.error(error, stackTrace),
-      );
+      state = state.copyWith(events: AsyncValue.error(error, stackTrace));
     }
   }
 
@@ -72,9 +69,7 @@ class WaterHistoryController extends Notifier<WaterHistoryState> {
         hasMore: page.hasMore,
       );
     } catch (error, stackTrace) {
-      state = state.copyWith(
-        events: AsyncValue.error(error, stackTrace),
-      );
+      state = state.copyWith(events: AsyncValue.error(error, stackTrace));
     }
   }
 
@@ -116,16 +111,15 @@ class WaterHistoryController extends Notifier<WaterHistoryState> {
 
 final waterHistoryControllerProvider =
     NotifierProvider<WaterHistoryController, WaterHistoryState>(
-  WaterHistoryController.new,
-);
+      WaterHistoryController.new,
+    );
 
 /// Detalle de un evento con el estado del usuario actual (¿ya validó?,
 /// ¿es el creador?). La respuesta viene del backend.
-final waterEventDetailProvider =
-    FutureProvider.autoDispose.family<WaterEventDetail, String>(
-  (ref, eventId) =>
-      ref.watch(waterEventRepositoryProvider).detail(eventId),
-);
+final waterEventDetailProvider = FutureProvider.autoDispose
+    .family<WaterEventDetail, String>(
+      (ref, eventId) => ref.watch(waterEventRepositoryProvider).detail(eventId),
+    );
 
 /// Estadísticas DESCRIPTIVAS derivadas de los eventos ya cargados en el
 /// historial: no hay llamada extra al backend y los valores describen solo

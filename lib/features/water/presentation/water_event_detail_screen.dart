@@ -23,7 +23,8 @@ class WaterEventDetailScreen extends ConsumerStatefulWidget {
       _WaterEventDetailScreenState();
 }
 
-class _WaterEventDetailScreenState extends ConsumerState<WaterEventDetailScreen> {
+class _WaterEventDetailScreenState
+    extends ConsumerState<WaterEventDetailScreen> {
   bool _isValidating = false;
 
   Future<void> _validate() async {
@@ -81,7 +82,8 @@ class _WaterEventDetailScreenState extends ConsumerState<WaterEventDetailScreen>
         loading: () => const LoadingView(message: 'Cargando evento…'),
         error: (error, _) => ErrorView(
           message: _messageFor(error),
-          onRetry: () => ref.invalidate(waterEventDetailProvider(widget.eventId)),
+          onRetry: () =>
+              ref.invalidate(waterEventDetailProvider(widget.eventId)),
         ),
         data: (detail) => SafeArea(
           child: SingleChildScrollView(
@@ -119,9 +121,7 @@ class _WaterEventDetailScreenState extends ConsumerState<WaterEventDetailScreen>
                                 if (detail.municipalityName != null)
                                   detail.municipalityName!,
                               ].join(' · '),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(color: AppColors.textMuted),
                             ),
                         ],
@@ -140,12 +140,18 @@ class _WaterEventDetailScreenState extends ConsumerState<WaterEventDetailScreen>
                       children: [
                         _DetailRow(
                           label: 'Hora del evento',
-                          value: describeWaterEventTime(detail.eventTime, now: now),
+                          value: describeWaterEventTime(
+                            detail.eventTime,
+                            now: now,
+                          ),
                         ),
                         const Divider(),
                         _DetailRow(
                           label: 'Registrado hace',
-                          value: describeWaterEventTime(detail.createdAt, now: now),
+                          value: describeWaterEventTime(
+                            detail.createdAt,
+                            now: now,
+                          ),
                         ),
                         if (detail.comment != null &&
                             detail.comment!.isNotEmpty) ...[
@@ -157,8 +163,7 @@ class _WaterEventDetailScreenState extends ConsumerState<WaterEventDetailScreen>
                               children: [
                                 Text(
                                   'Comentario',
-                                  style:
-                                      Theme.of(context).textTheme.labelSmall,
+                                  style: Theme.of(context).textTheme.labelSmall,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(detail.comment!),
@@ -186,9 +191,7 @@ class _WaterEventDetailScreenState extends ConsumerState<WaterEventDetailScreen>
                         const SizedBox(height: 8),
                         Text(
                           'Personas que han confirmado este evento.',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
+                          style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: AppColors.textMuted),
                         ),
                       ],
@@ -205,17 +208,12 @@ class _WaterEventDetailScreenState extends ConsumerState<WaterEventDetailScreen>
                       padding: const EdgeInsets.all(12),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.block,
-                            color: AppColors.danger,
-                          ),
+                          const Icon(Icons.block, color: AppColors.danger),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               WaterCopy.blocked,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
+                              style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(color: AppColors.danger),
                             ),
                           ),
@@ -230,17 +228,12 @@ class _WaterEventDetailScreenState extends ConsumerState<WaterEventDetailScreen>
                       padding: const EdgeInsets.all(12),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.info,
-                            color: AppColors.primary,
-                          ),
+                          const Icon(Icons.info, color: AppColors.primary),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               WaterCopy.cannotValidateOwn,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
+                              style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(color: AppColors.primary),
                             ),
                           ),
@@ -263,9 +256,7 @@ class _WaterEventDetailScreenState extends ConsumerState<WaterEventDetailScreen>
                           Expanded(
                             child: Text(
                               WaterCopy.alreadyValidated,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
+                              style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(color: AppColors.primary),
                             ),
                           ),
@@ -284,8 +275,9 @@ class _WaterEventDetailScreenState extends ConsumerState<WaterEventDetailScreen>
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation(Colors.white),
+                                valueColor: AlwaysStoppedAnimation(
+                                  Colors.white,
+                                ),
                               ),
                             )
                           : const Text(WaterCopy.validate),
@@ -319,10 +311,7 @@ class _DetailRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
+          Text(label, style: Theme.of(context).textTheme.labelSmall),
           Text(value, style: Theme.of(context).textTheme.bodyMedium),
         ],
       ),

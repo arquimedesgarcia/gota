@@ -22,7 +22,8 @@ class WaterRegisterScreen extends ConsumerStatefulWidget {
   final WaterEventType? initialType;
 
   @override
-  ConsumerState<WaterRegisterScreen> createState() => _WaterRegisterScreenState();
+  ConsumerState<WaterRegisterScreen> createState() =>
+      _WaterRegisterScreenState();
 }
 
 class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
@@ -111,7 +112,8 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
                   ],
                 ),
         ),
-        floatingActionButton: state.submitStatus != WaterRegisterSubmitStatus.submitting &&
+        floatingActionButton:
+            state.submitStatus != WaterRegisterSubmitStatus.submitting &&
                 _currentStep == 4
             ? FloatingActionButton.extended(
                 onPressed: _submit,

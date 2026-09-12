@@ -28,45 +28,45 @@ class _FakeLocationService implements LocationService {
 class _FakeMunicipalityRepository implements MunicipalityRepository {
   @override
   Future<List<Municipality>> getActive() async => const [
-        Municipality(
-          id: 'm1',
-          name: 'Maneiro',
-          state: 'Nueva Esparta',
-          country: 'Venezuela',
-          isActive: true,
-        ),
-      ];
+    Municipality(
+      id: 'm1',
+      name: 'Maneiro',
+      state: 'Nueva Esparta',
+      country: 'Venezuela',
+      isActive: true,
+    ),
+  ];
 }
 
 class _FakeSectorRepository implements SectorRepository {
   @override
   Future<List<Sector>> getByMunicipality(String municipalityId) async => [
-        const Sector(
-          id: 's1',
-          municipalityId: 'm1',
-          name: 'La Caranta',
-          isActive: true,
-        ),
-      ];
+    const Sector(
+      id: 's1',
+      municipalityId: 'm1',
+      name: 'La Caranta',
+      isActive: true,
+    ),
+  ];
 }
 
 ProviderScope _app({LeakFlowException? gpsError}) => ProviderScope(
-      overrides: [
-        locationServiceProvider
-            .overrideWithValue(_FakeLocationService(error: gpsError)),
-        municipalityRepositoryProvider
-            .overrideWithValue(_FakeMunicipalityRepository()),
-        sectorRepositoryProvider.overrideWithValue(_FakeSectorRepository()),
-      ],
-      child: MaterialApp(
-        theme: AppTheme.light,
-        home: const LeakReportScreen(),
-      ),
-    );
+  overrides: [
+    locationServiceProvider.overrideWithValue(
+      _FakeLocationService(error: gpsError),
+    ),
+    municipalityRepositoryProvider.overrideWithValue(
+      _FakeMunicipalityRepository(),
+    ),
+    sectorRepositoryProvider.overrideWithValue(_FakeSectorRepository()),
+  ],
+  child: MaterialApp(theme: AppTheme.light, home: const LeakReportScreen()),
+);
 
 void main() {
-  testWidgets('flujo completo con GPS: ubicación → fotos → datos → revisar',
-      (tester) async {
+  testWidgets('flujo completo con GPS: ubicación → fotos → datos → revisar', (
+    tester,
+  ) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
 
@@ -108,18 +108,16 @@ void main() {
     expect(find.text('Ubicación por GPS'), findsNothing);
   });
 
-  testWidgets('manual: la fuente visible es "Ubicación manual"',
-      (tester) async {
+  testWidgets('manual: la fuente visible es "Ubicación manual"', (
+    tester,
+  ) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Indicar ubicación manual'));
     await tester.pumpAndSettle();
 
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Latitud'),
-      '10.99',
-    );
+    await tester.enterText(find.widgetWithText(TextField, 'Latitud'), '10.99');
     await tester.enterText(
       find.widgetWithText(TextField, 'Longitud'),
       '-63.87',
@@ -131,15 +129,13 @@ void main() {
     expect(find.text('Ubicación por GPS'), findsNothing);
   });
 
-  testWidgets('estado inicial muestra carga de municipios y sin GPS',
-      (tester) async {
+  testWidgets('estado inicial muestra carga de municipios y sin GPS', (
+    tester,
+  ) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
 
     // La pantalla de ubicación no asume GPS ya obtenido.
-    expect(
-      find.textContaining('Sin ubicación todavía'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('Sin ubicación todavía'), findsOneWidget);
   });
 }

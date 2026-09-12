@@ -11,7 +11,8 @@ class PossibleDuplicateCandidate {
         id: json['id'] as String,
         sectorId: json['sector_id'] as String? ?? '',
         distanceMeters: (json['distance_meters'] as num?)?.toInt() ?? 0,
-        createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
+        createdAt:
+            DateTime.tryParse(json['created_at'] as String? ?? '') ??
             DateTime.now(),
       );
 

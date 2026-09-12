@@ -168,7 +168,11 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         resolved ? 'Resuelta' : 'Activa',
-        style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

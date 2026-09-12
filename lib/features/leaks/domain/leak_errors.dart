@@ -24,14 +24,16 @@ class LocationPermissionDeniedException extends LeakFlowException {
 
 class LocationServiceOffException extends LeakFlowException {
   const LocationServiceOffException([
-    super.userMessage = 'El GPS parece estar apagado. Actívalo o usa '
+    super.userMessage =
+        'El GPS parece estar apagado. Actívalo o usa '
         'ubicación manual.',
   ]);
 }
 
 class LocationUnavailableException extends LeakFlowException {
   const LocationUnavailableException([
-    super.userMessage = 'No pudimos obtener tu ubicación. Intenta de nuevo '
+    super.userMessage =
+        'No pudimos obtener tu ubicación. Intenta de nuevo '
         'o usa ubicación manual.',
   ]);
 }
@@ -42,8 +44,9 @@ class PhotoValidationException extends LeakFlowException {
 
 /// Cancelación explícita del selector (AUD-S2-14): no es un error visible.
 class PhotoPickCanceledException extends LeakFlowException {
-  const PhotoPickCanceledException(
-      [super.userMessage = 'No se seleccionó ninguna foto.']);
+  const PhotoPickCanceledException([
+    super.userMessage = 'No se seleccionó ninguna foto.',
+  ]);
 }
 
 class PhotoUploadException extends LeakFlowException {
@@ -56,7 +59,8 @@ class PhotoUploadException extends LeakFlowException {
 /// dejar archivos huérfanos en silencio.
 class PhotoCleanupException extends LeakFlowException {
   const PhotoCleanupException([
-    super.userMessage = 'No pudimos limpiar las fotos temporales de este '
+    super.userMessage =
+        'No pudimos limpiar las fotos temporales de este '
         'intento. Vuelve a intentarlo.',
   ]);
 }

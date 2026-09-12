@@ -48,6 +48,21 @@ class _FakeCommunityDatabase implements GotaCommunityDatabase {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> rpcGetMapReports({
+    String? status,
+    String? sectorId,
+    double? minLat,
+    double? minLng,
+    double? maxLat,
+    double? maxLng,
+    String orderBy = 'recent',
+    int limit = 100,
+  }) async {
+    if (error != null) throw error!;
+    return rows;
+  }
+
+  @override
   Future<Map<String, dynamic>> rpcLeakReportDetail(String reportId) async =>
       _respond('get_leak_report_detail', reportId, detail);
 
@@ -56,8 +71,9 @@ class _FakeCommunityDatabase implements GotaCommunityDatabase {
       _respond('validate_leak', reportId, validateResponse);
 
   @override
-  Future<Map<String, dynamic>> rpcConfirmLeakResolution(String reportId) async =>
-      _respond('confirm_leak_resolution', reportId, confirmResponse);
+  Future<Map<String, dynamic>> rpcConfirmLeakResolution(
+    String reportId,
+  ) async => _respond('confirm_leak_resolution', reportId, confirmResponse);
 }
 
 LeakCommunityRepository _repo(_FakeCommunityDatabase database) =>
@@ -66,29 +82,31 @@ LeakCommunityRepository _repo(_FakeCommunityDatabase database) =>
 void main() {
   group('lista de fugas recientes', () {
     test('mapea los recursos embebidos de PostgREST', () async {
-      final database = _FakeCommunityDatabase(rows: [
-        {
-          'id': 'r1',
-          'status': 'ACTIVE',
-          'validation_count': 2,
-          'resolution_confirmation_count': 1,
-          'created_at': '2026-01-01T10:00:00.000Z',
-          'resolved_at': null,
-          'description': 'Tubería rota',
-          'sectors': {'name': 'La Caranta'},
-          'municipalities': {'name': 'Maneiro'},
-        },
-        {
-          'id': 'r2',
-          'status': 'RESOLVED',
-          'validation_count': 5,
-          'resolution_confirmation_count': 3,
-          'created_at': '2026-01-01T09:00:00.000Z',
-          'resolved_at': '2026-01-02T09:00:00.000Z',
-          'sectors': null,
-          'municipalities': null,
-        },
-      ]);
+      final database = _FakeCommunityDatabase(
+        rows: [
+          {
+            'id': 'r1',
+            'status': 'ACTIVE',
+            'validation_count': 2,
+            'resolution_confirmation_count': 1,
+            'created_at': '2026-01-01T10:00:00.000Z',
+            'resolved_at': null,
+            'description': 'Tubería rota',
+            'sectors': {'name': 'La Caranta'},
+            'municipalities': {'name': 'Maneiro'},
+          },
+          {
+            'id': 'r2',
+            'status': 'RESOLVED',
+            'validation_count': 5,
+            'resolution_confirmation_count': 3,
+            'created_at': '2026-01-01T09:00:00.000Z',
+            'resolved_at': '2026-01-02T09:00:00.000Z',
+            'sectors': null,
+            'municipalities': null,
+          },
+        ],
+      );
 
       final leaks = await _repo(database).recentReports();
 
@@ -115,46 +133,52 @@ void main() {
   });
 
   group('detalle de la fuga', () {
-    test('devuelve el estado del usuario actual que reporta el backend',
-        () async {
-      final database = _FakeCommunityDatabase(detail: const {
-        'status_code': 'OK',
-        'report_id': _reportId,
-        'status': 'ACTIVE',
-        'validation_count': 2,
-        'resolution_confirmation_count': 1,
-        'threshold': 3,
-        'created_at': '2026-01-01T10:00:00.000Z',
-        'latitude': 10.99,
-        'longitude': -63.87,
-        'photo_count': 2,
-        'sector_name': 'La Caranta',
-        'municipality_name': 'Maneiro',
-        'is_creator': false,
-        'is_blocked': false,
-        'already_validated': false,
-        'already_confirmed': false,
-      });
+    test(
+      'devuelve el estado del usuario actual que reporta el backend',
+      () async {
+        final database = _FakeCommunityDatabase(
+          detail: const {
+            'status_code': 'OK',
+            'report_id': _reportId,
+            'status': 'ACTIVE',
+            'validation_count': 2,
+            'resolution_confirmation_count': 1,
+            'threshold': 3,
+            'created_at': '2026-01-01T10:00:00.000Z',
+            'latitude': 10.99,
+            'longitude': -63.87,
+            'photo_count': 2,
+            'sector_name': 'La Caranta',
+            'municipality_name': 'Maneiro',
+            'is_creator': false,
+            'is_blocked': false,
+            'already_validated': false,
+            'already_confirmed': false,
+          },
+        );
 
-      final detail = await _repo(database).reportDetail(_reportId);
+        final detail = await _repo(database).reportDetail(_reportId);
 
-      expect(detail.threshold, 3);
-      expect(detail.validationCount, 2);
-      expect(detail.canValidate, isTrue);
-      expect(detail.canConfirmResolution, isTrue);
-    });
+        expect(detail.threshold, 3);
+        expect(detail.validationCount, 2);
+        expect(detail.canValidate, isTrue);
+        expect(detail.canConfirmResolution, isTrue);
+      },
+    );
 
     test('el creador no puede validar (lo decide el backend)', () async {
-      final database = _FakeCommunityDatabase(detail: const {
-        'status_code': 'OK',
-        'report_id': _reportId,
-        'status': 'ACTIVE',
-        'is_creator': true,
-        'already_validated': false,
-        'already_confirmed': false,
-        'threshold': 3,
-        'created_at': '2026-01-01T10:00:00.000Z',
-      });
+      final database = _FakeCommunityDatabase(
+        detail: const {
+          'status_code': 'OK',
+          'report_id': _reportId,
+          'status': 'ACTIVE',
+          'is_creator': true,
+          'already_validated': false,
+          'already_confirmed': false,
+          'threshold': 3,
+          'created_at': '2026-01-01T10:00:00.000Z',
+        },
+      );
 
       final detail = await _repo(database).reportDetail(_reportId);
 
@@ -165,16 +189,18 @@ void main() {
     });
 
     test('fuga resuelta: sin acciones disponibles', () async {
-      final database = _FakeCommunityDatabase(detail: const {
-        'status_code': 'OK',
-        'report_id': _reportId,
-        'status': 'RESOLVED',
-        'threshold': 3,
-        'created_at': '2026-01-01T10:00:00.000Z',
-        'resolved_at': '2026-01-02T10:00:00.000Z',
-        'already_validated': true,
-        'already_confirmed': true,
-      });
+      final database = _FakeCommunityDatabase(
+        detail: const {
+          'status_code': 'OK',
+          'report_id': _reportId,
+          'status': 'RESOLVED',
+          'threshold': 3,
+          'created_at': '2026-01-01T10:00:00.000Z',
+          'resolved_at': '2026-01-02T10:00:00.000Z',
+          'already_validated': true,
+          'already_confirmed': true,
+        },
+      );
 
       final detail = await _repo(database).reportDetail(_reportId);
 
@@ -208,14 +234,16 @@ void main() {
 
   group('validar fuga', () {
     test('validación exitosa: el contador viene del backend', () async {
-      final database = _FakeCommunityDatabase(validateResponse: const {
-        'status_code': 'VALIDATED',
-        'status': 'ACTIVE',
-        'validation_count': 3,
-        'resolution_confirmation_count': 1,
-        'threshold': 3,
-        'already_validated': false,
-      });
+      final database = _FakeCommunityDatabase(
+        validateResponse: const {
+          'status_code': 'VALIDATED',
+          'status': 'ACTIVE',
+          'validation_count': 3,
+          'resolution_confirmation_count': 1,
+          'threshold': 3,
+          'already_validated': false,
+        },
+      );
 
       final result = await _repo(database).validateLeak(_reportId);
 
@@ -228,13 +256,15 @@ void main() {
     });
 
     test('segunda validación del mismo usuario → DUPLICATE_ACTION', () async {
-      final database = _FakeCommunityDatabase(validateResponse: const {
-        'status_code': 'DUPLICATE_ACTION',
-        'message': 'Ya validaste este reporte.',
-        'already_validated': true,
-        'validation_count': 1,
-        'threshold': 3,
-      });
+      final database = _FakeCommunityDatabase(
+        validateResponse: const {
+          'status_code': 'DUPLICATE_ACTION',
+          'message': 'Ya validaste este reporte.',
+          'already_validated': true,
+          'validation_count': 1,
+          'threshold': 3,
+        },
+      );
 
       await expectLater(
         _repo(database).validateLeak(_reportId),
@@ -249,10 +279,12 @@ void main() {
     });
 
     test('el creador recibe el mensaje del backend', () async {
-      final database = _FakeCommunityDatabase(validateResponse: const {
-        'status_code': 'FORBIDDEN',
-        'message': 'No puedes validar tu propio reporte.',
-      });
+      final database = _FakeCommunityDatabase(
+        validateResponse: const {
+          'status_code': 'FORBIDDEN',
+          'message': 'No puedes validar tu propio reporte.',
+        },
+      );
 
       await expectLater(
         _repo(database).validateLeak(_reportId),
@@ -267,10 +299,12 @@ void main() {
     });
 
     test('usuario bloqueado', () async {
-      final database = _FakeCommunityDatabase(validateResponse: const {
-        'status_code': 'FORBIDDEN',
-        'message': 'Tu acceso está bloqueado.',
-      });
+      final database = _FakeCommunityDatabase(
+        validateResponse: const {
+          'status_code': 'FORBIDDEN',
+          'message': 'Tu acceso está bloqueado.',
+        },
+      );
 
       await expectLater(
         _repo(database).validateLeak(_reportId),
@@ -296,10 +330,12 @@ void main() {
     });
 
     test('estado incompatible (ya resuelta)', () async {
-      final database = _FakeCommunityDatabase(validateResponse: const {
-        'status_code': 'REPORT_ALREADY_RESOLVED',
-        'status': 'RESOLVED',
-      });
+      final database = _FakeCommunityDatabase(
+        validateResponse: const {
+          'status_code': 'REPORT_ALREADY_RESOLVED',
+          'status': 'RESOLVED',
+        },
+      );
 
       await expectLater(
         _repo(database).validateLeak(_reportId),
@@ -354,13 +390,15 @@ void main() {
 
   group('confirmar resolución', () {
     test('confirmación sin umbral alcanzado', () async {
-      final database = _FakeCommunityDatabase(confirmResponse: const {
-        'status_code': 'CONFIRMED',
-        'status': 'ACTIVE',
-        'validation_count': 4,
-        'resolution_confirmation_count': 2,
-        'threshold': 3,
-      });
+      final database = _FakeCommunityDatabase(
+        confirmResponse: const {
+          'status_code': 'CONFIRMED',
+          'status': 'ACTIVE',
+          'validation_count': 4,
+          'resolution_confirmation_count': 2,
+          'threshold': 3,
+        },
+      );
 
       final result = await _repo(database).confirmResolution(_reportId);
 
@@ -371,14 +409,16 @@ void main() {
     });
 
     test('umbral alcanzado: el backend devuelve RESOLVED', () async {
-      final database = _FakeCommunityDatabase(confirmResponse: const {
-        'status_code': 'RESOLVED',
-        'status': 'RESOLVED',
-        'validation_count': 4,
-        'resolution_confirmation_count': 3,
-        'threshold': 3,
-        'resolved_at': '2026-01-02T10:00:00.000Z',
-      });
+      final database = _FakeCommunityDatabase(
+        confirmResponse: const {
+          'status_code': 'RESOLVED',
+          'status': 'RESOLVED',
+          'validation_count': 4,
+          'resolution_confirmation_count': 3,
+          'threshold': 3,
+          'resolved_at': '2026-01-02T10:00:00.000Z',
+        },
+      );
 
       final result = await _repo(database).confirmResolution(_reportId);
 
@@ -388,11 +428,13 @@ void main() {
     });
 
     test('confirmación duplicada → DUPLICATE_ACTION', () async {
-      final database = _FakeCommunityDatabase(confirmResponse: const {
-        'status_code': 'DUPLICATE_ACTION',
-        'message': 'Ya confirmaste la resolución de esta fuga.',
-        'resolution_confirmation_count': 1,
-      });
+      final database = _FakeCommunityDatabase(
+        confirmResponse: const {
+          'status_code': 'DUPLICATE_ACTION',
+          'message': 'Ya confirmaste la resolución de esta fuga.',
+          'resolution_confirmation_count': 1,
+        },
+      );
 
       await expectLater(
         _repo(database).confirmResolution(_reportId),
@@ -407,10 +449,12 @@ void main() {
     });
 
     test('usuario bloqueado', () async {
-      final database = _FakeCommunityDatabase(confirmResponse: const {
-        'status_code': 'FORBIDDEN',
-        'message': 'Tu acceso está bloqueado.',
-      });
+      final database = _FakeCommunityDatabase(
+        confirmResponse: const {
+          'status_code': 'FORBIDDEN',
+          'message': 'Tu acceso está bloqueado.',
+        },
+      );
 
       await expectLater(
         _repo(database).confirmResolution(_reportId),
@@ -430,10 +474,12 @@ void main() {
     });
 
     test('reporte ya resuelto por otras identidades', () async {
-      final database = _FakeCommunityDatabase(confirmResponse: const {
-        'status_code': 'REPORT_ALREADY_RESOLVED',
-        'status': 'RESOLVED',
-      });
+      final database = _FakeCommunityDatabase(
+        confirmResponse: const {
+          'status_code': 'REPORT_ALREADY_RESOLVED',
+          'status': 'RESOLVED',
+        },
+      );
 
       await expectLater(
         _repo(database).confirmResolution(_reportId),

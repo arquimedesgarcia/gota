@@ -15,9 +15,7 @@ abstract class GotaDatabase {
 
   /// Invoca la RPC protegida `create_leak_report` y devuelve su `jsonb`
   /// deserializado (`status_code` + payload).
-  Future<Map<String, dynamic>> rpcCreateLeakReport(
-    Map<String, dynamic> params,
-  );
+  Future<Map<String, dynamic>> rpcCreateLeakReport(Map<String, dynamic> params);
 }
 
 class SupabaseGotaDatabase implements GotaDatabase {
@@ -73,8 +71,10 @@ class SupabaseGotaDatabase implements GotaDatabase {
   Future<Map<String, dynamic>> rpcCreateLeakReport(
     Map<String, dynamic> params,
   ) async {
-    final data =
-        await _client.rpc<dynamic>('create_leak_report', params: params);
+    final data = await _client.rpc<dynamic>(
+      'create_leak_report',
+      params: params,
+    );
     if (data is Map) return Map<String, dynamic>.from(data);
     throw StateError('create_leak_report devolvió un formato inesperado.');
   }

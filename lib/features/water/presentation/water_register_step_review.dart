@@ -26,10 +26,7 @@ class WaterRegisterStepReview extends ConsumerWidget {
           label: WaterCopy.stepMunicipality,
           value: state.municipalityName ?? '—',
         ),
-        _ReviewRow(
-          label: WaterCopy.stepSector,
-          value: state.sectorName ?? '—',
-        ),
+        _ReviewRow(label: WaterCopy.stepSector, value: state.sectorName ?? '—'),
         _ReviewRow(
           label: WaterCopy.stepTime,
           value: state.eventTime != null
@@ -37,10 +34,7 @@ class WaterRegisterStepReview extends ConsumerWidget {
               : '—',
         ),
         if (state.comment.isNotEmpty)
-          _ReviewRow(
-            label: WaterCopy.stepComment,
-            value: state.comment,
-          ),
+          _ReviewRow(label: WaterCopy.stepComment, value: state.comment),
       ],
     );
   }
@@ -61,14 +55,9 @@ class _ReviewRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 120,
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
+            child: Text(label, style: Theme.of(context).textTheme.labelMedium),
           ),
-          Expanded(
-            child: Text(value),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );

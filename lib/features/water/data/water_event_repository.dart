@@ -36,7 +36,10 @@ abstract class WaterEventRepository {
   Future<WaterEventDetail> detail(String eventId);
 
   /// Historial reciente paginado (keyset).
-  Future<WaterEventsPage> recentEvents({int limit = 20, WaterEventCursor? cursor});
+  Future<WaterEventsPage> recentEvents({
+    int limit = 20,
+    WaterEventCursor? cursor,
+  });
 }
 
 class SupabaseWaterEventRepository implements WaterEventRepository {
@@ -53,8 +56,9 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
     String? comment,
   }) async {
     final trimmed = comment?.trim();
-    final normalizedComment =
-        trimmed == null || trimmed.isEmpty ? null : trimmed;
+    final normalizedComment = trimmed == null || trimmed.isEmpty
+        ? null
+        : trimmed;
 
     final data = await _rpc(
       () => _database.rpcRegisterWaterEvent(
@@ -109,8 +113,7 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
         );
       case 'FORBIDDEN':
         throw WaterForbiddenException(
-          data['message'] as String? ??
-              'No puedes validar tu propio evento.',
+          data['message'] as String? ?? 'No puedes validar tu propio evento.',
         );
       case 'NOT_FOUND':
         throw WaterNotFoundException(
@@ -156,11 +159,11 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
       // la página vino llena; si vino incompleta no hay más páginas.
       final WaterEventCursor? nextCursor =
           events.length == limit && events.isNotEmpty
-              ? WaterEventCursor(
-                  eventTime: events.last.eventTime,
-                  id: events.last.id,
-                )
-              : null;
+          ? WaterEventCursor(
+              eventTime: events.last.eventTime,
+              id: events.last.id,
+            )
+          : null;
       return WaterEventsPage(events: events, nextCursor: nextCursor);
     } on SocketException {
       throw const NetworkException();

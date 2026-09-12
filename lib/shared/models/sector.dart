@@ -12,9 +12,9 @@ class Sector {
   final bool isActive;
 
   factory Sector.fromJson(Map<String, dynamic> json) => Sector(
-        id: json['id'] as String,
-        municipalityId: json['municipality_id'] as String,
-        name: json['name'] as String,
-        isActive: json['is_active'] as bool? ?? false,
-      );
+    id: json['id'] as String,
+    municipalityId: json['municipality_id'] as String,
+    name: json['name'] as String,
+    isActive: json['is_active'] as bool? ?? false,
+  );
 }

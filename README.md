@@ -2,7 +2,7 @@
 
 Aplicación comunitaria móvil (Flutter + Supabase) para reportar y validar fugas de agua y registrar eventos de suministro en Isla de Margarita, Venezuela.
 
-**Estado: Sprint 04 — Water Events implementado** (Sprint 01 Foundation, Sprint 02 Leak Reporting y Sprint 03 Validation & Resolution completados). La corrección de la auditoría del Sprint 01 está aplicada (ver `docs/MIGRATION_NOTES.md` § "Auditoría Sprint 01").
+**Estado: Sprint 05 — Map implementado** (Sprint 01 Foundation, Sprint 02 Leak Reporting, Sprint 03 Validation & Resolution, Sprint 04 Water Events completados). La corrección de la auditoría del Sprint 01 está aplicada (ver `docs/MIGRATION_NOTES.md` § "Auditoría Sprint 01").
 
 ## Documentación (fuente de verdad)
 
@@ -146,9 +146,15 @@ App: lista **Fugas cerca de ti** en Inicio (`lib/features/leaks/presentation/rec
 
 14. `...0014_water_events` — tablas `water_events` y `water_event_validations` (acceso cliente solo lectura de eventos; validaciones solo vía RPC) y las RPC `register_water_event()`, `validate_water_event()` y `get_water_event_detail()`, siguiendo el patrón `security definer` de Sprint 03. Estadísticas descriptivas (sin predicción) y pestaña "Agua" integrada en `AppShell`.
 
+### Sprint 05 — Map
+
+15. `...0017_map_reports` — RPC pública `get_map_reports()` con DTO que expone **solo datos públicos** (sin `created_by`, emails, teléfonos ni metadatos privados). Filtros: Todas, Activas, Resueltas, Mi sector, Recientes, Más validadas. Usa índice espacial GIST `reports_location_gix` para bounding box. Límite acotado 1–200. Accesible para `anon` y `authenticated`.
+
+App: pantalla **Mapa** (`lib/features/map/`) con MapLibre/OSM, markers diferenciados ACTIVE/RESOLVED, selección → detalle existente (`LeakDetailScreen`), vista Mapa ↔ Lista sincronizada (mismo provider `mapReportsProvider`), ubicación del usuario bajo demanda (no tracking continuo), estados UX (carga, vacío, error, sin permiso GPS), y respeto estricto de RLS y privacidad.
+
 ### Corrección de la auditoría del Sprint 01
 
-15. `...0015_audit_sprint01_fixes` — mínimos privilegios en `app_users` (sin `INSERT` de cliente), verificación estricta de PostGIS y `ensure_app_user()` con firma `jsonb` + `UNAUTHORIZED` controlado sin sesión. Detalle en `docs/MIGRATION_NOTES.md` § "Auditoría Sprint 01".
+16. `...0015_audit_sprint01_fixes` — mínimos privilegios en `app_users` (sin `INSERT` de cliente), verificación estricta de PostGIS y `ensure_app_user()` con firma `jsonb` + `UNAUTHORIZED` controlado sin sesión. Detalle en `docs/MIGRATION_NOTES.md` § "Auditoría Sprint 01".
 
 ## Pruebas SQL y de integración
 
@@ -168,6 +174,9 @@ psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/create_leak_report_
 # Sprint 03: tablas de acciones, RLS/GRANT, validación, resolución,
 # umbral, estados y consistencia de contadores
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/validate_resolve_leak_test.sql
+
+# Sprint 05: RPC get_map_reports (DTO público, filtros, bbox, límites, RLS)
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/map_reports_test.sql
 ```
 
 Los scripts de `supabase/tests/*.sh` verifican el comportamiento real de la **API** y la concurrencia (Supabase bloquea el DML directo sobre `storage.objects`, así que el borrado y el aislamiento entre usuarios solo se pueden probar por HTTP):

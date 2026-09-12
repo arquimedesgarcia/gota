@@ -40,19 +40,20 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
       ref.read(leakCommunityRepositoryProvider);
 
   Future<void> _validate() => _run(
-        () => _repository.validateLeak(widget.reportId),
-        (result) =>
-            LeakCommunityCopy.validatedMessage(result.validationCount),
-      );
+    () => _repository.validateLeak(widget.reportId),
+    (result) => LeakCommunityCopy.validatedMessage(result.validationCount),
+  );
 
   Future<void> _confirmResolution() => _run(
-        () => _repository.confirmResolution(widget.reportId),
-        (result) => LeakCommunityCopy.confirmedMessage(
-          resolved: result.isResolved,
-          missing: (result.threshold - result.resolutionConfirmationCount)
-              .clamp(0, result.threshold),
-        ),
-      );
+    () => _repository.confirmResolution(widget.reportId),
+    (result) => LeakCommunityCopy.confirmedMessage(
+      resolved: result.isResolved,
+      missing: (result.threshold - result.resolutionConfirmationCount).clamp(
+        0,
+        result.threshold,
+      ),
+    ),
+  );
 
   Future<void> _run(
     Future<CommunityActionResult> Function() action,
@@ -103,10 +104,8 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
       body: SafeArea(
         child: detailAsync.when(
           loading: () => const LoadingView(message: 'Cargando la fuga…'),
-          error: (error, _) => ErrorView(
-            message: _messageFor(error),
-            onRetry: _refresh,
-          ),
+          error: (error, _) =>
+              ErrorView(message: _messageFor(error), onRetry: _refresh),
           data: _buildDetail,
         ),
       ),

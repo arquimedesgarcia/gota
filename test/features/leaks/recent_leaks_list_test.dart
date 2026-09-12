@@ -16,16 +16,15 @@ LeakSummary _summary({
   int confirmations = 0,
   String? sector = 'La Caranta',
   String? municipality = 'Maneiro',
-}) =>
-    LeakSummary(
-      id: id,
-      status: status,
-      validationCount: validations,
-      resolutionConfirmationCount: confirmations,
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      sectorName: sector,
-      municipalityName: municipality,
-    );
+}) => LeakSummary(
+  id: id,
+  status: status,
+  validationCount: validations,
+  resolutionConfirmationCount: confirmations,
+  createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+  sectorName: sector,
+  municipalityName: municipality,
+);
 
 class _FakeLeakCommunityRepository implements LeakCommunityRepository {
   _FakeLeakCommunityRepository({this.list = const [], this.listError});
@@ -41,21 +40,21 @@ class _FakeLeakCommunityRepository implements LeakCommunityRepository {
 
   @override
   Future<LeakDetail> reportDetail(String reportId) async => LeakDetail(
-        id: reportId,
-        status: 'ACTIVE',
-        validationCount: 1,
-        resolutionConfirmationCount: 0,
-        threshold: 3,
-        createdAt: DateTime.now(),
-        latitude: 10.99,
-        longitude: -63.87,
-        isCreator: false,
-        isBlocked: false,
-        alreadyValidated: false,
-        alreadyConfirmed: false,
-        sectorName: 'La Caranta',
-        municipalityName: 'Maneiro',
-      );
+    id: reportId,
+    status: 'ACTIVE',
+    validationCount: 1,
+    resolutionConfirmationCount: 0,
+    threshold: 3,
+    createdAt: DateTime.now(),
+    latitude: 10.99,
+    longitude: -63.87,
+    isCreator: false,
+    isBlocked: false,
+    alreadyValidated: false,
+    alreadyConfirmed: false,
+    sectorName: 'La Caranta',
+    municipalityName: 'Maneiro',
+  );
 
   @override
   Future<CommunityActionResult> validateLeak(String reportId) async =>
@@ -64,6 +63,18 @@ class _FakeLeakCommunityRepository implements LeakCommunityRepository {
   @override
   Future<CommunityActionResult> confirmResolution(String reportId) async =>
       throw UnimplementedError();
+
+  @override
+  Future<List<LeakSummary>> mapReports({
+    String? status,
+    String? sectorId,
+    double? minLat,
+    double? minLng,
+    double? maxLat,
+    double? maxLng,
+    String orderBy = 'recent',
+    int limit = 100,
+  }) async => throw UnimplementedError();
 }
 
 Future<void> _pump(
@@ -94,15 +105,17 @@ void main() {
   testWidgets('lista las fugas con su estado y contador', (tester) async {
     await _pump(
       tester,
-      _FakeLeakCommunityRepository(list: [
-        _summary(id: 'r1', validations: 3),
-        _summary(
-          id: 'r2',
-          status: 'RESOLVED',
-          confirmations: 3,
-          sector: 'Playa El Ángel',
-        ),
-      ]),
+      _FakeLeakCommunityRepository(
+        list: [
+          _summary(id: 'r1', validations: 3),
+          _summary(
+            id: 'r2',
+            status: 'RESOLVED',
+            confirmations: 3,
+            sector: 'Playa El Ángel',
+          ),
+        ],
+      ),
     );
 
     expect(find.text('La Caranta · Maneiro'), findsOneWidget);
@@ -131,10 +144,7 @@ void main() {
     );
     await _pump(tester, repository);
 
-    expect(
-      find.text('No pudimos cargar las fugas cercanas.'),
-      findsOneWidget,
-    );
+    expect(find.text('No pudimos cargar las fugas cercanas.'), findsOneWidget);
 
     repository.listError = null;
     repository.list = [_summary(id: 'r1')];

@@ -21,16 +21,10 @@ abstract class GotaStorage {
   ///
   /// Solo puede eliminar archivos cuya ruta pertenezca a la carpeta del
   /// usuario autenticado (política RLS del bucket).
-  Future<void> remove({
-    required String bucket,
-    required List<String> paths,
-  });
+  Future<void> remove({required String bucket, required List<String> paths});
 
   /// Lista los nombres de archivo bajo [prefix] dentro de [bucket].
-  Future<List<String>> list({
-    required String bucket,
-    required String prefix,
-  });
+  Future<List<String>> list({required String bucket, required String prefix});
 }
 
 class SupabaseGotaStorage implements GotaStorage {
@@ -45,7 +39,9 @@ class SupabaseGotaStorage implements GotaStorage {
     required Uint8List bytes,
     required String contentType,
   }) async {
-    await _client.storage.from(bucket).uploadBinary(
+    await _client.storage
+        .from(bucket)
+        .uploadBinary(
           path,
           bytes,
           fileOptions: supabase.FileOptions(

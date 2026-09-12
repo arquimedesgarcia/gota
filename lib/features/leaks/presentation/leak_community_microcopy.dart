@@ -14,7 +14,8 @@ abstract final class LeakCommunityCopy {
   static const alreadyConfirmed = 'Ya confirmaste la resolución';
   static const blocked = 'Tu acceso está bloqueado';
   static const loadError = 'No pudimos cargar esta fuga. Intenta de nuevo.';
-  static const actionError = 'No pudimos completar la acción. Intenta de nuevo.';
+  static const actionError =
+      'No pudimos completar la acción. Intenta de nuevo.';
   static const listError = 'No pudimos cargar las fugas cercanas.';
   static const emptyList = 'Sin datos todavía';
   static const retry = 'Reintentar';

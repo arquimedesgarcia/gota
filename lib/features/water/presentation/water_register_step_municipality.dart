@@ -15,8 +15,9 @@ class WaterRegisterStepMunicipality extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final municipalitiesAsync = ref.watch(municipalitiesProvider);
-    final currentMunicipalityId =
-        ref.watch(waterRegisterControllerProvider).municipalityId;
+    final currentMunicipalityId = ref
+        .watch(waterRegisterControllerProvider)
+        .municipalityId;
 
     return municipalitiesAsync.when(
       loading: () => const LoadingView(message: 'Cargando municipios…'),
@@ -87,20 +88,23 @@ class _MunicipalityTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected ? Theme.of(context).primaryColor : Colors.grey[300]!,
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
-          color: isSelected ? Theme.of(context).primaryColor.withValues(alpha: 0.08) : null,
+          color: isSelected
+              ? Theme.of(context).primaryColor.withValues(alpha: 0.08)
+              : null,
         ),
         child: Row(
           children: [
             Expanded(
               child: Text(
                 municipality.name,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: isSelected ? FontWeight.w600 : null,
-                    ),
+                style: Theme.of(context).textTheme.bodyLarge
+                    ?.copyWith(fontWeight: isSelected ? FontWeight.w600 : null),
               ),
             ),
             Icon(

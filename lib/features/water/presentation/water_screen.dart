@@ -107,11 +107,17 @@ class _WaterBody extends ConsumerWidget {
           onPressed: () => onRegister(WaterEventType.left),
         ),
         const SizedBox(height: 20),
-        Text(WaterCopy.summaryTitle, style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          WaterCopy.summaryTitle,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: 8),
         const _StatisticsCard(),
         const SizedBox(height: 20),
-        Text(WaterCopy.historyTitle, style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          WaterCopy.historyTitle,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: 8),
         if (events.isEmpty)
           const Card(
@@ -146,8 +152,9 @@ class _WaterBody extends ConsumerWidget {
                 )
               : TextButton(
                   key: waterLoadMoreKey,
-                  onPressed: () =>
-                      ref.read(waterHistoryControllerProvider.notifier).loadMore(),
+                  onPressed: () => ref
+                      .read(waterHistoryControllerProvider.notifier)
+                      .loadMore(),
                   child: const Text(WaterCopy.loadMore),
                 ),
         ],
@@ -216,17 +223,17 @@ class _StatisticsCard extends ConsumerWidget {
             _statRow(
               context,
               '${WaterCopy.lastArrival}: '
-              '${stats.lastArrival == null ? '—' : describeWaterEventTime(stats.lastArrival!, now: now)}',
+                  '${stats.lastArrival == null ? '—' : describeWaterEventTime(stats.lastArrival!, now: now)}',
               '${WaterCopy.lastDeparture}: '
-              '${stats.lastDeparture == null ? '—' : describeWaterEventTime(stats.lastDeparture!, now: now)}',
+                  '${stats.lastDeparture == null ? '—' : describeWaterEventTime(stats.lastDeparture!, now: now)}',
             ),
             const SizedBox(height: 8),
             _statRow(
               context,
               '${WaterCopy.averageSupply}: '
-              '${stats.averageSupplyDuration == null ? WaterCopy.noData : WaterCopy.duration(stats.averageSupplyDuration)}',
+                  '${stats.averageSupplyDuration == null ? WaterCopy.noData : WaterCopy.duration(stats.averageSupplyDuration)}',
               '${WaterCopy.averageOutage}: '
-              '${stats.averageOutageDuration == null ? WaterCopy.noData : WaterCopy.duration(stats.averageOutageDuration)}',
+                  '${stats.averageOutageDuration == null ? WaterCopy.noData : WaterCopy.duration(stats.averageOutageDuration)}',
             ),
           ],
         ),

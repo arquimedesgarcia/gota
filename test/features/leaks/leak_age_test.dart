@@ -32,7 +32,9 @@ void main() {
   });
 
   test('una fecha futura no produce texto negativo', () {
-    expect(describeLeakAge(now.add(const Duration(hours: 1)), now: now),
-        'hace un momento');
+    expect(
+      describeLeakAge(now.add(const Duration(hours: 1)), now: now),
+      'hace un momento',
+    );
   });
 }

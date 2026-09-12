@@ -51,7 +51,8 @@ class SupabaseGotaWaterDatabase implements GotaWaterDatabase {
 
   /// Columnas del listado: solo lo necesario para pintar la lista y las
   /// tarjetas de resumen. `created_by` nunca se selecciona.
-  static const _listColumns = 'id, event_type, event_time, comment, '
+  static const _listColumns =
+      'id, event_type, event_time, comment, '
       'validation_count, created_at, municipality_id, sector_id, '
       'sectors(name), municipalities(name)';
 

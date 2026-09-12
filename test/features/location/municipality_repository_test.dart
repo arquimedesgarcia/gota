@@ -19,12 +19,12 @@ void main() {
   });
 
   Map<String, dynamic> municipalityRow(String id, String name) => {
-        'id': id,
-        'name': name,
-        'state': 'Nueva Esparta',
-        'country': 'Venezuela',
-        'is_active': true,
-      };
+    'id': id,
+    'name': name,
+    'state': 'Nueva Esparta',
+    'country': 'Venezuela',
+    'is_active': true,
+  };
 
   group('SupabaseMunicipalityRepository.getActive', () {
     test('mapea las filas de Maneiro y Arismendi a municipios', () async {
@@ -48,20 +48,14 @@ void main() {
         const supabase.PostgrestException(message: 'tabla inexistente'),
       );
 
-      expect(
-        () => repository.getActive(),
-        throwsA(isA<QueryException>()),
-      );
+      expect(() => repository.getActive(), throwsA(isA<QueryException>()));
     });
 
     test('SocketException se mapea a NetworkException', () async {
       when(() => database.fetchActiveMunicipalities())
           .thenThrow(const SocketException('sin red'));
 
-      expect(
-        () => repository.getActive(),
-        throwsA(isA<NetworkException>()),
-      );
+      expect(() => repository.getActive(), throwsA(isA<NetworkException>()));
     });
   });
 }

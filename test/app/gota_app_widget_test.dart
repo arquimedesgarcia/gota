@@ -13,12 +13,12 @@ import 'package:gota/shared/services/auth_repository.dart';
 class FakeAuthRepository implements AuthRepository {
   @override
   Future<AppUser> ensureSessionAndProfile() async => AppUser.fromJson(const {
-        'id': 'app-user-1',
-        'auth_user_id': 'auth-user-1',
-        'created_at': '2024-01-01T00:00:00.000Z',
-        'last_seen_at': null,
-        'is_blocked': false,
-      });
+    'id': 'app-user-1',
+    'auth_user_id': 'auth-user-1',
+    'created_at': '2024-01-01T00:00:00.000Z',
+    'last_seen_at': null,
+    'is_blocked': false,
+  });
 }
 
 class FakeMunicipalityRepository implements MunicipalityRepository {
@@ -33,8 +33,9 @@ class FakeSectorRepository implements SectorRepository {
 }
 
 void main() {
-  testWidgets('GotaApp muestra el home y la navegación de cinco destinos',
-      (tester) async {
+  testWidgets('GotaApp muestra el home y la navegación de cinco destinos', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -45,10 +46,10 @@ void main() {
             ),
           ),
           authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
-          municipalityRepositoryProvider
-              .overrideWithValue(FakeMunicipalityRepository()),
-          sectorRepositoryProvider
-              .overrideWithValue(FakeSectorRepository()),
+          municipalityRepositoryProvider.overrideWithValue(
+            FakeMunicipalityRepository(),
+          ),
+          sectorRepositoryProvider.overrideWithValue(FakeSectorRepository()),
         ],
         child: const GotaApp(),
       ),
@@ -68,8 +69,9 @@ void main() {
     expect(find.text('Más'), findsOneWidget);
   });
 
-  testWidgets('Navegar a Más muestra la pantalla de placeholder',
-      (tester) async {
+  testWidgets('Navegar a Más muestra la pantalla de placeholder', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -80,10 +82,10 @@ void main() {
             ),
           ),
           authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
-          municipalityRepositoryProvider
-              .overrideWithValue(FakeMunicipalityRepository()),
-          sectorRepositoryProvider
-              .overrideWithValue(FakeSectorRepository()),
+          municipalityRepositoryProvider.overrideWithValue(
+            FakeMunicipalityRepository(),
+          ),
+          sectorRepositoryProvider.overrideWithValue(FakeSectorRepository()),
         ],
         child: const GotaApp(),
       ),

@@ -2,7 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/models/municipality.dart';
 import '../../../shared/models/sector.dart';
-import '../data/municipality_repository.dart' show municipalityRepositoryProvider;
+import '../data/municipality_repository.dart'
+    show municipalityRepositoryProvider;
 import '../data/sector_repository.dart' show sectorRepositoryProvider;
 
 final municipalitiesProvider = FutureProvider<List<Municipality>>(
@@ -22,8 +23,7 @@ class SelectedMunicipality extends Notifier<String?> {
   void clear() => state = null;
 }
 
-final sectorsProvider =
-    FutureProvider.autoDispose.family<List<Sector>, String>(
+final sectorsProvider = FutureProvider.autoDispose.family<List<Sector>, String>(
   (ref, municipalityId) =>
       ref.watch(sectorRepositoryProvider).getByMunicipality(municipalityId),
 );

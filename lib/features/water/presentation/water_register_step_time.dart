@@ -110,6 +110,8 @@ class WaterRegisterStepTime extends ConsumerWidget {
       0,
     );
 
-    ref.read(waterRegisterControllerProvider.notifier).selectEventTime(combined);
+    ref
+        .read(waterRegisterControllerProvider.notifier)
+        .selectEventTime(combined);
   }
 }

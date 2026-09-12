@@ -43,8 +43,10 @@ abstract final class WaterCopy {
 
   // Errores.
   static const loadError = 'No pudimos cargar el historial. Intenta de nuevo.';
-  static const actionError = 'No pudimos completar la acción. Intenta de nuevo.';
-  static const registerError = 'No pudimos registrar el evento. Intenta de nuevo.';
+  static const actionError =
+      'No pudimos completar la acción. Intenta de nuevo.';
+  static const registerError =
+      'No pudimos registrar el evento. Intenta de nuevo.';
 
   static String validationCount(int count) =>
       count == 1 ? '1 validación' : '$count validaciones';

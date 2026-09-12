@@ -48,14 +48,13 @@ class LeakReportState {
     String? message,
     bool clearMessage = false,
     CreateLeakReportOutcome? outcome,
-  }) =>
-      LeakReportState(
-        currentStep: currentStep ?? this.currentStep,
-        draft: draft ?? this.draft,
-        submitState: submitState ?? this.submitState,
-        message: clearMessage ? null : (message ?? this.message),
-        outcome: outcome ?? this.outcome,
-      );
+  }) => LeakReportState(
+    currentStep: currentStep ?? this.currentStep,
+    draft: draft ?? this.draft,
+    submitState: submitState ?? this.submitState,
+    message: clearMessage ? null : (message ?? this.message),
+    outcome: outcome ?? this.outcome,
+  );
 }
 
 /// Controller del flujo Reportar fuga.
@@ -123,9 +122,7 @@ class LeakReportController extends Notifier<LeakReportState> {
     try {
       final photo = await service.pickAndPrepare(fromCamera: fromCamera);
       state = state.copyWith(
-        draft: state.draft.copyWith(
-          photos: [...state.draft.photos, photo],
-        ),
+        draft: state.draft.copyWith(photos: [...state.draft.photos, photo]),
         clearMessage: true,
       );
     } on PhotoPickCanceledException {
@@ -141,8 +138,7 @@ class LeakReportController extends Notifier<LeakReportState> {
   void removePhoto(PreparedPhoto photo) {
     state = state.copyWith(
       draft: state.draft.copyWith(
-        photos:
-            state.draft.photos.where((p) => p.id != photo.id).toList(),
+        photos: state.draft.photos.where((p) => p.id != photo.id).toList(),
       ),
     );
   }
@@ -151,9 +147,7 @@ class LeakReportController extends Notifier<LeakReportState> {
   @visibleForTesting
   void addPreparedPhotoForTest(PreparedPhoto photo) {
     state = state.copyWith(
-      draft: state.draft.copyWith(
-        photos: [...state.draft.photos, photo],
-      ),
+      draft: state.draft.copyWith(photos: [...state.draft.photos, photo]),
       clearMessage: true,
     );
   }
@@ -228,10 +222,7 @@ class LeakReportController extends Notifier<LeakReportState> {
   /// enviar SIN pulsar "Es otra fuga" de nuevo viaja con
   /// `p_ignore_duplicate: false`.
   Future<void> continueAsNewLeak() async {
-    state = state.copyWith(
-      currentStep: ReportStep.review,
-      clearMessage: true,
-    );
+    state = state.copyWith(currentStep: ReportStep.review, clearMessage: true);
     await submit(ignoreDuplicate: true);
   }
 
@@ -239,10 +230,11 @@ class LeakReportController extends Notifier<LeakReportState> {
   /// duplicar (no se crea ningún reporte; la UI lo refleja como
   /// "dup-aceptado", nunca como "enviado" — FUNCTIONAL_SPEC §12).
   void useExistingReport() => state = state.copyWith(
-        currentStep: ReportStep.result,
-        message: 'Usaste el reporte existente. Puedes validarlo en su '
-            'detalle.',
-      );
+    currentStep: ReportStep.result,
+    message:
+        'Usaste el reporte existente. Puedes validarlo en su '
+        'detalle.',
+  );
 
   // ---------- Envío ----------
 
@@ -264,21 +256,22 @@ class LeakReportController extends Notifier<LeakReportState> {
             submitState: ReportSubmitState.done,
             outcome: outcome,
             currentStep: ReportStep.result,
-            message: '¡Reporte enviado! La fuga quedó registrada como '
+            message:
+                '¡Reporte enviado! La fuga quedó registrada como '
                 'activa (ID $reportId).',
           );
         case PossibleDuplicateFound(:final candidates):
           state = state.copyWith(
             submitState: ReportSubmitState.duplicate,
             outcome: outcome,
-            message: 'Ya existe un reporte de fuga cerca '
+            message:
+                'Ya existe un reporte de fuga cerca '
                 '(${candidates.first.distanceMeters} m).',
           );
         case LeakReportUnauthorized():
           state = state.copyWith(
             submitState: ReportSubmitState.idle,
-            message:
-                'Tu sesión no está activa. Cierra y abre la app de nuevo.',
+            message: 'Tu sesión no está activa. Cierra y abre la app de nuevo.',
           );
       }
     } on LeakFlowException catch (e) {
@@ -297,5 +290,5 @@ class LeakReportController extends Notifier<LeakReportState> {
 
 final leakReportProvider =
     NotifierProvider<LeakReportController, LeakReportState>(
-  LeakReportController.new,
-);
+      LeakReportController.new,
+    );

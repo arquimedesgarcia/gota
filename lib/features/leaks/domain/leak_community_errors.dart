@@ -17,7 +17,9 @@ class LeakCommunityException implements Exception {
 /// dominio determinista y sin efectos sobre los contadores (REQ-042 /
 /// REQ-052).
 class DuplicateCommunityActionException extends LeakCommunityException {
-  const DuplicateCommunityActionException([super.userMessage = 'Ya realizaste esta acción.']);
+  const DuplicateCommunityActionException([
+    super.userMessage = 'Ya realizaste esta acción.',
+  ]);
 }
 
 /// El reporte no existe o no es accesible (`NOT_FOUND`).
@@ -30,7 +32,8 @@ class LeakReportNotFoundException extends LeakCommunityException {
 /// El reporte ya está RESOLVED y no acepta nuevas acciones (`REPORT_ALREADY_RESOLVED`).
 class LeakReportResolvedException extends LeakCommunityException {
   const LeakReportResolvedException([
-    super.userMessage = 'Esta fuga ya fue marcada como resuelta por la comunidad.',
+    super.userMessage =
+        'Esta fuga ya fue marcada como resuelta por la comunidad.',
   ]);
 }
 
@@ -45,6 +48,7 @@ class LeakCommunityForbiddenException extends LeakCommunityException {
 /// La sesión no está activa (`UNAUTHORIZED`).
 class LeakCommunityUnauthorizedException extends LeakCommunityException {
   const LeakCommunityUnauthorizedException([
-    super.userMessage = 'Tu sesión no está activa. Cierra y abre la app de nuevo.',
+    super.userMessage =
+        'Tu sesión no está activa. Cierra y abre la app de nuevo.',
   ]);
 }

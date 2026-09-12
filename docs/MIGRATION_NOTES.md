@@ -130,3 +130,17 @@ Correcciones aplicadas en la migración `20260911000015_audit_sprint01_fixes.sql
 | `fetchAppUserByAuthId` (AUD-S1-07) | Eliminada de la interfaz, la implementación y los fakes (ningún repositorio la usaba). |
 | CI (AUD-S1-08) | Workflow GitHub Actions mínimo: `flutter analyze` + `flutter test`. Sin secretos ni deploy. |
 | README (AUD-S1-09) | Estado y lista de migraciones sincronizados con HEAD. |
+
+## Sprint 05 — Mapa (decisiones de diseño)
+
+| Tema | Decisión |
+|---|---|
+| Migración | **No se creó migración de esquema** para la feature de mapa (tablas, columnas, índices). El índice espacial `reports_location_gix` y el campo `location` ya existían. Sí se creó `20260911000017_map_reports.sql` para la RPC `get_map_reports` (solo lógica de función, sin DDL de tablas). |
+| SECURITY DEFINER en `get_map_reports` | Necesario para JOIN con `sectors` y `municipalities` respetando `search_path = ''`. La función no expone filas que el SELECT directo sobre `reports` no mostraría (RLS pública). No relaja ni sustituye RLS. GRANT EXECUTE a `anon` y `authenticated` (mapa público). |
+| Water Events fuera del mapa | Los `water_events` son eventos de sector/municipio sin coordenadas geoespaciales. No se añaden coordenadas ni se renderizan en el mapa. La cadena usuario → sector de interés → notificación pertenece a Sprint 06. |
+| "Mi sector" sin modelo de sector del usuario | No existe en Sprint 05 un modelo de "sector preferido del usuario". "Mi sector" requiere selección explícita vía `setSectorId()`. La inferencia GPS fue evaluada y descartada: tomar el sector del primer reporte cercano es heurísticamente incorrecta y haría doble llamada al backend. Dependencia: Sprint 06 (Notifications). |
+| Tile URL configurable | `MAP_TILE_STYLE_URL` es un dart-define con defecto a los tiles de demo de MapLibre. En producción debe suministrarse una URL real. No se almacena en `AppConfig` para no requerir cambios en el ciclo de validación de la config (URL de tiles no es crítica para el arranque de la app). |
+| Acoplamiento de excepciones | `MapLocationAction` captura `Exception` genérico (no `LeakFlowException`). La clase de ubicación (`LocationService`) vive en el feature leaks; la dependencia es de datos (la abstracción), no de dominio. Refactorizar la abstracción de ubicación a un módulo compartido queda fuera del alcance de Sprint 05. |
+| `didUpdateWidget` en markers | Comparación por IDs de lista en lugar de referencia de objeto para evitar redraws innecesarios cuando Riverpod retorna instancias nuevas con los mismos datos. |
+| Fuentes de verdad mapa/lista | Ambas vistas consumen `mapReportsProvider` (mismo FutureProvider). Filtros coherentes garantizados; no es posible divergencia entre vistas. |
+| Límite de reportes | Default 100, cap server-side 200 (validado en RPC). No se implementa paginación keyset para el mapa en Sprint 05; el límite es suficiente para el MVP. Paginación incremental del mapa (viewport-based) queda para cuando el volumen lo justifique. |

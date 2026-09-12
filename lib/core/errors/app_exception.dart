@@ -13,22 +13,20 @@ sealed class AppException implements Exception {
 /// Las credenciales o la URL de Supabase no están configuradas.
 class ConfigMissingException extends AppException {
   const ConfigMissingException()
-      : super('Falta configuración de la aplicación.');
+    : super('Falta configuración de la aplicación.');
 }
 
 /// Fallo al crear o recuperar la sesión anónima.
 class AuthException extends AppException {
   const AuthException([
-    super.userMessage =
-        'Ocurrió un problema al iniciar tu sesión. Cierra y abre la app de nuevo.',
+    super.userMessage = 'Ocurrió un problema al iniciar tu sesión. Cierra y abre la app de nuevo.',
   ]);
 }
 
 /// Sin conexión o timeout de red.
 class NetworkException extends AppException {
   const NetworkException([
-    super.userMessage =
-        'No pudimos conectar. Revisa tu conexión a internet e intenta de nuevo.',
+    super.userMessage = 'No pudimos conectar. Revisa tu conexión a internet e intenta de nuevo.',
   ]);
 }
 

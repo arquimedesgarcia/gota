@@ -15,8 +15,8 @@ enum WaterEventType {
   /// Traduce el valor del backend al enum; lanza [FormatException] si no es
   /// un tipo válido (la RPC ya valida, esto es defensa en profundidad).
   static WaterEventType fromWire(String value) => switch (value) {
-        'WATER_ARRIVED' => arrived,
-        'WATER_LEFT' => left,
-        _ => throw FormatException('Tipo de evento no válido: $value'),
-      };
+    'WATER_ARRIVED' => arrived,
+    'WATER_LEFT' => left,
+    _ => throw FormatException('Tipo de evento no válido: $value'),
+  };
 }

@@ -34,7 +34,9 @@ class _SessionGate extends ConsumerWidget {
     final session = ref.watch(sessionBootstrapProvider);
     return session.when(
       loading: () => const Scaffold(
-        body: SafeArea(child: LoadingView(message: 'Preparando la aplicación…')),
+        body: SafeArea(
+          child: LoadingView(message: 'Preparando la aplicación…'),
+        ),
       ),
       error: (error, _) => Scaffold(
         body: SafeArea(

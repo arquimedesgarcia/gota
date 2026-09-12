@@ -17,7 +17,6 @@ extension LocationSourceLabel on LocationSource {
 
   /// Etiqueta visible para el usuario (UX_SPEC §4: siempre saber si la
   /// ubicación es GPS o manual).
-  String get label => this == LocationSource.gps
-      ? 'Ubicación por GPS'
-      : 'Ubicación manual';
+  String get label =>
+      this == LocationSource.gps ? 'Ubicación por GPS' : 'Ubicación manual';
 }

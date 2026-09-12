@@ -14,8 +14,9 @@ class WaterRegisterStepSector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final municipalityId =
-        ref.watch(waterRegisterControllerProvider).municipalityId;
+    final municipalityId = ref
+        .watch(waterRegisterControllerProvider)
+        .municipalityId;
 
     if (municipalityId == null) {
       return Center(
@@ -27,15 +28,13 @@ class WaterRegisterStepSector extends ConsumerWidget {
     }
 
     final sectorsAsync = ref.watch(sectorsProvider(municipalityId));
-    final currentSectorId =
-        ref.watch(waterRegisterControllerProvider).sectorId;
+    final currentSectorId = ref.watch(waterRegisterControllerProvider).sectorId;
 
     return sectorsAsync.when(
       loading: () => const LoadingView(message: 'Cargando sectores…'),
       error: (error, _) => ErrorView(
         message: 'No pudimos cargar los sectores.',
-        onRetry: () =>
-            ref.invalidate(sectorsProvider(municipalityId)),
+        onRetry: () => ref.invalidate(sectorsProvider(municipalityId)),
       ),
       data: (sectors) => _SectorList(
         sectors: sectors,
@@ -108,20 +107,23 @@ class _SectorTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected ? Theme.of(context).primaryColor : Colors.grey[300]!,
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
-          color: isSelected ? Theme.of(context).primaryColor.withValues(alpha: 0.08) : null,
+          color: isSelected
+              ? Theme.of(context).primaryColor.withValues(alpha: 0.08)
+              : null,
         ),
         child: Row(
           children: [
             Expanded(
               child: Text(
                 sector.name,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: isSelected ? FontWeight.w600 : null,
-                    ),
+                style: Theme.of(context).textTheme.bodyLarge
+                    ?.copyWith(fontWeight: isSelected ? FontWeight.w600 : null),
               ),
             ),
             Icon(

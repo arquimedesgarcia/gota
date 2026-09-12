@@ -24,27 +24,26 @@ LeakDetail _detail({
   bool alreadyConfirmed = false,
   DateTime? resolvedAt,
   int photoCount = 2,
-}) =>
-    LeakDetail(
-      id: _reportId,
-      status: status,
-      validationCount: validations,
-      resolutionConfirmationCount: confirmations,
-      threshold: threshold,
-      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
-      resolvedAt: resolvedAt,
-      description: 'Tubería rota en la esquina',
-      locationSource: 'GPS',
-      municipalityName: 'Maneiro',
-      sectorName: 'La Caranta',
-      latitude: 10.99,
-      longitude: -63.87,
-      photoCount: photoCount,
-      isCreator: isCreator,
-      isBlocked: isBlocked,
-      alreadyValidated: alreadyValidated,
-      alreadyConfirmed: alreadyConfirmed,
-    );
+}) => LeakDetail(
+  id: _reportId,
+  status: status,
+  validationCount: validations,
+  resolutionConfirmationCount: confirmations,
+  threshold: threshold,
+  createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+  resolvedAt: resolvedAt,
+  description: 'Tubería rota en la esquina',
+  locationSource: 'GPS',
+  municipalityName: 'Maneiro',
+  sectorName: 'La Caranta',
+  latitude: 10.99,
+  longitude: -63.87,
+  photoCount: photoCount,
+  isCreator: isCreator,
+  isBlocked: isBlocked,
+  alreadyValidated: alreadyValidated,
+  alreadyConfirmed: alreadyConfirmed,
+);
 
 class _FakeLeakCommunityRepository implements LeakCommunityRepository {
   _FakeLeakCommunityRepository({required this.detail});
@@ -66,6 +65,18 @@ class _FakeLeakCommunityRepository implements LeakCommunityRepository {
 
   @override
   Future<List<LeakSummary>> recentReports({int limit = 20}) async => list;
+
+  @override
+  Future<List<LeakSummary>> mapReports({
+    String? status,
+    String? sectorId,
+    double? minLat,
+    double? minLng,
+    double? maxLat,
+    double? maxLng,
+    String orderBy = 'recent',
+    int limit = 100,
+  }) async => list;
 
   @override
   Future<LeakDetail> reportDetail(String reportId) async {
@@ -123,8 +134,9 @@ Future<void> _pump(
 }
 
 void main() {
-  testWidgets('muestra estado, contadores y progreso comunitario',
-      (tester) async {
+  testWidgets('muestra estado, contadores y progreso comunitario', (
+    tester,
+  ) async {
     final repository = _FakeLeakCommunityRepository(
       detail: _detail(validations: 2, confirmations: 1),
     );
@@ -143,8 +155,9 @@ void main() {
     );
   });
 
-  testWidgets('validar: solo anuncia el resultado que confirma el backend',
-      (tester) async {
+  testWidgets('validar: solo anuncia el resultado que confirma el backend', (
+    tester,
+  ) async {
     final repository = _FakeLeakCommunityRepository(
       detail: _detail(validations: 2, confirmations: 1),
     );
@@ -191,9 +204,7 @@ void main() {
     expect(find.text('No puedes validar tu propio reporte'), findsOneWidget);
     // El creador sí puede confirmar la resolución.
     expect(
-      tester
-          .widget<OutlinedButton>(find.byKey(leakConfirmButtonKey))
-          .onPressed,
+      tester.widget<OutlinedButton>(find.byKey(leakConfirmButtonKey)).onPressed,
       isNotNull,
     );
   });
@@ -210,16 +221,15 @@ void main() {
       isNull,
     );
     expect(
-      tester
-          .widget<OutlinedButton>(find.byKey(leakConfirmButtonKey))
-          .onPressed,
+      tester.widget<OutlinedButton>(find.byKey(leakConfirmButtonKey)).onPressed,
       isNull,
     );
     expect(find.text('Tu acceso está bloqueado'), findsOneWidget);
   });
 
-  testWidgets('confirmar resolución: umbral no alcanzado no anuncia resuelta',
-      (tester) async {
+  testWidgets('confirmar resolución: umbral no alcanzado no anuncia resuelta', (
+    tester,
+  ) async {
     final repository = _FakeLeakCommunityRepository(
       detail: _detail(confirmations: 1),
     );
@@ -248,8 +258,9 @@ void main() {
     );
   });
 
-  testWidgets('confirmar resolución: el umbral alcanzado viene del backend',
-      (tester) async {
+  testWidgets('confirmar resolución: el umbral alcanzado viene del backend', (
+    tester,
+  ) async {
     final repository = _FakeLeakCommunityRepository(
       detail: _detail(confirmations: 2),
     );
@@ -284,8 +295,9 @@ void main() {
     );
   });
 
-  testWidgets('fuga resuelta: no muestra acciones incompatibles',
-      (tester) async {
+  testWidgets('fuga resuelta: no muestra acciones incompatibles', (
+    tester,
+  ) async {
     final repository = _FakeLeakCommunityRepository(
       detail: _detail(
         status: 'RESOLVED',
@@ -322,9 +334,7 @@ void main() {
   });
 
   testWidgets('error de red: mensaje claro y sin éxito', (tester) async {
-    final repository = _FakeLeakCommunityRepository(
-      detail: _detail(),
-    );
+    final repository = _FakeLeakCommunityRepository(detail: _detail());
     repository.actionError = const NetworkException();
 
     await _pump(tester, repository);
@@ -333,8 +343,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.text('No pudimos conectar. Revisa tu conexión a internet e '
-          'intenta de nuevo.'),
+      find.text(
+        'No pudimos conectar. Revisa tu conexión a internet e '
+        'intenta de nuevo.',
+      ),
       findsOneWidget,
     );
     expect(find.textContaining('Fuga validada'), findsNothing);

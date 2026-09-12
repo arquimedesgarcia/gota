@@ -38,9 +38,7 @@ class LeakReportScreen extends StatelessWidget {
             );
             return Text(
               _titles[step] ?? 'Reportar',
-              style: Theme.of(context)
-                  .appBarTheme
-                  .titleTextStyle
+              style: Theme.of(context).appBarTheme.titleTextStyle
                   ?.copyWith(color: Colors.white),
             );
           },
@@ -227,8 +225,7 @@ class LocationStepView extends ConsumerWidget {
                   ),
                   onPressed: location == null
                       ? null
-                      : () =>
-                          ref.read(leakReportProvider.notifier).goToNext(),
+                      : () => ref.read(leakReportProvider.notifier).goToNext(),
                   child: const Text('Continuar'),
                 ),
               ),
@@ -252,14 +249,16 @@ class LocationStepView extends ConsumerWidget {
             TextField(
               controller: latController,
               decoration: const InputDecoration(labelText: 'Latitud'),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
             ),
             TextField(
               controller: lngController,
               decoration: const InputDecoration(labelText: 'Longitud'),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -276,10 +275,12 @@ class LocationStepView extends ConsumerWidget {
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
             onPressed: () {
-              final lat = double.tryParse(latController.text
-                  .replaceAll(',', '.'));
-              final lng = double.tryParse(lngController.text
-                  .replaceAll(',', '.'));
+              final lat = double.tryParse(
+                latController.text.replaceAll(',', '.'),
+              );
+              final lng = double.tryParse(
+                lngController.text.replaceAll(',', '.'),
+              );
               if (lat == null ||
                   lng == null ||
                   lat < -90 ||
@@ -363,8 +364,10 @@ class PhotosStepView extends ConsumerWidget {
                 StatusBanner(message: state.message!),
                 const SizedBox(height: 12),
               ],
-              Text('Agrega de 1 a ${LeakReportController.photoMaxCount} fotos de la fuga',
-                  style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Agrega de 1 a ${LeakReportController.photoMaxCount} fotos de la fuga',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 12),
               Text(
                 'Fotos agregadas: ${photos.length} de ${LeakReportController.photoMaxCount}',
@@ -382,7 +385,8 @@ class PhotosStepView extends ConsumerWidget {
               mainAxisSpacing: 8,
             ),
             itemCount:
-                photos.length + (photos.length < LeakReportController.photoMaxCount ? 1 : 0),
+                photos.length +
+                (photos.length < LeakReportController.photoMaxCount ? 1 : 0),
             itemBuilder: (context, index) {
               if (index < photos.length) {
                 final photo = photos[index];
@@ -432,8 +436,10 @@ class PhotosStepView extends ConsumerWidget {
                     border: Border.all(color: AppColors.border),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.add_a_photo_outlined,
-                      color: AppColors.textMuted),
+                  child: const Icon(
+                    Icons.add_a_photo_outlined,
+                    color: AppColors.textMuted,
+                  ),
                 ),
               );
             },
@@ -499,24 +505,19 @@ class DataStepView extends ConsumerWidget {
               Text('¿Dónde?', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 12),
               municipalitiesState.when(
-                loading: () => const LoadingView(
-                  message: 'Cargando municipios…',
-                ),
+                loading: () =>
+                    const LoadingView(message: 'Cargando municipios…'),
                 error: (error, _) => ErrorView(
                   message: 'No pudimos cargar los municipios.',
                   onRetry: () => ref.invalidate(municipalitiesProvider),
                 ),
                 data: (municipalities) => DropdownButtonFormField<String>(
                   initialValue: selectedMunicipalityId,
-                  decoration: const InputDecoration(
-                    labelText: 'Municipio',
-                  ),
+                  decoration: const InputDecoration(labelText: 'Municipio'),
                   items: municipalities
                       .map(
-                        (m) => DropdownMenuItem(
-                          value: m.id,
-                          child: Text(m.name),
-                        ),
+                        (m) =>
+                            DropdownMenuItem(value: m.id, child: Text(m.name)),
                       )
                       .toList(),
                   onChanged: (value) {
@@ -560,7 +561,8 @@ class DataStepView extends ConsumerWidget {
                   ),
                   // El municipio es obligatorio; el sector también
                   // (REQ-020). La descripción es opcional.
-                  onPressed: (state.draft.municipalityId != null &&
+                  onPressed:
+                      (state.draft.municipalityId != null &&
                           state.draft.sectorId != null)
                       ? () => controller.goToNext()
                       : null,
@@ -593,10 +595,7 @@ class _MunicipalityName extends ConsumerWidget {
         style: const TextStyle(color: AppColors.textMuted),
       ),
       orElse: () =>
-          const Text(
-            'Municipio',
-            style: TextStyle(color: AppColors.textMuted),
-          ),
+          const Text('Municipio', style: TextStyle(color: AppColors.textMuted)),
     );
   }
 }
@@ -625,9 +624,7 @@ class _SectorsDropdown extends ConsumerWidget {
         initialValue: selectedSectorId,
         decoration: const InputDecoration(labelText: 'Sector'),
         items: sectors
-            .map(
-              (s) => DropdownMenuItem(value: s.id, child: Text(s.name)),
-            )
+            .map((s) => DropdownMenuItem(value: s.id, child: Text(s.name)))
             .toList(),
         onChanged: (value) {
           if (value != null) onSelected(value);
@@ -657,8 +654,10 @@ class ReviewStepView extends ConsumerWidget {
                 StatusBanner(message: state.message!),
                 const SizedBox(height: 12),
               ],
-              Text('Revisa tu reporte',
-                  style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Revisa tu reporte',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 12),
               Card(
                 child: Padding(
@@ -666,8 +665,10 @@ class ReviewStepView extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Ubicación',
-                          style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        'Ubicación',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         draft.location == null
@@ -676,22 +677,28 @@ class ReviewStepView extends ConsumerWidget {
                         style: const TextStyle(color: AppColors.textMuted),
                       ),
                       const SizedBox(height: 12),
-                      Text('Fotos',
-                          style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        'Fotos',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         '${draft.photos.length} foto(s) agregada(s).',
                         style: const TextStyle(color: AppColors.textMuted),
                       ),
                       const SizedBox(height: 12),
-                      Text('Municipio y sector',
-                          style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        'Municipio y sector',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: 4),
                       // AUD-S2-12: el nombre sale del provider único.
                       _MunicipalityName(municipalityId: draft.municipalityId),
                       const SizedBox(height: 12),
-                      Text('Descripción',
-                          style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        'Descripción',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         (draft.description == null ||
@@ -721,8 +728,7 @@ class ReviewStepView extends ConsumerWidget {
               // Ver y validar / Es otra fuga; nada en silencio).
               if (state.submitState == ReportSubmitState.duplicate) ...[
                 StatusBanner(
-                  message: state.message ??
-                      LeakReportCopy.duplicateTitle,
+                  message: state.message ?? LeakReportCopy.duplicateTitle,
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
@@ -743,9 +749,8 @@ class ReviewStepView extends ConsumerWidget {
                       if (candidates.isEmpty) return;
                       Navigator.of(context).push(
                         MaterialPageRoute<void>(
-                          builder: (_) => LeakDetailScreen(
-                            reportId: candidates.first.id,
-                          ),
+                          builder: (_) =>
+                              LeakDetailScreen(reportId: candidates.first.id),
                         ),
                       );
                     },
@@ -848,25 +853,21 @@ class ResultStepView extends ConsumerWidget {
 
     final (icon, iconColor, title) = switch (state.submitState) {
       ReportSubmitState.done when outcome is ReportCreated => (
-          Icons.check_circle_outline,
-          AppColors.success,
-          'Reporte enviado',
-        ),
+        Icons.check_circle_outline,
+        AppColors.success,
+        'Reporte enviado',
+      ),
       ReportSubmitState.done => (
-          Icons.error_outline,
-          AppColors.danger,
-          'No se pudo enviar',
-        ),
+        Icons.error_outline,
+        AppColors.danger,
+        'No se pudo enviar',
+      ),
       ReportSubmitState.duplicate => (
-          Icons.not_interested,
-          AppColors.textMuted,
-          'No se creó un reporte nuevo',
-        ),
-      _ => (
-          Icons.error_outline,
-          AppColors.danger,
-          'No se pudo enviar',
-        ),
+        Icons.not_interested,
+        AppColors.textMuted,
+        'No se creó un reporte nuevo',
+      ),
+      _ => (Icons.error_outline, AppColors.danger, 'No se pudo enviar'),
     };
     return Center(
       child: Padding(
@@ -876,10 +877,7 @@ class ResultStepView extends ConsumerWidget {
           children: [
             Icon(icon, color: iconColor, size: 64),
             const SizedBox(height: 16),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            Text(title, style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),
             Text(
               state.message ?? 'Ocurrió un problema al enviar tu reporte.',
