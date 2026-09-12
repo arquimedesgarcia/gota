@@ -37,6 +37,17 @@ class MapFilterNotifier extends Notifier<MapFilterState> {
   void clearSector() {
     state = state.copyWith(clearSector: true);
   }
+
+  /// Establece el bounding box del viewport visible en el mapa (Sprint 05).
+  /// Se invoca desde GotaMapView cuando MapLibre dispara onCameraIdle.
+  void setBounds(double minLat, double minLng, double maxLat, double maxLng) {
+    state = state.copyWith(
+      minLat: minLat,
+      minLng: minLng,
+      maxLat: maxLat,
+      maxLng: maxLng,
+    );
+  }
 }
 
 final mapFilterProvider = NotifierProvider<MapFilterNotifier, MapFilterState>(
@@ -106,6 +117,10 @@ final mapReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
   return repository.mapReports(
     status: status,
     sectorId: sectorId,
+    minLat: filterState.minLat,
+    minLng: filterState.minLng,
+    maxLat: filterState.maxLat,
+    maxLng: filterState.maxLng,
     orderBy: orderBy,
     limit: 100,
   );

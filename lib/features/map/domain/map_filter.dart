@@ -43,6 +43,10 @@ class MapFilterState {
     this.selectedSectorId,
     this.userLatitude,
     this.userLongitude,
+    this.minLat,
+    this.minLng,
+    this.maxLat,
+    this.maxLng,
   });
 
   final MapFilterType filterType;
@@ -55,7 +59,15 @@ class MapFilterState {
   final double? userLatitude;
   final double? userLongitude;
 
+  /// Bounding box del viewport visible en el mapa (Sprint 05: optimización
+  /// PostGIS). Capturado desde MapLibre al idle/move y pasado a la RPC.
+  final double? minLat;
+  final double? minLng;
+  final double? maxLat;
+  final double? maxLng;
+
   bool get hasUserLocation => userLatitude != null && userLongitude != null;
+  bool get hasBounds => minLat != null && minLng != null && maxLat != null && maxLng != null;
 
   MapFilterState copyWith({
     MapFilterType? filterType,
@@ -63,6 +75,10 @@ class MapFilterState {
     String? selectedSectorId,
     double? userLatitude,
     double? userLongitude,
+    double? minLat,
+    double? minLng,
+    double? maxLat,
+    double? maxLng,
     bool clearSector = false,
   }) {
     return MapFilterState(
@@ -73,6 +89,10 @@ class MapFilterState {
           : (selectedSectorId ?? this.selectedSectorId),
       userLatitude: userLatitude ?? this.userLatitude,
       userLongitude: userLongitude ?? this.userLongitude,
+      minLat: minLat ?? this.minLat,
+      minLng: minLng ?? this.minLng,
+      maxLat: maxLat ?? this.maxLat,
+      maxLng: maxLng ?? this.maxLng,
     );
   }
 }

@@ -20,6 +20,25 @@ const kMapLibreDefaultStyle = String.fromEnvironment(
   defaultValue: 'https://demotiles.maplibre.org/style.json',
 );
 
+/// Bounding box de un viewport MapLibre (Sprint 05).
+class LatLngBounds {
+  LatLngBounds({
+    required this.minLat,
+    required this.minLng,
+    required this.maxLat,
+    required this.maxLng,
+  });
+
+  final double minLat;
+  final double minLng;
+  final double maxLat;
+  final double maxLng;
+
+  @override
+  String toString() =>
+      'LatLngBounds($minLat, $minLng, $maxLat, $maxLng)';
+}
+
 /// Abstracción de renderizado del mapa (§5).
 ///
 /// Permite desacoplar la UI de MapLibre y renderizar una representación
@@ -31,6 +50,7 @@ typedef MapWidgetBuilder = Widget Function(
   required ValueChanged<LeakSummary> onMarkerTapped,
   required double initialLat,
   required double initialLng,
+  required ValueChanged<LatLngBounds?>? onBoundsChanged,
 });
 
 /// Provider para inyectar la implementación del mapa (producción o test).
@@ -42,6 +62,7 @@ final mapWidgetBuilderProvider = Provider<MapWidgetBuilder>((ref) {
     required onMarkerTapped,
     required initialLat,
     required initialLng,
+    required onBoundsChanged,
   }) {
     return _MapLibreMapView(
       leaks: leaks,
@@ -49,6 +70,7 @@ final mapWidgetBuilderProvider = Provider<MapWidgetBuilder>((ref) {
       onMarkerTapped: onMarkerTapped,
       initialLat: initialLat,
       initialLng: initialLng,
+      onBoundsChanged: onBoundsChanged,
     );
   };
 });
@@ -62,6 +84,7 @@ class GotaMapView extends ConsumerWidget {
     required this.onMarkerTapped,
     this.centerLat,
     this.centerLng,
+    this.onBoundsChanged,
   });
 
   final List<LeakSummary> leaks;
@@ -69,6 +92,9 @@ class GotaMapView extends ConsumerWidget {
   final ValueChanged<LeakSummary> onMarkerTapped;
   final double? centerLat;
   final double? centerLng;
+
+  /// Callback invocado cuando cambia el viewport visible (Sprint 05).
+  final ValueChanged<LatLngBounds?>? onBoundsChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -86,6 +112,7 @@ class GotaMapView extends ConsumerWidget {
         onMarkerTapped: onMarkerTapped,
         initialLat: lat,
         initialLng: lng,
+        onBoundsChanged: onBoundsChanged,
       ),
     );
   }
@@ -99,6 +126,7 @@ class _MapLibreMapView extends StatefulWidget {
     required this.onMarkerTapped,
     required this.initialLat,
     required this.initialLng,
+    this.onBoundsChanged,
   });
 
   final List<LeakSummary> leaks;
@@ -106,6 +134,7 @@ class _MapLibreMapView extends StatefulWidget {
   final ValueChanged<LeakSummary> onMarkerTapped;
   final double initialLat;
   final double initialLng;
+  final ValueChanged<LatLngBounds?>? onBoundsChanged;
 
   @override
   State<_MapLibreMapView> createState() => _MapLibreMapViewState();
@@ -128,6 +157,23 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
 
   void _onStyleLoaded() {
     _updateMarkers();
+  }
+
+  void _onCameraIdle() {
+    // Captura los límites visibles cuando la cámara está en reposo (Sprint 05).
+    _controller?.getVisibleRegion().then((region) {
+      if (widget.onBoundsChanged != null) {
+        final bounds = LatLngBounds(
+          minLat: region.southwest.latitude,
+          minLng: region.southwest.longitude,
+          maxLat: region.northeast.latitude,
+          maxLng: region.northeast.longitude,
+        );
+        widget.onBoundsChanged!(bounds);
+      }
+    }).catchError((_) {
+      // Ignorar errores transitorios del controlador nativo
+    });
   }
 
   @override
@@ -202,6 +248,7 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
       ),
       onMapCreated: _onMapCreated,
       onStyleLoadedCallback: _onStyleLoaded,
+      onCameraIdle: _onCameraIdle,
       myLocationEnabled: false,
       trackCameraPosition: false,
     );

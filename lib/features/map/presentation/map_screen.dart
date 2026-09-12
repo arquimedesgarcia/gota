@@ -8,7 +8,12 @@ import '../../../../features/leaks/domain/leak_community.dart';
 import '../../../../features/leaks/presentation/leak_detail_screen.dart';
 import '../domain/map_filter.dart';
 import 'widgets/gota_map_view.dart';
-import 'map_providers.dart';
+import 'map_providers.dart'
+    show
+        mapFilterProvider,
+        mapLocationActionProvider,
+        mapReportsProvider,
+        selectedMarkerProvider;
 
 /// Claves estables para pruebas de UI (§17).
 const mapScreenKey = Key('map-screen');
@@ -53,7 +58,7 @@ class MapScreen extends ConsumerWidget {
         ),
         data: (reports) {
           if (reports.isEmpty) {
-            return const _MapEmptyView();
+            return _MapEmptyView(filterState: filterState);
           }
 
           return switch (filterState.viewMode) {
@@ -173,7 +178,7 @@ class _LocateButton extends ConsumerWidget {
 }
 
 /// Contenido del mapa con markers (§11).
-class _MapViewContent extends StatelessWidget {
+class _MapViewContent extends ConsumerWidget {
   const _MapViewContent({
     required this.leaks,
     required this.selectedLeak,
@@ -189,13 +194,23 @@ class _MapViewContent extends StatelessWidget {
   final double? centerLng;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GotaMapView(
       leaks: leaks,
       selectedLeak: selectedLeak,
       onMarkerTapped: onMarkerTapped,
       centerLat: centerLat,
       centerLng: centerLng,
+      onBoundsChanged: (bounds) {
+        if (bounds != null) {
+          ref.read(mapFilterProvider.notifier).setBounds(
+            bounds.minLat,
+            bounds.minLng,
+            bounds.maxLat,
+            bounds.maxLng,
+          );
+        }
+      },
     );
   }
 }
@@ -353,11 +368,20 @@ class _MapErrorView extends StatelessWidget {
 }
 
 /// Vista vacía del mapa (§14).
+///
+/// Proporciona un mensaje específico cuando el filtro "Mi sector" está activo
+/// pero no hay sector seleccionado (Sprint 05, decisión de UX).
 class _MapEmptyView extends StatelessWidget {
-  const _MapEmptyView();
+  const _MapEmptyView({required this.filterState});
+
+  final MapFilterState filterState;
 
   @override
   Widget build(BuildContext context) {
+    final isMySectorWithoutSelection =
+        filterState.filterType == MapFilterType.mySector &&
+        filterState.selectedSectorId == null;
+
     return Center(
       key: mapEmptyStateKey,
       child: Padding(
@@ -368,13 +392,17 @@ class _MapEmptyView extends StatelessWidget {
             Icon(Icons.map_outlined, size: 48, color: AppColors.textMuted),
             const SizedBox(height: 16),
             Text(
-              'Sin fugas para mostrar',
+              isMySectorWithoutSelection
+                  ? 'Configura tu sector'
+                  : 'Sin fugas para mostrar',
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              'Cambia los filtros o amplía el área para ver más resultados.',
+              isMySectorWithoutSelection
+                  ? 'Para usar el filtro "Mi sector", establece tu sector desde tu perfil.'
+                  : 'Cambia los filtros o amplía el área para ver más resultados.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium
                   ?.copyWith(color: AppColors.textMuted),

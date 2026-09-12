@@ -10,7 +10,8 @@ import 'package:gota/features/leaks/domain/leak_community.dart';
 import 'package:gota/features/map/domain/map_filter.dart';
 import 'package:gota/features/map/presentation/map_screen.dart';
 import 'package:gota/features/map/presentation/map_providers.dart';
-import 'package:gota/features/map/presentation/widgets/gota_map_view.dart';
+import 'package:gota/features/map/presentation/widgets/gota_map_view.dart'
+    show gotaMapContainerKey, LatLngBounds, mapMarkerKey, mapWidgetBuilderProvider;
 
 class _MockLeakCommunityRepository extends Mock
     implements LeakCommunityRepository {}
@@ -27,6 +28,7 @@ Widget _testMapBuilder(
   required ValueChanged<LeakSummary> onMarkerTapped,
   required double initialLat,
   required double initialLng,
+  required ValueChanged<LatLngBounds?>? onBoundsChanged,
 }) {
   return Stack(
     key: const Key('test-map-container'),
@@ -295,7 +297,7 @@ void main() {
       ).called(1);
     });
 
-    testWidgets('filtro Mi sector sin sector ni ubicación retorna vacío', (
+    testWidgets('filtro Mi sector sin sector ni ubicación retorna vacío con mensaje específico', (
       tester,
     ) async {
       await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
@@ -307,6 +309,18 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(mapEmptyStateKey), findsOneWidget);
+      expect(
+        find.text('Configura tu sector'),
+        findsOneWidget,
+        reason: 'debe mostrar título específico para Mi sector',
+      );
+      expect(
+        find.text(
+          'Para usar el filtro "Mi sector", establece tu sector desde tu perfil.',
+        ),
+        findsOneWidget,
+        reason: 'debe mostrar descripción específica para Mi sector',
+      );
     });
 
     testWidgets('filtro Más validadas usa orderBy validated', (tester) async {
@@ -542,6 +556,20 @@ void main() {
       expect(copy.viewMode, equals(MapViewMode.list));
       expect(copy.selectedSectorId, equals('sector-1'));
       expect(copy.userLatitude, equals(10.0));
+    });
+
+    test('setBounds guarda el bounding box del viewport', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(mapFilterProvider.notifier);
+      notifier.setBounds(10.5, -64.0, 11.0, -63.5);
+
+      expect(notifier.state.minLat, equals(10.5));
+      expect(notifier.state.minLng, equals(-64.0));
+      expect(notifier.state.maxLat, equals(11.0));
+      expect(notifier.state.maxLng, equals(-63.5));
+      expect(notifier.state.hasBounds, isTrue);
     });
   });
 }
