@@ -68,10 +68,10 @@ final selectedMarkerProvider =
       SelectedMarkerNotifier.new,
     );
 
-/// Provider de reportes geolocalizados filtrados (§9 y §12).
+/// Provider de reportes para el mapa (§9): incluye filtros + bbox del viewport.
 ///
-/// Tanto la vista de mapa como la vista de lista consumen este mismo provider,
-/// garantizando que ambas vistas muestren exactamente el mismo conjunto (§12).
+/// La vista de mapa consume este provider para mostrar solo fugas dentro
+/// del área visible (optimización PostGIS).
 final mapReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
   final filterState = ref.watch(mapFilterProvider);
   final repository = ref.watch(leakCommunityRepositoryProvider);
@@ -121,6 +121,61 @@ final mapReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
     minLng: filterState.minLng,
     maxLat: filterState.maxLat,
     maxLng: filterState.maxLng,
+    orderBy: orderBy,
+    limit: 100,
+  );
+});
+
+/// Provider de reportes para la lista (§12): incluye filtros pero SIN bbox.
+///
+/// La vista de lista consume este provider para mostrar todas las fugas que
+/// coincidan con los filtros activos, sin restricción del viewport visible
+/// (decisión UX: la lista es más exhaustiva que el mapa).
+final listReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
+  final filterState = ref.watch(mapFilterProvider);
+  final repository = ref.watch(leakCommunityRepositoryProvider);
+
+  String? status;
+  String? sectorId;
+  String orderBy = 'recent';
+
+  switch (filterState.filterType) {
+    case MapFilterType.all:
+      status = null;
+      orderBy = 'recent';
+      break;
+    case MapFilterType.active:
+      status = 'ACTIVE';
+      orderBy = 'recent';
+      break;
+    case MapFilterType.resolved:
+      status = 'RESOLVED';
+      orderBy = 'recent';
+      break;
+    case MapFilterType.recent:
+      status = null;
+      orderBy = 'recent';
+      break;
+    case MapFilterType.mostValidated:
+      status = null;
+      orderBy = 'validated';
+      break;
+    case MapFilterType.mySector:
+      sectorId = filterState.selectedSectorId;
+      if (sectorId == null) {
+        return const <LeakSummary>[];
+      }
+      break;
+  }
+
+  return repository.mapReports(
+    status: status,
+    sectorId: sectorId,
+    // No se aplican límites de bbox a la vista de lista
+    minLat: null,
+    minLng: null,
+    maxLat: null,
+    maxLng: null,
     orderBy: orderBy,
     limit: 100,
   );

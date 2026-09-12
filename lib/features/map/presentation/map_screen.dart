@@ -13,6 +13,7 @@ import 'map_providers.dart'
         mapFilterProvider,
         mapLocationActionProvider,
         mapReportsProvider,
+        listReportsProvider,
         selectedMarkerProvider;
 
 /// Claves estables para pruebas de UI (§17).
@@ -38,7 +39,10 @@ class MapScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final filterState = ref.watch(mapFilterProvider);
-    final reportsAsync = ref.watch(mapReportsProvider);
+    // Lista usa listReportsProvider (sin bbox); mapa usa mapReportsProvider (con bbox).
+    final reportsAsync = filterState.viewMode == MapViewMode.list
+        ? ref.watch(listReportsProvider)
+        : ref.watch(mapReportsProvider);
     final selectedLeak = ref.watch(selectedMarkerProvider);
 
     return Scaffold(

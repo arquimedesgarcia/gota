@@ -143,6 +143,8 @@ class _MapLibreMapView extends StatefulWidget {
 class _MapLibreMapViewState extends State<_MapLibreMapView> {
   MapLibreMapController? _controller;
   final Map<Circle, LeakSummary> _circleToLeak = {};
+  double? _lastCenteredLat;
+  double? _lastCenteredLng;
 
   void _onMapCreated(MapLibreMapController controller) {
     _controller = controller;
@@ -185,6 +187,32 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
     final selectedChanged = oldWidget.selectedLeak?.id != widget.selectedLeak?.id;
     if (leaksChanged || selectedChanged) {
       _updateMarkers();
+    }
+
+    // Detecta cambios en la posición central (ej: usuario toca "Mi ubicación")
+    // y anima la cámara si el controlador está disponible (Sprint 05).
+    final centerChanged = oldWidget.initialLat != widget.initialLat ||
+        oldWidget.initialLng != widget.initialLng;
+    if (centerChanged) {
+      _animateToNewCenter(widget.initialLat, widget.initialLng);
+    }
+  }
+
+  /// Anima la cámara hacia una nueva posición central (§13, Sprint 05).
+  Future<void> _animateToNewCenter(double lat, double lng) async {
+    final c = _controller;
+    if (c == null) return;
+    if (lat == _lastCenteredLat && lng == _lastCenteredLng) return;
+
+    try {
+      _lastCenteredLat = lat;
+      _lastCenteredLng = lng;
+      await c.animateCamera(
+        CameraUpdate.newLatLng(LatLng(lat, lng)),
+        duration: const Duration(milliseconds: 300),
+      );
+    } catch (_) {
+      // Ignorar errores transitorios del controlador nativo
     }
   }
 
