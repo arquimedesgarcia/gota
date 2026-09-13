@@ -430,10 +430,20 @@ begin
    where auth_user_id = '33333333-3333-4333-8333-333333333333';
   select count(*) into n from public.notification_preferences where user_id = v_other;
   assert n = 0, 'FALLO 5e: A lee las preferencias de C';
-  update public.notification_preferences
-     set water_notifications_enabled = false
-   where user_id = v_other;
-  assert not found, 'FALLO 5e: A modificó preferencias ajenas';
+
+  -- UPDATE directo: migración 00022 revocó INSERT/UPDATE para authenticated,
+  -- así que se espera insufficient_privilege. Si no se eleva, solo es
+  -- aceptable si RLS ocultó la fila de C (ninguna fila modificada).
+  -- Cualquier otro error propaga y falla el test.
+  begin
+    update public.notification_preferences
+       set water_notifications_enabled = false
+     where user_id = v_other;
+    assert not found, 'FALLO 5e: A modificó preferencias ajenas';
+  exception when insufficient_privilege then
+    null; -- acceso directo rechazado por privilegios: comportamiento esperado
+  end;
+
   raise notice 'OK 5e: preferencias ajenas no legibles ni modificables';
 end $$;
 
