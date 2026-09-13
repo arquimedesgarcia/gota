@@ -95,6 +95,9 @@ select pg_temp.seed_photo(
 select pg_temp.seed_photo(
   'report_photos/11111111-1111-4111-8111-111111111111/cfg3/p1.jpg',
   '11111111-1111-4111-8111-111111111111', 'image/jpeg', 10240);
+select pg_temp.seed_photo(
+  'report_photos/11111111-1111-4111-8111-111111111111/desc_validation/p1.jpg',
+  '11111111-1111-4111-8111-111111111111', 'image/jpeg', 10240);
 -- Carpeta del usuario B (no debe poder usarse desde la sesión A).
 select pg_temp.seed_photo(
   'report_photos/22222222-2222-4222-8222-222222222222/b1/p1.jpg',
@@ -653,6 +656,15 @@ set request.jwt.claims =
 -- =====================================================================
 -- 8. Duplicados (50 m / 48 h, ACTIVE)
 -- =====================================================================
+-- Limpiar rate_limit_tracking para que los casos anteriores no afecten
+-- los límites de esta sección (las pruebas de rate limiting están en otra suite).
+do $$
+begin
+  set local role postgres;
+  delete from public.rate_limit_tracking;
+  set local role authenticated;
+end $$;
+
 -- Reporte base de referencia en (10.500, -63.500).
 do $$
 declare resp jsonb; begin
@@ -742,6 +754,7 @@ end $$;
 do $$
 declare resp jsonb; begin
   set local role postgres;
+  delete from public.rate_limit_tracking;
   insert into public.reports
     (created_by, municipality_id, sector_id, location, location_source,
      status, created_at)
@@ -867,6 +880,7 @@ declare resp jsonb;
         d1 int; d2 int; d3 int;
 begin
   set local role postgres;
+  delete from public.rate_limit_tracking;
   -- Punto de origen del reporte nuevo: (10.200, -63.200).
   insert into public.reports
     (created_by, municipality_id, sector_id, location, location_source)
@@ -909,13 +923,16 @@ end $$;
 do $$
 declare resp jsonb;
 begin
+  set local role postgres;
+  delete from public.rate_limit_tracking;
+  set local role authenticated;
   resp := public.create_leak_report(
     p_municipality_id => '00000000-0000-4000-8000-0000000000f1',
     p_sector_id => '00000000-0000-4000-8000-0000000000e1',
     p_latitude => 10.120, p_longitude => -63.120,
     p_location_source => 'GPS',
     p_description => repeat('x', 501),
-    p_photos => '[{"storage_path":"report_photos/11111111-1111-4111-8111-111111111111/dup2/p1.jpg","sort_order":1}]'::jsonb);
+    p_photos => '[{"storage_path":"report_photos/11111111-1111-4111-8111-111111111111/desc_validation/p1.jpg","sort_order":1}]'::jsonb);
   assert resp->>'status_code' = 'VALIDATION_ERROR',
     'FALLO 11: descripción larga no devolvió VALIDATION_ERROR: ' || resp::text;
   assert resp->>'message' like '%500%',
