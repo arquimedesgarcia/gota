@@ -55,3 +55,6 @@ app.*.map.json
 # Supabase CLI temporales
 supabase/.branches/
 supabase/.temp/
+
+# Agent / worktree local
+.claude/
