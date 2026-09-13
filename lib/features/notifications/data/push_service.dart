@@ -14,8 +14,11 @@ abstract class PushService {
   /// Mensajes recibidos con la app en primer plano.
   Stream<RemoteMessage> get onMessageForeground;
 
-  /// Mensajes que abrieron la app desde segundo plano/terminada.
+  /// Mensajes que abrieron la app desde segundo plano.
   Stream<RemoteMessage> get onMessageOpenedApp;
+
+  /// Mensaje que lanzó la app desde estado terminado (cold start).
+  Future<RemoteMessage?> getInitialMessage();
 }
 
 /// Implementación sin Firebase: la app funciona sin push (avisos solo
@@ -38,6 +41,9 @@ class NoopPushService implements PushService {
 
   @override
   Stream<RemoteMessage> get onMessageOpenedApp => const Stream<RemoteMessage>.empty();
+
+  @override
+  Future<RemoteMessage?> getInitialMessage() async => null;
 }
 
 class FcmPushService implements PushService {
@@ -65,6 +71,9 @@ class FcmPushService implements PushService {
   @override
   Stream<RemoteMessage> get onMessageOpenedApp =>
       FirebaseMessaging.onMessageOpenedApp;
+
+  @override
+  Future<RemoteMessage?> getInitialMessage() => _messaging.getInitialMessage();
 }
 
 /// Por defecto arranca en modo no-op; `main.dart` lo sobreescribe con

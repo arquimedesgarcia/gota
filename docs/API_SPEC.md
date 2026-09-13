@@ -123,11 +123,38 @@ Respuesta (`jsonb`): `status_code` (OK/NOT_FOUND/UNAUTHORIZED), `event_id`, `eve
 
 **NO expone `created_by`.**
 
-### register-notification-token
-Registra/actualiza token FCM del usuario.
+### register_notification_token (Sprint 06)
 
-### update-notification-preferences
-Actualiza preferencias de fugas/suministro y sector.
+RPC `register_notification_token(p_token text, p_platform text)`: registra o
+reactiva el token FCM del dispositivo para el usuario autenticado. Como
+`token` es UNIQUE global, un token reasignado (mismo dispositivo, otra
+instalación) pasa a la identidad que lo registra ahora. El `user_id` sale de
+`auth.uid()`, jamás del cliente. Plataformas válidas: `android`, `ios`
+(`web` fue eliminado en la migración 00019: sin soporte Web en Sprint 06).
+
+Códigos: `OK`, `VALIDATION_ERROR`, `FORBIDDEN`, `UNAUTHORIZED`.
+
+### unregister_notification_token (Sprint 06)
+
+RPC `unregister_notification_token(p_token text)`: desactiva (`is_active =
+false`) un token propio. No borra la fila (historial de tokens obsoletos).
+La Edge Function de push desactiva por su cuenta los tokens que FCM rechaza
+(`UNREGISTERED`, `SENDER_ID_MISMATCH`).
+
+Códigos: `OK`, `NOT_FOUND`, `UNAUTHORIZED`.
+
+### save_notification_preferences (Sprint 06)
+
+RPC `save_notification_preferences(p_preferred_sector_id uuid,
+p_water_notifications_enabled boolean)`: upsert de la preferencia del
+usuario autenticado. `preferred_sector_id = NULL` significa "sin sector de
+interés". La unicidad de 1 fila por usuario la garantiza la PK, no el
+cliente; el sector se valida (existe y está activo).
+
+Códigos: `OK`, `NOT_FOUND`, `FORBIDDEN`, `UNAUTHORIZED`.
+
+La bandeja se lee directo por PostgREST sobre `notifications` (RLS propia);
+`read_at` se actualiza por UPDATE de columna concedida.
 
 ## 3. Errores
 
@@ -158,13 +185,27 @@ No enviar binarios dentro de la función. Usar Storage y persistir referencias.
 
 ## 7. Notificaciones
 
+Sprint 06 implementa **solo** notificaciones de suministro (las de fugas —
+validación/resolución de reportes — quedan para un sprint posterior):
+
 Eventos:
-- REPORT_VALIDATED
-- REPORT_RESOLVED
 - WATER_ARRIVED
 - WATER_LEFT
 
-El backend determina destinatarios según sector y preferencias.
+Cadena (la fila de `notifications` es la fuente de verdad):
+
+```text
+water_events INSERT → trigger notify_water_event → notifications INSERT
+→ Database Webhook (supabase_functions.http_request vía pg_net)
+→ Edge Function notify-push → FCM HTTP v1 → dispositivo
+```
+
+- El backend determina destinatarios: usuarios con `preferred_sector_id`
+  igual al sector del evento y `water_notifications_enabled = true`.
+- Idempotencia: `UNIQUE (user_id, water_event_id)` + `ON CONFLICT DO NOTHING`.
+- Si FCM falla, la notification persistente **no** se revierte (fail-soft).
+- Payload FCM v1: `notification.{title, body}` y `data.{notification_id,
+  type, water_event_id}` (este último habilita navegar al evento al tocar).
 
 ## 8. Versionado
 

@@ -1,14 +1,12 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
-import '../../../app/router/app_navigator.dart';
 import '../data/notification_repository.dart';
 import '../data/push_service.dart';
 import '../domain/notification_preferences.dart';
 import '../domain/water_notification.dart';
-import 'notifications_screen.dart';
+import 'push_navigation.dart';
 
 /// Preferencias de notificación del usuario (futuro simple de una sola
 /// lectura; los cambios pasan por [NotificationPreferencesController]).
@@ -265,17 +263,18 @@ final pushBootstrapProvider = FutureProvider<PushPermissionStatus>((ref) async {
   final fgSub = push.onMessageForeground.listen((_) {
     ref.invalidate(notificationInboxControllerProvider);
   });
-  final openSub = push.onMessageOpenedApp.listen((_) {
-    final navigator = rootNavigatorKey.currentState;
-    navigator?.push(
-      MaterialPageRoute<void>(builder: (_) => const NotificationsScreen()),
-    );
-  });
+  final openSub = push.onMessageOpenedApp.listen(navigateFromPush);
   ref.onDispose(() {
     refreshSub.cancel();
     fgSub.cancel();
     openSub.cancel();
   });
+
+  // Cold start: la app fue lanzada tocando una notificación (terminated).
+  try {
+    final initialMessage = await push.getInitialMessage();
+    if (initialMessage != null) navigateFromPush(initialMessage);
+  } catch (_) {}
 
   return status;
 });

@@ -82,6 +82,55 @@ manifest de release no incluye `networkSecurityConfig`, así que Android bloquea
 
 Las pruebas E2E (`supabase/tests/*.sh`) asumen ese Supabase local.
 
+## Push notifications (Sprint 06)
+
+La entrega push usa **FCM HTTP v1** con OAuth2 (service account). El
+endpoint Legacy está prohibido.
+
+### Configuración Firebase (cliente)
+
+1. Crear proyecto Firebase y app Android (`com.gota.gota`); descargar
+   `google-services.json` a `android/app/` (fuera de Git; el plugin Gradle
+   se aplica condicionalmente: sin el archivo la app compila y funciona sin
+   push).
+2. iOS: añadir `GoogleService-Info.plist` al Runner (fuera de Git). El
+   `AppDelegate` solo inicializa Firebase si el plist existe.
+
+### Secreto de la Edge Function (servidor)
+
+`supabase/functions/notify-push` lee `FCM_SERVICE_ACCOUNT_JSON` (JSON
+completo de la service account; el `project_id` se toma del propio JSON).
+En el entorno self-hosted (Supabase CLI + Docker) se inyecta con el
+archivo `supabase/functions/.env` (ya ignorado por `.gitignore`):
+
+```text
+FCM_SERVICE_ACCOUNT_JSON={"project_id":"...","client_email":"...","private_key":"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"}
+```
+
+Después de crear/modificar el `.env`, reiniciar el stack
+(`supabase stop && supabase start`) para que el Edge Runtime lo recargue.
+
+### Database Webhook (self-hosted)
+
+La función se dispara por un trigger sobre `public.notifications`:
+
+```sql
+create extension if not exists pg_net;  -- si no está instalada
+
+create trigger notifications_webhook_notify_push
+  after insert on public.notifications
+  for each row execute function supabase_functions.http_request(
+    'http://kong:8000/functions/v1/notify-push',
+    'POST',
+    '{"Content-Type": "application/json", "Authorization": "Bearer <service_role_key>"}'
+  );
+```
+
+La función está declarada en `supabase/config.toml`
+(`[functions.notify-push] verify_jwt = true`): el webhook debe enviar el
+service role key. El código de la función vive en el repo
+(`supabase/functions/notify-push/`) y el stack lo monta en caliente.
+
 ## Regla
 
 No agregar Firebase, Railway, Redis ni otro backend al camino crítico sin una decisión explícita.

@@ -178,18 +178,20 @@ Historial:
 
 ## 9. Notificaciones
 
-Categorías:
+Sprint 06 implementa la categoría **suministro** (la de fugas — reporte
+validado / resuelto — queda para un sprint posterior):
 
-- fugas;
-- suministro.
+El usuario puede elegir **un único sector de interés** (opcional, libre, no
+ligado al GPS ni al domicilio) y activar/desactivar los avisos de agua de
+forma independiente (desactivar no borra el sector).
 
-El usuario puede elegir sector de interés.
+Eventos implementados:
+- llegó el agua (WATER_ARRIVED);
+- se fue el agua (WATER_LEFT).
 
-Eventos posibles:
-- reporte validado;
-- reporte resuelto;
-- llegó el agua;
-- se fue el agua.
+Cada aviso es una notification persistente en la bandeja dentro de Gota y,
+cuando FCM está disponible, un push. Al tocar el push se abre el Water
+Event correspondiente (`water_event_id` del payload).
 
 ## 10. Mis reportes e historial
 

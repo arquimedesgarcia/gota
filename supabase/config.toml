@@ -19,3 +19,11 @@ enabled = true
 site_url = "http://localhost:3000"
 # Requerido por docs/SETUP.md (Anonymous Sign-ins) para el arranque de la app.
 enable_anonymous_sign_ins = true
+
+# Sprint 06: entrega push de notifications. La invoca el Database Webhook
+# (trigger vía supabase_functions.http_request) con el service role key;
+# por eso verifica JWT. Los secretos FCM (FCM_SERVICE_ACCOUNT_JSON) se
+# inyectan con `supabase secrets set` y NO viven en este archivo ni en Git
+# (docs/SETUP.md).
+[functions.notify-push]
+verify_jwt = true

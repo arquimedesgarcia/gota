@@ -5,6 +5,10 @@ import 'package:gota/app/app.dart';
 import 'package:gota/core/config/app_config.dart';
 import 'package:gota/features/location/data/municipality_repository.dart';
 import 'package:gota/features/location/data/sector_repository.dart';
+import 'package:gota/features/notifications/data/notification_repository.dart';
+import 'package:gota/features/notifications/data/push_service.dart';
+import 'package:gota/features/notifications/domain/notification_page.dart';
+import 'package:gota/features/notifications/domain/notification_preferences.dart';
 import 'package:gota/shared/models/app_user.dart';
 import 'package:gota/shared/models/municipality.dart';
 import 'package:gota/shared/models/sector.dart';
@@ -35,6 +39,38 @@ class FakeSectorRepository implements SectorRepository {
   Future<Sector?> getById(String id) async => null;
 }
 
+/// Mínimo necesario para que la pestaña Más (Ajustes, Sprint 06) construya
+/// sin Supabase: bandeja vacía y preferencias inexistentes.
+class FakeNotificationRepository implements NotificationRepository {
+  @override
+  Future<NotificationPreferences?> getPreferences() async => null;
+
+  @override
+  Future<NotificationPreferences> savePreferences({
+    String? sectorId,
+    required bool enabled,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<NotificationInboxPage> fetchInbox({
+    int limit = 20,
+    String? beforeIso,
+  }) async => const NotificationInboxPage(items: []);
+
+  @override
+  Future<void> markRead(String id) async {}
+
+  @override
+  Future<void> registerToken(String token, String platform) async {}
+
+  @override
+  Future<void> unregisterToken(String token) async {}
+
+  @override
+  Stream<String> watchNotifications(String userId) =>
+      const Stream<String>.empty();
+}
+
 void main() {
   testWidgets('GotaApp muestra el home y la navegación de cinco destinos', (
     tester,
@@ -53,6 +89,10 @@ void main() {
             FakeMunicipalityRepository(),
           ),
           sectorRepositoryProvider.overrideWithValue(FakeSectorRepository()),
+          notificationRepositoryProvider.overrideWithValue(
+            FakeNotificationRepository(),
+          ),
+          pushServiceProvider.overrideWithValue(const NoopPushService()),
         ],
         child: const GotaApp(),
       ),
@@ -72,9 +112,7 @@ void main() {
     expect(find.text('Más'), findsOneWidget);
   });
 
-  testWidgets('Navegar a Más muestra la pantalla de placeholder', (
-    tester,
-  ) async {
+  testWidgets('Navegar a Más muestra Ajustes (Sprint 06)', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -89,6 +127,10 @@ void main() {
             FakeMunicipalityRepository(),
           ),
           sectorRepositoryProvider.overrideWithValue(FakeSectorRepository()),
+          notificationRepositoryProvider.overrideWithValue(
+            FakeNotificationRepository(),
+          ),
+          pushServiceProvider.overrideWithValue(const NoopPushService()),
         ],
         child: const GotaApp(),
       ),
@@ -98,10 +140,13 @@ void main() {
     await tester.tap(find.text('Más'));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, 'Más'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Ajustes'), findsOneWidget);
+    // Estado sin sector de interés seleccionado.
     expect(
-      find.text('Esta función estará disponible próximamente.'),
+      find.text('No tienes un sector de interés seleccionado.'),
       findsOneWidget,
     );
+    // Preferencia de notificaciones de agua separada del sector.
+    expect(find.text('Notificaciones de agua'), findsOneWidget);
   });
 }

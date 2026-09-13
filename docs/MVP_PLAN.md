@@ -70,11 +70,13 @@ FEEDBACK
 - filtros;
 - lista/mapa.
 
-### Sprint 06 — Notifications
-- FCM;
-- tokens;
-- preferencias;
-- eventos.
+### Sprint 06 — Notifications ✅
+- preferencias: un sector de interés (0..1, opcional, no GPS) + ON/OFF de agua;
+- notifications persistentes con RLS e idempotencia `UNIQUE (user_id, water_event_id)`;
+- generación server-side por trigger `notify_water_event` (WATER_ARRIVED/WATER_LEFT);
+- tokens FCM (RPC register/unregister, plataformas android/ios);
+- Database Webhook → Edge Function `notify-push` → **FCM HTTP v1** (OAuth2 service account);
+- tap push → navegación al Water Event (background + terminated); bandeja con read/unread.
 
 ### Sprint 07 — Security & abuse
 - RLS revisión;

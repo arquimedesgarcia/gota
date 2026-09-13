@@ -105,25 +105,38 @@ Unique `(report_id, user_id)`. Índices por `report_id` y por `user_id`.
 
 Unique `(water_event_id, user_id)`. Índices por `water_event_id` y `user_id`.
 
-### notification_tokens
-- id UUID
-- user_id
-- token
-- platform
-- is_active
-- created_at
-- updated_at
-- last_used_at
+### notification_preferences (Sprint 06)
+- user_id UUID **PK** FK a `app_users` (una sola fila por usuario: 0 o 1 sector de interés)
+- preferred_sector_id UUID nullable FK a `sectors` (ON DELETE SET NULL; no depende del GPS)
+- water_notifications_enabled boolean
+- created_at / updated_at timestamptz
 
-### notification_subscriptions
+Índice parcial por `preferred_sector_id` (búsqueda de destinatarios en el trigger).
+
+### notifications (Sprint 06)
 - id UUID
-- user_id
-- municipality_id
-- sector_id
-- leaks_enabled
-- water_supply_enabled
-- created_at
-- updated_at
+- user_id UUID FK a `app_users`
+- water_event_id UUID FK a `water_events`
+- type text (`WATER_ARRIVED` | `WATER_LEFT`)
+- title / body text
+- created_at timestamptz
+- read_at timestamptz nullable
+
+Unique `(user_id, water_event_id)`: autoridad real de idempotencia (procesar
+el mismo evento N veces deja 1 notification). Índice `(user_id, created_at desc)`.
+RLS: select propio + update de `read_at` propio (única columna actualizable);
+la creación es server-side (trigger `notify_water_event`), sin INSERT de cliente.
+
+### notification_tokens (Sprint 06)
+- id UUID
+- user_id UUID FK a `app_users`
+- token text **UNIQUE** global
+- platform text (`android` | `ios`; sin Web en Sprint 06)
+- is_active boolean
+- created_at / updated_at / last_seen_at timestamptz
+
+Índice parcial `(user_id) where is_active` (envío push). Escritura normal vía
+RPC `register_notification_token` / `unregister_notification_token`.
 
 ### audit_events
 - id UUID
