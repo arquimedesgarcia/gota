@@ -159,9 +159,9 @@ grant select on public.notifications to authenticated;
 grant update (read_at) on public.notifications to authenticated;
 
 -- ---------- notification_tokens ----------
--- El usuario solo administra sus propios tokens. La reasignación de un
--- token a otra identidad (mismo dispositivo, sesión distinta) la hace la
--- RPC register_notification_token, nunca el cliente escribiendo user_id.
+-- El usuario solo lee sus propios tokens. La escritura (register/unregister)
+-- la hace la RPC register_notification_token y unregister_notification_token
+-- con security definer, nunca el cliente directo (hardening).
 alter table public.notification_tokens enable row level security;
 
 create policy "Usuario lee sus tokens"
@@ -169,24 +169,8 @@ create policy "Usuario lee sus tokens"
   to authenticated
   using (user_id = public.current_app_user_id());
 
-create policy "Usuario crea sus tokens"
-  on public.notification_tokens for insert
-  to authenticated
-  with check (user_id = public.current_app_user_id());
-
-create policy "Usuario actualiza sus tokens"
-  on public.notification_tokens for update
-  to authenticated
-  using (user_id = public.current_app_user_id())
-  with check (user_id = public.current_app_user_id());
-
-create policy "Usuario elimina sus tokens"
-  on public.notification_tokens for delete
-  to authenticated
-  using (user_id = public.current_app_user_id());
-
 revoke all on public.notification_tokens from anon, authenticated;
-grant select, insert, update, delete on public.notification_tokens to authenticated;
+grant select on public.notification_tokens to authenticated;
 
 -- =====================================================================
 -- 5. Generación server-side de notifications (Fase 3 del contrato)

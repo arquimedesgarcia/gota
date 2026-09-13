@@ -58,10 +58,11 @@ interface WebhookPayload {
 
 // Errores de FCM v1 que confirman que el token ya no existe o no es de
 // esta app: se desactiva para no volver a enviarle (docs/API_SPEC.md §7).
+// INVALID_ARGUMENT puede deberse a payload mal formado, configuración
+// incorrecta o credenciales ausentes: no indica invalidez del token.
 const FCM_FATAL_ERROR_CODES = new Set([
   "UNREGISTERED",
   "SENDER_ID_MISMATCH",
-  "INVALID_ARGUMENT",
 ]);
 
 Deno.serve(async (req: Request) => {

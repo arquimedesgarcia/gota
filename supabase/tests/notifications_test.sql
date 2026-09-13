@@ -290,29 +290,72 @@ do $$ declare r jsonb; begin
     'FALLO 4d: unregister no desactivó';
   raise notice 'OK 4d: unregister desactiva el token propio';
 end $$;
+
+-- 4e. El cliente no puede hacer INSERT directo en notification_tokens
+-- (hardening: solo RPC).
+do $$ begin
+  begin
+    insert into public.notification_tokens (user_id, token, platform)
+    select id, 'token-directo', 'android'
+      from public.app_users where auth_user_id = '11111111-1111-4111-8111-111111111111';
+    assert false, 'FALLO 4e: el cliente insertó directo en tokens';
+  exception when insufficient_privilege then
+    null;
+  end;
+  raise notice 'OK 4e: INSERT directo en tokens denegado (solo RPC)';
+end $$;
 reset request.jwt.claims;
 set role postgres;
 
 -- =====================================================================
 -- 5. RLS: aislamiento entre usuarios
 -- =====================================================================
--- 5a. A no lee las notifications de C (que no tiene ninguna, usamos las de
--- la generación: A no debe ver notifications de OTRO usuario => forzamos
--- la comparación con la fila de A leída por postgres).
+-- 5a. Crear explícitamente una notification para C como admin, verificar
+-- que A no puede leerla: prueba de RLS real (no falso positivo por
+-- ausencia de datos).
+set role postgres;
+do $$ declare
+  v_user_c uuid;
+  v_event uuid;
+begin
+  select id into v_user_c from public.app_users
+   where auth_user_id = '33333333-3333-4333-8333-333333333333';
+  select id into v_event from public.water_events
+   where sector_id = '00000000-0000-4000-8000-0000000000e1'
+   order by created_at limit 1;
+  -- Insertar una notification explícita para C.
+  insert into public.notifications (user_id, water_event_id, type, title, body)
+  values (v_user_c, v_event, 'WATER_ARRIVED', 'Notificación de C', 'Para usuario C')
+  on conflict (user_id, water_event_id) do nothing;
+end $$;
+
 set role authenticated;
 set request.jwt.claims =
   '{"role": "authenticated", "aud": "authenticated", "sub": "11111111-1111-4111-8111-111111111111"}';
 do $$ declare
   v_other uuid;
+  v_notif uuid;
   n int;
 begin
   select id into v_other from public.app_users
    where auth_user_id = '33333333-3333-4333-8333-333333333333';
-  -- Insertamos una notification para C como administrador más abajo; aquí
-  -- verificamos que A no ve NADA de C con el RLS actual.
+  -- A intenta leer notifications de C.
   select count(*) into n from public.notifications where user_id = v_other;
-  assert n = 0, 'FALLO 5a: A lee notifications ajenas';
-  raise notice 'OK 5a: A no ve notifications de otros usuarios';
+  assert n = 0, 'FALLO 5a: A lee notifications ajenas (RLS falló)';
+
+  -- A intenta modificar notifications de C (debe fallar).
+  select id into v_notif from public.notifications
+   where user_id = v_other limit 1;
+  if v_notif is not null then
+    begin
+      update public.notifications set read_at = now() where id = v_notif;
+      assert not found, 'FALLO 5a: A modificó notification ajena';
+    exception when insufficient_privilege then
+      null;
+    end;
+  end if;
+
+  raise notice 'OK 5a: A no ve ni modifica notifications de C (RLS real)';
 end $$;
 
 -- 5b. A no puede INSERTAR notifications (creación server-side).
