@@ -100,6 +100,9 @@ class _FakeDatabase implements GotaDatabase {
   }
 
   @override
+  Future<Map<String, dynamic>?> fetchSectorById(String id) async => null;
+
+  @override
   Future<Map<String, dynamic>> ensureAppUser() async => const {};
 
   @override

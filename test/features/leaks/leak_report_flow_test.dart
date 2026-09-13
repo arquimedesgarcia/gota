@@ -48,6 +48,9 @@ class _FakeSectorRepository implements SectorRepository {
       isActive: true,
     ),
   ];
+
+  @override
+  Future<Sector?> getById(String id) async => null;
 }
 
 ProviderScope _app({LeakFlowException? gpsError}) => ProviderScope(

@@ -11,6 +11,9 @@ import '../../../shared/models/sector.dart';
 
 abstract class SectorRepository {
   Future<List<Sector>> getByMunicipality(String municipalityId);
+
+  /// Sector por id; `null` si no existe o no está accesible.
+  Future<Sector?> getById(String id);
 }
 
 class SupabaseSectorRepository implements SectorRepository {
@@ -23,6 +26,23 @@ class SupabaseSectorRepository implements SectorRepository {
     try {
       final rows = await _database.fetchSectorsForMunicipality(municipalityId);
       return rows.map(Sector.fromJson).toList();
+    } on AppException {
+      rethrow;
+    } on SocketException {
+      throw const NetworkException();
+    } on http.ClientException {
+      throw const NetworkException();
+    } on supabase.PostgrestException {
+      throw const QueryException();
+    }
+  }
+
+  @override
+  Future<Sector?> getById(String id) async {
+    try {
+      final row = await _database.fetchSectorById(id);
+      if (row == null) return null;
+      return Sector.fromJson(row);
     } on AppException {
       rethrow;
     } on SocketException {

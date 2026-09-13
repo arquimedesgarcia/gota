@@ -6,6 +6,7 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/leaks/presentation/leak_report_controller.dart';
 import '../../features/leaks/presentation/leak_report_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
+import '../../features/notifications/presentation/settings_screen.dart';
 import '../../features/water/presentation/water_screen.dart';
 import '../../shared/widgets/placeholder_screen.dart';
 
@@ -32,7 +33,7 @@ class _AppShellState extends State<AppShell> {
     MapScreen(),
     PlaceholderScreen(title: 'Reportar'),
     WaterScreen(),
-    PlaceholderScreen(title: 'Más'),
+    SettingsScreen(),
   ];
 
   /// Abre el flujo completo de Reportar fuga (Sprint 02) y reinicia el

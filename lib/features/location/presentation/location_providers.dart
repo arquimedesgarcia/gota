@@ -27,3 +27,13 @@ final sectorsProvider = FutureProvider.autoDispose.family<List<Sector>, String>(
   (ref, municipalityId) =>
       ref.watch(sectorRepositoryProvider).getByMunicipality(municipalityId),
 );
+
+/// Nombre de un sector por id (p. ej. para resolver el sector de interés
+/// guardado en preferencias).
+final sectorNameProvider = FutureProvider.autoDispose
+    .family<String?, String>(
+      (ref, sectorId) =>
+          ref.watch(sectorRepositoryProvider).getById(sectorId).then(
+            (sector) => sector?.name,
+          ),
+    );

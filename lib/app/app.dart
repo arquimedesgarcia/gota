@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/config/app_config.dart';
 import '../core/errors/app_exception.dart';
+import '../features/notifications/presentation/notification_providers.dart';
 import '../shared/widgets/error_view.dart';
 import '../shared/widgets/loading_view.dart';
 import 'providers.dart';
+import 'router/app_navigator.dart';
 import 'router/app_shell.dart';
 import 'theme/app_theme.dart';
 
@@ -19,6 +21,7 @@ class GotaApp extends ConsumerWidget {
     final config = ref.watch(appConfigProvider);
     return MaterialApp(
       title: 'Gota',
+      navigatorKey: rootNavigatorKey,
       theme: AppTheme.light,
       debugShowCheckedModeBanner: false,
       home: config == null ? const ConfigMissingView() : const _SessionGate(),
@@ -48,7 +51,12 @@ class _SessionGate extends ConsumerWidget {
           ),
         ),
       ),
-      data: (_) => const AppShell(),
+      data: (_) {
+        // Arranque del push (Sprint 06): los errores internos se tragan en
+        // el bootstrap; aquí solo importa observarlo tras la sesión.
+        ref.watch(pushBootstrapProvider);
+        return const AppShell();
+      },
     );
   }
 }

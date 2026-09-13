@@ -19,7 +19,7 @@ android {
         applicationId = "com.gota.gota"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = maxOf(flutter.minSdkVersion, 21)
         targetSdk = flutter.targetSdkVersion
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
@@ -46,4 +46,10 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+// FCM (Sprint 06): el plugin requiere google-services.json, que vive FUERA
+// del repo (docs/SETUP.md). Sin él la app compila y funciona sin push.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
 }

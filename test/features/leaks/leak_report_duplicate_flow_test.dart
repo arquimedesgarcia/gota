@@ -51,6 +51,9 @@ class _FakeSectorRepository implements SectorRepository {
       isActive: true,
     ),
   ];
+
+  @override
+  Future<Sector?> getById(String id) async => null;
 }
 
 /// Repositorio falso que registra el `ignoreDuplicate` de CADA envío.

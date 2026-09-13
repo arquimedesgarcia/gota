@@ -30,6 +30,9 @@ class FakeSectorRepository implements SectorRepository {
   @override
   Future<List<Sector>> getByMunicipality(String municipalityId) async =>
       const [];
+
+  @override
+  Future<Sector?> getById(String id) async => null;
 }
 
 void main() {

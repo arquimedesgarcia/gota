@@ -11,6 +11,9 @@ abstract class GotaDatabase {
     String municipalityId,
   );
 
+  /// Sector por id (0..1 filas); `null` si no existe.
+  Future<Map<String, dynamic>?> fetchSectorById(String id);
+
   Future<Map<String, dynamic>> ensureAppUser();
 
   /// Invoca la RPC protegida `create_leak_report` y devuelve su `jsonb`
@@ -44,6 +47,17 @@ class SupabaseGotaDatabase implements GotaDatabase {
         .eq('is_active', true)
         .order('name');
     return rows;
+  }
+
+  @override
+  Future<Map<String, dynamic>?> fetchSectorById(String id) async {
+    final data = await _client
+        .from('sectors')
+        .select()
+        .eq('id', id)
+        .maybeSingle();
+    if (data == null) return null;
+    return Map<String, dynamic>.from(data);
   }
 
   @override
