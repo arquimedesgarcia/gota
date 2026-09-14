@@ -52,3 +52,10 @@ class LeakCommunityUnauthorizedException extends LeakCommunityException {
         'Tu sesión no está activa. Cierra y abre la app de nuevo.',
   ]);
 }
+
+/// El backend limitó la acción por frecuencia (`RATE_LIMIT_EXCEEDED`):
+/// el mensaje (con la hora de reintento) ya viene redactado para el
+/// usuario final.
+class LeakCommunityRateLimitException extends LeakCommunityException {
+  const LeakCommunityRateLimitException(super.userMessage);
+}

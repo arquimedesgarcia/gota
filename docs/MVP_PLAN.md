@@ -78,18 +78,17 @@ FEEDBACK
 - Database Webhook → Edge Function `notify-push` → **FCM HTTP v1** (OAuth2 service account);
 - tap push → navegación al Water Event (background + terminated); bandeja con read/unread.
 
-### Sprint 07 — Security & abuse
+### Sprint 07 — Security & abuse ✅
 - RLS revisión;
-- rate limits;
-- auditoría;
+- rate limits (5 RPC de escritura, ventana fija 1 h, `RATE_LIMIT_EXCEEDED` + `reset_at`);
+- auditoría (DEF-01 helpers de rate limit revocados a `authenticated` en `07557a4`, revalidado en `docs/audits/2026-09-13_def01_revalidation.md`);
 - pruebas de abuso.
 
-### Sprint 08 — Stabilization
-- tests;
-- UX;
-- rendimiento;
-- errores;
-- Android release.
+### Sprint 08 — Stabilization 🚧 en curso
+- tests de regresión server-side del rate limiting (`supabase/tests/rate_limiting_test.sql`, `rate_limit_concurrency_e2e.sh`);
+- higiene de scripts E2E (cleanup fiable ante fallos);
+- consistencia UX de errores conocidos del backend (`RATE_LIMIT_EXCEEDED`, red, timeout);
+- build Android release reproducible (firma configurable, R8, sin secretos en el repo).
 
 ### Sprint 09 — Pilot
 - piloto pequeño;

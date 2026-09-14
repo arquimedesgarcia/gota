@@ -58,7 +58,13 @@ class MapScreen extends ConsumerWidget {
         loading: () => const _MapLoadingView(),
         error: (error, _) => _MapErrorView(
           message: _mapErrorMessage(error),
-          onRetry: () => ref.invalidate(mapReportsProvider),
+          // El reintento debe refrescar el proveedor que está observando la
+          // pantalla en este modo (lista: sin bbox; mapa: con bbox).
+          onRetry: () => ref.invalidate(
+            filterState.viewMode == MapViewMode.list
+                ? listReportsProvider
+                : mapReportsProvider,
+          ),
         ),
         data: (reports) {
           if (reports.isEmpty) {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,6 +52,8 @@ class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
     try {
       final rows = await _database.fetchRecentLeakReports(limit: limit);
       return rows.map(LeakSummary.fromJson).toList();
+    } on TimeoutException {
+      throw const NetworkException();
     } on SocketException {
       throw const NetworkException();
     } on http.ClientException {
@@ -85,6 +88,8 @@ class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
         limit: limit,
       );
       return rows.map(LeakSummary.fromJson).toList();
+    } on TimeoutException {
+      throw const NetworkException();
     } on SocketException {
       throw const NetworkException();
     } on http.ClientException {
@@ -159,6 +164,8 @@ class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
         );
       case 'UNAUTHORIZED':
         throw const LeakCommunityUnauthorizedException();
+      case 'RATE_LIMIT_EXCEEDED':
+        throw LeakCommunityRateLimitException(_rateLimitMessage(data));
       default:
         throw const QueryException(
           'No pudimos completar la acción. Intenta de nuevo.',
@@ -166,11 +173,28 @@ class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
     }
   }
 
+  /// Mensaje de límite de frecuencia (`RATE_LIMIT_EXCEEDED`): usa el mensaje
+  /// del backend y, si viene `reset_at`, añade la hora local de reintento.
+  String _rateLimitMessage(Map<String, dynamic> data) {
+    final base =
+        data['message'] as String? ??
+        'Has alcanzado el límite de acciones por hora.';
+    final rawResetAt = data['reset_at'];
+    final resetAt = rawResetAt is String ? DateTime.tryParse(rawResetAt) : null;
+    if (resetAt == null) return base;
+    final local = resetAt.toLocal();
+    final hh = local.hour.toString().padLeft(2, '0');
+    final mm = local.minute.toString().padLeft(2, '0');
+    return '$base Intenta de nuevo después de las $hh:$mm.';
+  }
+
   Future<Map<String, dynamic>> _rpc(
     Future<Map<String, dynamic>> Function() action,
   ) async {
     try {
       return await action();
+    } on TimeoutException {
+      throw const NetworkException();
     } on SocketException {
       throw const NetworkException();
     } on http.ClientException {

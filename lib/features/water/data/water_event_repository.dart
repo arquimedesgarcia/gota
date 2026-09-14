@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -95,6 +96,8 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
         );
       case 'UNAUTHORIZED':
         throw const AuthException();
+      case 'RATE_LIMIT_EXCEEDED':
+        throw WaterRateLimitException(_rateLimitMessage(data));
       default:
         throw const QueryException('No pudimos registrar el evento.');
     }
@@ -121,6 +124,8 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
         );
       case 'UNAUTHORIZED':
         throw const AuthException();
+      case 'RATE_LIMIT_EXCEEDED':
+        throw WaterRateLimitException(_rateLimitMessage(data));
       default:
         throw const QueryException('No pudimos completar la acción.');
     }
@@ -165,6 +170,8 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
             )
           : null;
       return WaterEventsPage(events: events, nextCursor: nextCursor);
+    } on TimeoutException {
+      throw const NetworkException();
     } on SocketException {
       throw const NetworkException();
     } on http.ClientException {
@@ -181,6 +188,8 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
   ) async {
     try {
       return await action();
+    } on TimeoutException {
+      throw const NetworkException();
     } on SocketException {
       throw const NetworkException();
     } on http.ClientException {
@@ -200,6 +209,21 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
 DateTime? _parseDate(Object? value) {
   if (value is! String || value.isEmpty) return null;
   return DateTime.tryParse(value);
+}
+
+/// Mensaje de límite de frecuencia (`RATE_LIMIT_EXCEEDED`): usa el mensaje
+/// del backend y, si viene `reset_at`, añade la hora local de reintento.
+String _rateLimitMessage(Map<String, dynamic> data) {
+  final base =
+      data['message'] as String? ??
+      'Has alcanzado el límite de eventos de agua por hora.';
+  final rawResetAt = data['reset_at'];
+  final resetAt = rawResetAt is String ? DateTime.tryParse(rawResetAt) : null;
+  if (resetAt == null) return base;
+  final local = resetAt.toLocal();
+  final hh = local.hour.toString().padLeft(2, '0');
+  final mm = local.minute.toString().padLeft(2, '0');
+  return '$base Intenta de nuevo después de las $hh:$mm.';
 }
 
 final waterEventRepositoryProvider = Provider<WaterEventRepository>(

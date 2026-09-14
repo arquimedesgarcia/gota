@@ -70,3 +70,10 @@ class PhotoCleanupException extends LeakFlowException {
 class ReportCreationException extends LeakFlowException {
   const ReportCreationException(super.userMessage);
 }
+
+/// El backend limitó la acción por frecuencia (`RATE_LIMIT_EXCEEDED`):
+/// el mensaje (con la hora de reintento) ya viene redactado para el
+/// usuario final.
+class ReportRateLimitException extends LeakFlowException {
+  const ReportRateLimitException(super.userMessage);
+}

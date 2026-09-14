@@ -64,6 +64,15 @@ class _WaterEventDetailScreenState
           backgroundColor: AppColors.danger,
         ),
       );
+    } on Exception {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(WaterCopy.actionError),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.danger,
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() => _isValidating = false);

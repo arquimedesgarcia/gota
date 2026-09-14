@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/theme/app_theme.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../domain/water_event_type.dart';
 import 'water_copy.dart';
@@ -106,7 +107,17 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
                     ),
                     Step(
                       title: const Text(WaterCopy.stepComment),
-                      content: const WaterRegisterStepComment(),
+                      content: Column(
+                        children: [
+                          if (state.errorMessage != null) ...[
+                            _RegisterErrorBanner(
+                              message: state.errorMessage!,
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                          const WaterRegisterStepComment(),
+                        ],
+                      ),
                       isActive: _currentStep >= 4,
                     ),
                   ],
@@ -121,6 +132,37 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
                 label: const Text(WaterCopy.confirm),
               )
             : null,
+      ),
+    );
+  }
+}
+
+/// Banner de error inline del registro (mismo estilo que StatusBanner del
+/// flujo de fugas): el controller limpia `errorMessage` al reintentar.
+class _RegisterErrorBanner extends StatelessWidget {
+  const _RegisterErrorBanner({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.danger.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            const Icon(Icons.error_outline, color: AppColors.danger),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(fontSize: 13, color: AppColors.text),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

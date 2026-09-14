@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_theme.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../water/domain/water_event_type.dart';
@@ -47,8 +48,11 @@ class NotificationsScreen extends ConsumerWidget {
     List<WaterNotification> items,
   ) {
     if (state.items.hasError && items.isEmpty) {
+      final error = state.items.error;
       return ErrorView(
-        message: 'No pudimos cargar tus notificaciones.',
+        message: error is AppException
+            ? error.userMessage
+            : 'No pudimos cargar tus notificaciones.',
         onRetry: () =>
             ref.read(notificationInboxControllerProvider.notifier).refresh(),
       );

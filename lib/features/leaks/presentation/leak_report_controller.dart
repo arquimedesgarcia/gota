@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/app_exception.dart';
 import '../domain/create_leak_report_outcome.dart';
 import '../domain/leak_errors.dart';
 import '../domain/leak_report_draft.dart';
@@ -132,6 +133,14 @@ class LeakReportController extends Notifier<LeakReportState> {
       state = state.copyWith(message: e.userMessage);
     } on LeakFlowException catch (e) {
       state = state.copyWith(message: e.userMessage);
+    } on Exception {
+      // Errores crudos de la plataforma (picker/compresor): se traducen al
+      // error de foto tipado para no propagar texto técnico a la UI.
+      state = state.copyWith(
+        message: const PhotoValidationException(
+          'No pudimos procesar esa foto. Elige otra.',
+        ).userMessage,
+      );
     }
   }
 
@@ -275,6 +284,11 @@ class LeakReportController extends Notifier<LeakReportState> {
           );
       }
     } on LeakFlowException catch (e) {
+      state = state.copyWith(
+        submitState: ReportSubmitState.idle,
+        message: e.userMessage,
+      );
+    } on AppException catch (e) {
       state = state.copyWith(
         submitState: ReportSubmitState.idle,
         message: e.userMessage,

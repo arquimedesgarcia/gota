@@ -2,7 +2,7 @@
 
 Aplicación comunitaria móvil (Flutter + Supabase) para reportar y validar fugas de agua y registrar eventos de suministro en Isla de Margarita, Venezuela.
 
-**Estado: Sprint 05 — Map implementado** (Sprint 01 Foundation, Sprint 02 Leak Reporting, Sprint 03 Validation & Resolution, Sprint 04 Water Events completados). La corrección de la auditoría del Sprint 01 está aplicada (ver `docs/MIGRATION_NOTES.md` § "Auditoría Sprint 01").
+**Estado: Sprint 08 — Stabilization en curso.** Sprint 01 Foundation, Sprint 02 Leak Reporting, Sprint 03 Validation & Resolution, Sprint 04 Water Events, Sprint 05 Map, Sprint 06 Notifications y Sprint 07 Security & Abuse Hardening están implementados y migrados. La auditoría del Sprint 07 encontró DEF-01 (helpers de rate limit expuestos a `authenticated`); la corrección (`07557a4`), su revalidación y la regresión asociada a `create_leak_report` (`2ac8377`, `0b27fcf`) están aplicadas en `main`. El estado READY del Sprint 08 lo determina el tester independiente.
 
 ## Documentación (fuente de verdad)
 
@@ -72,6 +72,19 @@ flutter run \
 
 Sin credenciales también se puede lanzar `flutter run`; la app mostrará el aviso de configuración ausente.
 
+## Build Android release
+
+`versionCode`/`versionName` salen de `version` en `pubspec.yaml` (sobrescribibles con `--build-number`/`--build-name`). El build de release firma con `android/key.properties` cuando existe y, si no, con la clave de debug (reproducible sin secretos); R8/minify está activado vía `android/app/proguard-rules.pro`.
+
+```bash
+flutter build apk --release \
+  --dart-define=SUPABASE_URL=https://<proyecto>.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=<anon-public> \
+  --dart-define=SUPABASE_ENV=production
+```
+
+Para un release con **push notifications**, colocar antes el `google-services.json` de Firebase en `android/app/` (fuera de Git; ignorado por `.gitignore`). Sin ese archivo el APK compila y funciona sin FCM. Para distribución real generar un upload keystore y crear `android/key.properties` (`storeFile`, `keyAlias`, `storePassword`, `keyPassword`) — ambos fuera de Git. Los `--dart-define` se incrustan en el binario: usar siempre credenciales públicas de cliente, nunca `service_role`. Verificado en Sprint 08: `flutter build apk --release` compila y produce APK válido (R8 aplicado).
+
 ## Tests y análisis estático
 
 ```bash
@@ -79,7 +92,7 @@ flutter analyze
 flutter test
 ```
 
-Los tests son 100 % offline (fakes/mocks de las abstracciones de red): config, auth anónima, persistencia idempotente de `app_users`, repositorio de municipios (Maneiro y Arismendi), el widget de la app, el flujo **Reportar fuga** (Sprint 02) y el ciclo comunitario de Sprint 03 (repositorio de validación/resolución y pantalla de detalle: contadores, progreso, duplicado, bloqueado, resuelto, error y doble tap).
+Los tests son 100 % offline (fakes/mocks de las abstracciones de red): config, auth anónima, persistencia idempotente de `app_users`, repositorio de municipios (Maneiro y Arismendi), el widget de la app, el flujo **Reportar fuga** (Sprint 02), el ciclo comunitario de Sprint 03 (repositorio de validación/resolución y pantalla de detalle: contadores, progreso, duplicado, bloqueado, resuelto, error y doble tap), mapa (Sprint 05), notificaciones (Sprint 06) y los mapeos de errores conocidos del backend, incluido `RATE_LIMIT_EXCEEDED` (Sprint 08).
 
 Cómo se ejecutan las suites SQL/E2E y qué cubre cada una: ver [Pruebas SQL y de integración](#pruebas-sql-y-de-integración).
 
@@ -156,6 +169,27 @@ App: pantalla **Mapa** (`lib/features/map/`) con MapLibre/OSM, markers diferenci
 
 16. `...0015_audit_sprint01_fixes` — mínimos privilegios en `app_users` (sin `INSERT` de cliente), verificación estricta de PostGIS y `ensure_app_user()` con firma `jsonb` + `UNAUTHORIZED` controlado sin sesión. Detalle en `docs/MIGRATION_NOTES.md` § "Auditoría Sprint 01".
 
+### Sprint 06 — Notifications
+
+17. `...0016_audit_sprint02_fixes` — mínimos privilegios por columnas: el cliente no lee `report_photos.storage_path`/`thumbnail_path` ni `reports.created_by` (la identidad del reportante no es pública).
+18. `...0018_notifications` — `notification_preferences` (un sector de interés 0..1 + ON/OFF de agua), `notifications` (RLS cerrada, idempotencia `UNIQUE (user_id, water_event_id)`) y `notification_tokens`; RPCs `save_notification_preferences` y `register/unregister_notification_token` con `status_code` y mínimo privilegio; trigger `notify_water_event` (WATER_ARRIVED/WATER_LEFT).
+19. `...0019_notifications_platform` — plataformas soportadas corregidas a Android/iOS (sin Web).
+20. `...0020_notifications_hardening` — el cliente solo **lee** sus tokens; el alta/baja pasa exclusivamente por las RPC.
+
+La entrega push usa Database Webhook → Edge Function `notify-push` → **FCM HTTP v1** (OAuth2 service account). Detalle en `docs/SETUP.md` § "Push notifications".
+
+### Sprint 07 — Security & Abuse Hardening
+
+21. `...0021_rate_limiting_schema` — tabla `rate_limit_tracking` (ventana fija de 1 h, upsert atómico por `(user_id, operation_type, window_start)`, sin acceso de cliente), configuración por operación en `system_config.rate_limits` (fallbacks hardcodeados) y helpers `get_rate_limit`/`check_rate_limit`.
+22. `...0022_notification_preferences_rls_fix` — el cliente solo lee preferencias; toda modificación pasa por la RPC.
+23. `...0023_rate_limiting_integration` / `...0024_rate_limiting_rpc_updates` — rate limit integrado en las 5 RPC de escritura (`create_leak_report` 3/h, `validate_leak` 20/h, `confirm_leak_resolution` 10/h, `register_water_event` 5/h, `validate_water_event` 20/h): valida antes de mutar y responde `RATE_LIMIT_EXCEEDED` + `reset_at` sin efectos secundarios en tablas de negocio.
+24. `...0025_def01_rate_limit_helpers_revoke` — DEF-01: revoca `EXECUTE` de `check_rate_limit`/`check_rate_limit_inline` a `public`, `anon` y `authenticated`; solo las RPC (SECURITY DEFINER) las invocan.
+25. `...0026_create_leak_report_description_validation` — descripción acotada a 500 caracteres (`VALIDATION_ERROR` antes del rate limit), además del CHECK de integridad existente.
+
+### Sprint 08 — Stabilization (en curso)
+
+Sin migraciones nuevas. Cobertura de regresión server-side (`supabase/tests/rate_limiting_test.sql`, `supabase/tests/rate_limit_concurrency_e2e.sh`), higiene de los scripts E2E, consistencia UX de errores conocidos (`RATE_LIMIT_EXCEEDED`, red, timeout) y preparación del build Android release. Detalle en `docs/audits/` cuando el tester cierre la validación.
+
 ## Pruebas SQL y de integración
 
 Requieren una base Supabase local levantada con `supabase start` (o `SUPABASE_DB_URL` apuntando a una base con las migraciones aplicadas).
@@ -177,12 +211,22 @@ psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/validate_resolve_le
 
 # Sprint 05: RPC get_map_reports (DTO público, filtros, bbox, límites, RLS)
 psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/map_reports_test.sql
+
+# Sprint 06: notificaciones (RLS, idempotencia, preferencias, tokens)
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/notifications_test.sql
+
+# Sprint 07/08: rate limiting por operación (límites exactos, aislamiento,
+# bypass, privilegios de helpers, sin efectos secundarios al rechazar)
+psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rate_limiting_test.sql
 ```
 
-Los scripts de `supabase/tests/*.sh` verifican el comportamiento real de la **API** y la concurrencia (Supabase bloquea el DML directo sobre `storage.objects`, así que el borrado y el aislamiento entre usuarios solo se pueden probar por HTTP):
+`supabase/tests/water_events_test.sql` (Sprint 04) también existe en el mismo directorio con el mismo comando.
+
+Los scripts de `supabase/tests/*.sh` verifican el comportamiento real de la **API** y la concurrencia (Supabase bloquea el DML directo sobre `storage.objects`, así que el borrado y el aislamiento entre usuarios solo se pueden probar por HTTP). Todos hacen cleanup (incluido ante interrupción) y distinguen `PASS`/`FAIL`/`NOT EXECUTED` (exit 0/1/2):
 
 ```bash
 # Storage: subir/leer/borrar con dos usuarios anónimos reales (aislamiento y cleanup)
+# (también acepta SUPABASE_URL/SUPABASE_ANON_KEY de un proyecto remoto)
 bash supabase/tests/storage_rls_e2e.sh
 
 # Camino completo: usuario anónimo → subida → RPC → ACTIVE → duplicado → cleanup
@@ -194,6 +238,10 @@ bash supabase/tests/community_flow_e2e.sh
 
 # Concurrencia real: 2 sesiones validando a la vez y 4 confirmando a la vez
 bash supabase/tests/community_concurrency_e2e.sh
+
+# Concurrencia real sobre el rate limit: 6 sesiones paralelas creando reportes
+# → exactamente 3 aceptadas (límite), 3 rechazadas con RATE_LIMIT_EXCEEDED
+bash supabase/tests/rate_limit_concurrency_e2e.sh
 ```
 
 ## Conexión Flutter ↔ Supabase

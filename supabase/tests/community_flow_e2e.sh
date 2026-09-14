@@ -17,7 +17,9 @@
 # Uso (local):
 #   bash supabase/tests/community_flow_e2e.sh
 #
-# El script crea y elimina sus propios datos usando `docker exec ... psql`.
+# El script crea y elimina sus propios datos usando `docker exec ... psql`
+# (sector, reportes y usuarios anónimos) y la API de Storage (la foto),
+# vía un trap EXIT armado antes de crear cualquier recurso.
 
 set -u
 cd "$(dirname "$0")/../.." || exit 2
@@ -71,6 +73,29 @@ check() { if [ "$2" = "$3" ]; then echo "PASS: $1 ($3)";
           else echo "FAIL: $1 (esperado $2, obtenido $3)"; FAIL=1; fi }
 lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
 
+cleanup() {
+  # Armado antes de crear nada: tolera recursos aún no creados (los guards
+  # con ':-' hacen que los deletes simplemente no encuentren nada).
+  # Storage: la foto solo la puede borrar el token del creador; un 404
+  # (nunca subida) se ignora.
+  if [ -n "${PHOTO_PATH:-}" ] && [ -n "${T_CREATOR:-}" ]; then
+    curl -s -o /dev/null -X DELETE \
+      "$API_URL/storage/v1/object/report-photos/$PHOTO_PATH" \
+      -H "$H_KEY" -H "$(h_auth "$T_CREATOR")"
+  fi
+  if [ -n "${SECTOR_ID:-}" ]; then
+    psql_db -c "delete from public.report_photos where report_id in (
+                  select id from public.reports where sector_id = '$SECTOR_ID');" >/dev/null
+    psql_db -c "delete from public.reports where sector_id = '$SECTOR_ID';" >/dev/null
+    psql_db -c "delete from public.sectors where id = '$SECTOR_ID';" >/dev/null
+  fi
+  # auth.users: borrado directo (cascada sobre app_users), como en
+  # community_concurrency_e2e.sh; las cadenas vacías no coinciden con nada.
+  psql_db -c "delete from auth.users where id in
+              ('${U_CREATOR:-}','${U_VAL1:-}','${U_VAL2:-}','${U_VAL3:-}');" >/dev/null
+}
+trap cleanup EXIT
+
 # ---------- usuarios anónimos reales ----------
 anon_signup() {
   curl -s -X POST "$API_URL/auth/v1/signup" \
@@ -105,14 +130,6 @@ SECTOR_ID=$(psql_db -c "
   values ('$MUN_ID', 'Sector E2E Comunidad')
   on conflict (municipality_id, name) do update set is_active = true
   returning id;")
-
-cleanup() {
-  psql_db -c "delete from public.report_photos where report_id in (
-                select id from public.reports where sector_id = '$SECTOR_ID');" >/dev/null
-  psql_db -c "delete from public.reports where sector_id = '$SECTOR_ID';" >/dev/null
-  psql_db -c "delete from public.sectors where id = '$SECTOR_ID';" >/dev/null
-}
-trap cleanup EXIT
 
 # ---------- foto + creación de la fuga por el creador ----------
 PHOTO_PATH="report_photos/$U_CREATOR/e2e03/p1.jpg"

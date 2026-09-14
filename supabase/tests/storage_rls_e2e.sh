@@ -19,6 +19,12 @@
 #   bash supabase/tests/storage_rls_e2e.sh
 #
 # Requiere Anonymous Sign-ins habilitado (docs/SETUP.md).
+#
+# Nota de higiene: los dos usuarios anónimos de auth.users creados en cada
+# corrida son residuo permanente POR DISEÑO — este script no tiene handle de
+# BD (no usa `docker exec ... psql`), así que no intenta borrarlos (a
+# diferencia de los scripts community_*_e2e.sh). Los objetos de Storage SÍ
+# se eliminan siempre vía trap EXIT, con éxito o fallo.
 
 set -u
 
@@ -118,6 +124,18 @@ up() { code -X POST "$1" -H "apikey: $ANON_KEY" -H "Authorization: Bearer $2" \
         -H "Content-Type: image/jpeg" --data-binary "@$TMP/photo.jpg"; }
 down() { code "$1" -H "apikey: $ANON_KEY" -H "Authorization: Bearer $2"; }
 del() { code -X DELETE "$1" -H "apikey: $ANON_KEY" -H "Authorization: Bearer $2"; }
+
+cleanup() {
+  # Garantiza el borrado de los dos objetos subidos, con éxito o fallo; un
+  # 404 (objeto ya borrado por los checks) se ignora.
+  if [ -n "${TOKEN_A:-}" ] && [ -n "${A_FILE:-}" ]; then
+    del "$A_FILE" "$TOKEN_A" >/dev/null 2>&1
+  fi
+  if [ -n "${TOKEN_B:-}" ] && [ -n "${B_FILE:-}" ]; then
+    del "$B_FILE" "$TOKEN_B" >/dev/null 2>&1
+  fi
+}
+trap cleanup EXIT
 
 check "A sube a su propia carpeta" 200 "$(up "$A_FILE" "$TOKEN_A")"
 check "B sube a su propia carpeta" 200 "$(up "$B_FILE" "$TOKEN_B")"

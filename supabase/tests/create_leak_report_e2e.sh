@@ -14,7 +14,8 @@
 #   bash supabase/tests/create_leak_report_e2e.sh
 #
 # El script crea y elimina sus propios datos (reporte, sector temporal y
-# archivos) usando `docker exec ... psql` sobre la BD local de Supabase.
+# archivos): los datos vía `docker exec ... psql` y los archivos por la API
+# de Storage (trap EXIT, además de los checks finales).
 
 set -u
 cd "$(dirname "$0")/../.." || exit 2
@@ -80,7 +81,20 @@ SECTOR_ID=$(psql_db -c "
   on conflict (municipality_id, name) do update set is_active = true
   returning id;")
 
+# delete con el token propio (también lo usa cleanup para no dejar huérfanos).
+del() { curl -s -o /dev/null -w '%{http_code}' -X DELETE "$1" \
+        -H "apikey: $ANON_KEY" -H "Authorization: Bearer $TOKEN"; }
+
 cleanup() {
+  # Storage: los temporales solo los puede borrar el token propio; un 404
+  # (objeto ya borrado por los checks finales) se ignora. Los guards con
+  # ':-' toleran un trap disparado antes de definir las rutas.
+  if [ -n "${TOKEN:-}" ]; then
+    [ -n "${OBJ:-}" ] && del "$OBJ" >/dev/null
+    [ -n "${GIFOBJ:-}" ] && del "$GIFOBJ" >/dev/null
+    [ -n "${P3_PATH:-}" ] && \
+      del "$API_URL/storage/v1/object/report-photos/$P3_PATH" >/dev/null
+  fi
   psql_db -c "delete from public.report_photos where report_id in (
                 select id from public.reports where sector_id = '$SECTOR_ID');" >/dev/null
   psql_db -c "delete from public.reports where sector_id = '$SECTOR_ID';" >/dev/null
@@ -95,8 +109,6 @@ GIFOBJ="$API_URL/storage/v1/object/report-photos/report_photos/$USER_ID/e2e/p2.g
 up_code() { curl -s -o /dev/null -w '%{http_code}' -X POST "$1" \
             -H "apikey: $ANON_KEY" -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: $2" --data-binary "@$3"; }
-del() { curl -s -o /dev/null -w '%{http_code}' -X DELETE "$1" \
-        -H "apikey: $ANON_KEY" -H "Authorization: Bearer $TOKEN"; }
 
 check "subida de la foto a la carpeta propia" 200 "$(up_code "$OBJ" image/jpeg "$TMP/photo.jpg")"
 check "subida de un GIF a la carpeta propia" 200 "$(up_code "$GIFOBJ" image/gif "$TMP/photo.gif")"

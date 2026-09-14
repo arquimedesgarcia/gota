@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -102,6 +103,8 @@ class SupabaseLeakReportRepository implements LeakReportRepository {
           'No pudimos leer una de tus fotos. Vuelve a agregarla.',
         ),
       );
+    } on TimeoutException {
+      await _failAndCleanup(uploadedPaths, const NetworkException());
     } on SocketException {
       await _failAndCleanup(uploadedPaths, const NetworkException());
     } on http.ClientException {
@@ -121,6 +124,8 @@ class SupabaseLeakReportRepository implements LeakReportRepository {
         'p_photos': photoPayload,
         'p_ignore_duplicate': ignoreDuplicate,
       });
+    } on TimeoutException {
+      await _failAndCleanup(uploadedPaths, const NetworkException());
     } on SocketException {
       await _failAndCleanup(uploadedPaths, const NetworkException());
     } on http.ClientException {
@@ -175,6 +180,8 @@ class SupabaseLeakReportRepository implements LeakReportRepository {
           data['message'] as String? ??
               'Tu cuenta no puede publicar reportes ahora mismo.',
         );
+      case 'RATE_LIMIT_EXCEEDED':
+        throw ReportRateLimitException(_rateLimitMessage(data));
       default:
         // VALIDATION_ERROR / INVALID_LOCATION / INVALID_SECTOR /
         // STORAGE_ERROR: el mensaje del backend ya viene en español y es
@@ -208,19 +215,33 @@ class SupabaseLeakReportRepository implements LeakReportRepository {
   Future<void> _cleanupUploaded(List<String> paths) async {
     if (paths.isEmpty) return;
 
-    Object? lastError;
     for (var attempt = 0; attempt < 2; attempt++) {
       try {
         await _storage.remove(bucket: bucket, paths: paths);
         return;
-      } on Exception catch (error) {
-        lastError = error;
+      } on Exception {
+        // Se reintenta una vez; si vuelve a fallar, se reporta abajo.
       }
     }
     throw PhotoCleanupException(
       'No pudimos borrar las fotos temporales de este intento. '
-      'Intenta de nuevo. ($lastError)',
+      'Intenta de nuevo.',
     );
+  }
+
+  /// Mensaje de límite de frecuencia (`RATE_LIMIT_EXCEEDED`): usa el mensaje
+  /// del backend y, si viene `reset_at`, añade la hora local de reintento.
+  String _rateLimitMessage(Map<String, dynamic> data) {
+    final base =
+        data['message'] as String? ??
+        'Has alcanzado el límite de reportes por hora.';
+    final rawResetAt = data['reset_at'];
+    final resetAt = rawResetAt is String ? DateTime.tryParse(rawResetAt) : null;
+    if (resetAt == null) return base;
+    final local = resetAt.toLocal();
+    final hh = local.hour.toString().padLeft(2, '0');
+    final mm = local.minute.toString().padLeft(2, '0');
+    return '$base Intenta de nuevo después de las $hh:$mm.';
   }
 
   String _userMessageOf(Object error) {

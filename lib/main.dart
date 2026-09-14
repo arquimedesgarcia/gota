@@ -32,6 +32,12 @@ Future<void> main() async {
       await Supabase.initialize(
         url: config.supabaseUrl,
         publishableKey: config.supabaseAnonKey,
+        // Timeout por solicitud: un intento que se cuelga se cancela y, tras
+        // agotar los reintentos internos, llega a los repositorios como
+        // TimeoutException, que se traduce a NetworkException.
+        postgrestOptions: const PostgrestClientOptions(
+          requestTimeout: Duration(seconds: 20),
+        ),
       );
       supabaseReady = true;
     } catch (_) {

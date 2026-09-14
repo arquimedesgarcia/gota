@@ -55,6 +55,20 @@ FAIL=0
 check() { if [ "$2" = "$3" ]; then echo "PASS: $1 ($3)";
           else echo "FAIL: $1 (esperado $2, obtenido $3)"; FAIL=1; fi }
 
+# Armado ANTES de crear datos: los guards con ':-' hacen que los deletes
+# simplemente no encuentren nada cuando el recurso aún no existe; vacíos en
+# el 'in (...)' tampoco coinciden con ningún id.
+cleanup() {
+  if [ -n "${SECTOR_ID:-}" ]; then
+    psql_db -c "delete from public.reports where sector_id = '$SECTOR_ID';" >/dev/null
+    psql_db -c "delete from public.sectors where id = '$SECTOR_ID';" >/dev/null
+  fi
+  psql_db -c "delete from auth.users where id in
+              ('${CREATOR:-}','${VALIDATOR:-}','${CONF1:-}','${CONF2:-}','${CONF3:-}','${CONF4:-}');" >/dev/null
+  rm -rf "$TMP"
+}
+trap cleanup EXIT
+
 # ---------- Datos de prueba ----------
 CREATOR='7a000000-0000-4000-8000-000000000000'
 VALIDATOR='7b000000-0000-4000-8000-000000000000'
@@ -96,14 +110,6 @@ REPORT_CONF=$(psql_db -c "
          'GPS'
     from public.app_users u where u.auth_user_id = '$CREATOR'
   returning id;")
-
-cleanup() {
-  psql_db -c "delete from public.reports where sector_id = '$SECTOR_ID';" >/dev/null
-  psql_db -c "delete from public.sectors where id = '$SECTOR_ID';" >/dev/null
-  psql_db -c "delete from auth.users where id in
-              ('$CREATOR','$VALIDATOR','$CONF1','$CONF2','$CONF3','$CONF4');" >/dev/null
-}
-trap cleanup EXIT
 
 if [ -z "$REPORT_VALID" ] || [ -z "$REPORT_CONF" ]; then
   echo "NOT EXECUTED: no se pudieron crear los reportes de prueba."

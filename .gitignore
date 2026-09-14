@@ -52,6 +52,12 @@ app.*.map.json
 .env.*
 !.env.example
 
+# Android release secrets / config (Sprint 08)
+/android/app/google-services.json
+/android/key.properties
+*.jks
+*.keystore
+
 # Supabase CLI temporales
 supabase/.branches/
 supabase/.temp/

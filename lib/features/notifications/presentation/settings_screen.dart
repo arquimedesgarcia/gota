@@ -192,21 +192,69 @@ class _SectorCard extends ConsumerWidget {
       ),
     );
     if (confirmed == true) {
-      await ref
-          .read(notificationPreferencesControllerProvider.notifier)
-          .clearSector();
+      final controller = ref
+          .read(notificationPreferencesControllerProvider.notifier);
+      await controller.clearSector();
+      if (!context.mounted) return;
+      final saveError = controller.saveError;
+      if (saveError != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              saveError is AppException
+                  ? saveError.userMessage
+                  : 'No pudimos quitar tu sector. Intenta de nuevo.',
+            ),
+          ),
+        );
+      }
     }
   }
 }
 
-class _WaterNotificationsCard extends ConsumerWidget {
+class _WaterNotificationsCard extends ConsumerStatefulWidget {
   const _WaterNotificationsCard();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_WaterNotificationsCard> createState() =>
+      _WaterNotificationsCardState();
+}
+
+class _WaterNotificationsCardState
+    extends ConsumerState<_WaterNotificationsCard> {
+  bool _toggling = false;
+
+  void _toggle(bool value) {
+    setState(() => _toggling = true);
+    ref
+        .read(notificationPreferencesControllerProvider.notifier)
+        .setWaterNotificationsEnabled(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final prefs = ref.watch(notificationPreferencesControllerProvider);
     final enabled = prefs.value?.waterNotificationsEnabled ?? false;
     final saving = prefs.isLoading;
+
+    ref.listen(notificationPreferencesControllerProvider, (previous, next) {
+      if (!_toggling || next is AsyncLoading) return;
+      final saveError = ref
+          .read(notificationPreferencesControllerProvider.notifier)
+          .saveError;
+      setState(() => _toggling = false);
+      if (saveError != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              saveError is AppException
+                  ? saveError.userMessage
+                  : 'No pudimos guardar tus preferencias. Intenta de nuevo.',
+            ),
+          ),
+        );
+      }
+    });
 
     return Card(
       child: SwitchListTile(
@@ -217,11 +265,7 @@ class _WaterNotificationsCard extends ConsumerWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
         value: enabled,
-        onChanged: saving
-            ? null
-            : (value) => ref
-                  .read(notificationPreferencesControllerProvider.notifier)
-                  .setWaterNotificationsEnabled(value),
+        onChanged: saving || _toggling ? null : _toggle,
       ),
     );
   }

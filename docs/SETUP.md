@@ -70,6 +70,21 @@ Android es la plataforma prioritaria del MVP.
 
 iOS debe mantenerse compatible desde arquitectura, pero su release puede venir después.
 
+### Build de release (Sprint 08)
+
+1. **Signing:** el build de release usa `android/key.properties` (`storeFile`, `keyAlias`, `storePassword`, `keyPassword`) si existe; en su ausencia firma con la clave de debug, así el build sigue siendo reproducible desde un clon limpio. Generar el keystore con `keytool` y crear `key.properties` solo en máquinas de release (ambos ignorados por Git).
+2. **Firebase:** para que el APK tenga FCM, colocar `google-services.json` en `android/app/` antes de compilar (ignorado por Git). Sin él la app compila y funciona sin push.
+3. **Comando:**
+
+```bash
+flutter build apk --release \
+  --dart-define=SUPABASE_URL=https://<proyecto>.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=<anon-public> \
+  --dart-define=SUPABASE_ENV=production
+```
+
+`versionCode`/`versionName` salen de `pubspec.yaml`. Los `--dart-define` se incrustan en el binario: nunca pasar credenciales distintas a las públicas de cliente. El release activa R8 (minify + shrinkResources) con las reglas de `android/app/proguard-rules.pro`. Verificado en Sprint 08: el comando compila y produce un APK válido desde un clon limpio sin secretos.
+
 ### Tráfico claro en desarrollo (AUD-S2-17)
 
 Para ejecutar contra un Supabase **local** (`http://10.0.2.2:54321` en el
@@ -80,7 +95,10 @@ emulador, o `localhost`/`127.0.0.1`), el build de **debug** habilita
 manifest de release no incluye `networkSecurityConfig`, así que Android bloquea
 `http://` por defecto y la app debe apuntar a un proyecto `https://`.
 
-Las pruebas E2E (`supabase/tests/*.sh`) asumen ese Supabase local.
+Las pruebas E2E (`supabase/tests/*.sh`) asumen ese Supabase local, salvo
+`storage_rls_e2e.sh`, que también acepta `SUPABASE_URL`/`SUPABASE_ANON_KEY`
+de un proyecto remoto. Todas hacen cleanup de sus recursos (incluido ante
+interrupción) y distinguen `PASS`/`FAIL`/`NOT EXECUTED`.
 
 ## Push notifications (Sprint 06)
 

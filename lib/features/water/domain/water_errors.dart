@@ -42,3 +42,10 @@ class WaterNotFoundException extends WaterException {
     super.userMessage = 'No encontramos este evento.',
   ]);
 }
+
+/// El backend limitó la acción por frecuencia (`RATE_LIMIT_EXCEEDED`):
+/// el mensaje (con la hora de reintento) ya viene redactado para el
+/// usuario final.
+class WaterRateLimitException extends WaterException {
+  const WaterRateLimitException(super.userMessage);
+}
