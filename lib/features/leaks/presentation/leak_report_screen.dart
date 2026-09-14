@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_theme.dart';
+import '../../../shared/widgets/app_components.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../location/presentation/location_providers.dart';
@@ -155,11 +156,7 @@ class LocationStepView extends ConsumerWidget {
               // Sprint 05 la reemplaza por el punto en el mapa (MapLibre)
               // usando el mismo método manual del controller.
               OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
-                  minimumSize: const Size.fromHeight(48),
-                ),
+                style: AppComponents.secondaryButtonStyle(),
                 icon: const Icon(Icons.pin_drop_outlined),
                 label: const Text('Indicar ubicación manual'),
                 onPressed: () => _showManualLocationDialog(context, ref),
@@ -228,11 +225,7 @@ class LocationStepView extends ConsumerWidget {
               const Spacer(),
               Expanded(
                 child: FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.accent,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size.fromHeight(48),
-                  ),
+                  style: AppComponents.primaryButtonStyle(),
                   onPressed: location == null
                       ? null
                       : () => ref.read(leakReportProvider.notifier).goToNext(),
@@ -461,11 +454,7 @@ class PhotosStepView extends ConsumerWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
-                    minimumSize: const Size.fromHeight(48),
-                  ),
+                  style: AppComponents.secondaryButtonStyle(),
                   onPressed: () {
                     if (photos.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -564,11 +553,7 @@ class DataStepView extends ConsumerWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
-                    minimumSize: const Size.fromHeight(48),
-                  ),
+                  style: AppComponents.secondaryButtonStyle(),
                   // El municipio es obligatorio; el sector también
                   // (REQ-020). La descripción es opcional.
                   onPressed:
@@ -744,11 +729,7 @@ class ReviewStepView extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.primary,
-                      side: const BorderSide(color: AppColors.primary),
-                      minimumSize: const Size.fromHeight(48),
-                    ),
+                    style: AppComponents.secondaryButtonStyle(),
                     // AUD-S2-05: ver/validar el existente desde el
                     // candidato que la RPC ya devolvió. La validación
                     // vive en la pantalla de detalle (Sprint 03).
@@ -771,11 +752,7 @@ class ReviewStepView extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.primary,
-                      side: const BorderSide(color: AppColors.primary),
-                      minimumSize: const Size.fromHeight(48),
-                    ),
+                    style: AppComponents.secondaryButtonStyle(),
                     onPressed: () => ref
                         .read(leakReportProvider.notifier)
                         .useExistingReport(),
@@ -786,11 +763,7 @@ class ReviewStepView extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.accent,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size.fromHeight(48),
-                    ),
+                    style: AppComponents.primaryButtonStyle(),
                     onPressed: () => ref
                         .read(leakReportProvider.notifier)
                         .continueAsNewLeak(),
@@ -806,11 +779,7 @@ class ReviewStepView extends ConsumerWidget {
                     : SizedBox(
                         width: double.infinity,
                         child: FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.accent,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size.fromHeight(48),
-                          ),
+                          style: AppComponents.primaryButtonStyle(),
                           onPressed: () =>
                               ref.read(leakReportProvider.notifier).submit(),
                           child: const Text('Enviar reporte'),
@@ -820,11 +789,7 @@ class ReviewStepView extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.primary,
-                      side: const BorderSide(color: AppColors.primary),
-                      minimumSize: const Size.fromHeight(48),
-                    ),
+                    style: AppComponents.secondaryButtonStyle(),
                     onPressed: () => ref
                         .read(leakReportProvider.notifier)
                         .goTo(ReportStep.data),

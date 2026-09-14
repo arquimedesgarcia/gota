@@ -10,7 +10,7 @@ abstract final class AppComponents {
   static ButtonStyle primaryButtonStyle() => FilledButton.styleFrom(
     backgroundColor: AppColors.accent,
     foregroundColor: Colors.white,
-    minimumSize: const Size.fromHeight(52),
+    minimumSize: const Size.fromHeight(48),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(AppRadius.lg),
     ),
@@ -25,7 +25,7 @@ abstract final class AppComponents {
   static ButtonStyle secondaryButtonStyle() => OutlinedButton.styleFrom(
     foregroundColor: AppColors.primary,
     side: const BorderSide(color: AppColors.primary, width: 1.5),
-    minimumSize: const Size.fromHeight(52),
+    minimumSize: const Size.fromHeight(48),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(AppRadius.lg),
     ),

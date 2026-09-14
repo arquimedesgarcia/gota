@@ -358,6 +358,10 @@ void main() {
 
     await _pump(tester, repository);
 
+    await tester.scrollUntilVisible(
+      find.byKey(leakValidateButtonKey),
+      200,
+    );
     await tester.tap(find.byKey(leakValidateButtonKey));
     await tester.pump();
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_theme.dart';
+import '../../../shared/widgets/gota_status_badge.dart';
 import '../domain/leak_age.dart';
 import '../domain/leak_community.dart';
 import 'leak_community_microcopy.dart';
@@ -142,36 +143,11 @@ class _LeakTile extends StatelessWidget {
                   ],
                 ),
               ),
-              _StatusChip(resolved: leak.isResolved),
+              leak.isResolved
+                  ? StatusBadgePresets.resolved(context)
+                  : StatusBadgePresets.active(context),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.resolved});
-
-  final bool resolved;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = resolved ? AppColors.success : AppColors.accent;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        resolved ? 'Resuelta' : 'Activa',
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
         ),
       ),
     );

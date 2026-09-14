@@ -103,7 +103,7 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       _ActionCard(
                         icon: Icons.water_drop_outlined,
-                        label: 'Llegó / Se fue\nel agua',
+                        label: 'Llegó / Se fue el agua',
                         color: AppColors.success,
                         onTap: () => _showSoon(context),
                       ),
@@ -254,119 +254,18 @@ class _CommunityStatsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Text(
-                  'Hoy en tu comunidad',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const Spacer(),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.xs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.textMuted.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppRadius.xl),
-                  ),
-                  child: Text(
-                    'Maneiro',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.04,
-                    ),
-                  ),
-                ),
-              ],
+            Text(
+              'Hoy en tu comunidad',
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-            SizedBox(height: AppSpacing.lg),
-            GridView.count(
-              crossAxisCount: 3,
-              mainAxisSpacing: AppSpacing.md,
-              crossAxisSpacing: AppSpacing.md,
-              childAspectRatio: 1.0,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _StatColumn(
-                  value: '8',
-                  label: 'fugas reportadas',
-                  color: AppColors.primary,
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 1,
-                      height: 48,
-                      color: AppColors.border,
-                    ),
-                  ],
-                ),
-                _StatColumn(
-                  value: '3',
-                  label: 'fugas resueltas',
-                  color: AppColors.success,
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 1,
-                      height: 48,
-                      color: AppColors.border,
-                    ),
-                  ],
-                ),
-                _StatColumn(
-                  value: '12',
-                  label: 'reportes validados',
-                  color: AppColors.primaryDark,
-                ),
-              ],
+            SizedBox(height: AppSpacing.md),
+            const Text(
+              'Sin datos todavía',
+              style: TextStyle(color: AppColors.textMuted),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _StatColumn extends StatelessWidget {
-  const _StatColumn({
-    required this.value,
-    required this.label,
-    required this.color,
-  });
-
-  final String value;
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          value,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            color: color,
-            fontSize: 24,
-          ),
-        ),
-        SizedBox(height: AppSpacing.xs),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontSize: 12,
-            color: AppColors.textMuted,
-          ),
-        ),
-      ],
     );
   }
 }

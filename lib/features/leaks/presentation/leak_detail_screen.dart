@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_theme.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../shared/widgets/app_components.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../data/leak_community_repository.dart';
@@ -146,14 +147,7 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
           SizedBox(height: AppSpacing.xl),
           FilledButton(
             key: leakValidateButtonKey,
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.accent,
-              foregroundColor: Colors.white,
-              minimumSize: const Size.fromHeight(48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-              ),
-            ),
+            style: AppComponents.primaryButtonStyle(),
             onPressed: detail.canValidate && !_running ? _validate : null,
             child: Text(
               detail.alreadyValidated
@@ -164,14 +158,7 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
           SizedBox(height: AppSpacing.sm),
           OutlinedButton(
             key: leakConfirmButtonKey,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-              minimumSize: const Size.fromHeight(48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-              ),
-            ),
+            style: AppComponents.secondaryButtonStyle(),
             onPressed: detail.canConfirmResolution && !_running
                 ? _confirmResolution
                 : null,
