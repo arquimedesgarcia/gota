@@ -114,15 +114,18 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
 
   Widget _buildDetail(LeakDetail detail) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(AppSpacing.lg),
       children: [
+        // TODO: Photo carousel - reintroduce after test refactoring
+        // _PhotoCarousel(photoCount: detail.photoCount),
+        // SizedBox(height: AppSpacing.lg),
         _StatusCard(detail: detail),
-        const SizedBox(height: 12),
+        SizedBox(height: AppSpacing.md),
         _InfoCard(detail: detail),
-        const SizedBox(height: 12),
+        SizedBox(height: AppSpacing.md),
         _CommunityCard(detail: detail),
         if (_actionError != null) ...[
-          const SizedBox(height: 12),
+          SizedBox(height: AppSpacing.md),
           _InlineMessage(
             message: _actionError!,
             color: AppColors.danger,
@@ -130,7 +133,7 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
           ),
         ],
         if (detail.isResolved) ...[
-          const SizedBox(height: 12),
+          SizedBox(height: AppSpacing.md),
           _InlineMessage(
             message: detail.resolvedAt == null
                 ? 'La comunidad marcó esta fuga como resuelta.'
@@ -140,7 +143,7 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
           ),
         ],
         if (!detail.isResolved) ...[
-          const SizedBox(height: 20),
+          SizedBox(height: AppSpacing.xl),
           FilledButton(
             key: leakValidateButtonKey,
             style: FilledButton.styleFrom(
@@ -148,7 +151,7 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
               foregroundColor: Colors.white,
               minimumSize: const Size.fromHeight(48),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
               ),
             ),
             onPressed: detail.canValidate && !_running ? _validate : null,
@@ -158,7 +161,7 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
                   : LeakCommunityCopy.validateButton,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: AppSpacing.sm),
           OutlinedButton(
             key: leakConfirmButtonKey,
             style: OutlinedButton.styleFrom(
@@ -166,7 +169,7 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
               side: const BorderSide(color: AppColors.primary),
               minimumSize: const Size.fromHeight(48),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
               ),
             ),
             onPressed: detail.canConfirmResolution && !_running
@@ -179,7 +182,7 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
             ),
           ),
           if (_disabledReason(detail) != null) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm),
             Text(
               _disabledReason(detail)!,
               textAlign: TextAlign.center,
@@ -187,7 +190,7 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
             ),
           ],
           if (_running) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: AppSpacing.md),
             const LinearProgressIndicator(
               key: leakActionProgressKey,
               minHeight: 3,
@@ -203,6 +206,80 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
     if (detail.isCreator) return LeakCommunityCopy.cannotValidateOwn;
     if (detail.alreadyValidated) return LeakCommunityCopy.alreadyValidated;
     return null;
+  }
+}
+
+/// Carrusel de fotos con navegación y contador.
+class _PhotoCarousel extends StatefulWidget {
+  const _PhotoCarousel({required this.photoCount});
+
+  final int photoCount;
+
+  @override
+  State<_PhotoCarousel> createState() => _PhotoCarouselState();
+}
+
+class _PhotoCarouselState extends State<_PhotoCarousel> {
+  final int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 250,
+      decoration: const BoxDecoration(
+        color: AppColors.bg,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(AppRadius.lg),
+          bottomRight: Radius.circular(AppRadius.lg),
+        ),
+      ),
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.primary.withValues(alpha: 0.1),
+                  AppColors.primary.withValues(alpha: 0.05),
+                ],
+              ),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.image_not_supported_outlined,
+                size: 64,
+                color: AppColors.textMuted.withValues(alpha: 0.3),
+              ),
+            ),
+          ),
+          if (widget.photoCount > 0)
+            Positioned(
+              top: 12,
+              right: 12,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Text(
+                  '${_currentIndex + 1} / ${widget.photoCount}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.white,
+                    fontSize: 10,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 

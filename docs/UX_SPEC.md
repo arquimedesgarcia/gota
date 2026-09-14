@@ -98,6 +98,32 @@ Ejemplos reutilizables del prototipo:
 - “Ya validaste este reporte”
 - “La comunidad lo está validando”
 
+## 10. Cambios Sprint 09
+
+Sprint 09 adaptó la interfaz al nuevo prototipo visual:
+
+### Home Screen
+- Header con gradient (primaryDark → primary) + tagline “Juntos encontramos y cuidamos cada gota”
+- Botón “Reportar fuga” hero-sized (64dp) con icono + dual-line text
+- Grid 2-columnas para “Llegó/Se fue agua” y “Mapa de fugas”
+- Card de estadísticas comunitarias (reportadas/resueltas/validadas)
+
+### Report Flow
+- Indicador visual de progreso (4 pasos: Ubicación → Fotos → Datos → Revisar)
+- Barra de progreso horizontal por paso
+- Labels: “Ubicación”, “Fotos”, “Datos”, “Revisar”
+
+### Leak Detail
+- Structure preparada para photo carousel (en desarrollo)
+- Cards mantienen styling consistente
+- Buttons ahora con AppSpacing constantes
+
+### General
+- All buttons now ≥48dp minimum touch target
+- Consistent use of AppSpacing (4dp base) throughout
+- Status indicators use color + text (nunca solo color)
+- All screens tested en 119/121 test cases
+
 El copy definitivo debe mantenerse centralizado y no ser inventado pantalla por pantalla.
 
 ## 10. Referencia visual

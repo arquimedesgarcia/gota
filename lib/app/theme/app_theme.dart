@@ -15,6 +15,23 @@ abstract final class AppColors {
   static const Color textMuted = Color(0xFF5B7282);
 }
 
+/// Espaciado basado en 4dp según `docs/DESIGN_SYSTEM.md`.
+abstract final class AppSpacing {
+  static const xs = 4.0;
+  static const sm = 8.0;
+  static const md = 12.0;
+  static const lg = 16.0;
+  static const xl = 24.0;
+}
+
+/// Radios de borde según `docs/DESIGN_SYSTEM.md`.
+abstract final class AppRadius {
+  static const sm = 8.0;
+  static const md = 12.0;
+  static const lg = 16.0;
+  static const xl = 20.0;
+}
+
 abstract final class AppTheme {
   static ThemeData get light {
     const colorScheme = ColorScheme(

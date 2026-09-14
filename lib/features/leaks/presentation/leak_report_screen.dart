@@ -31,15 +31,25 @@ class LeakReportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 120,
         title: Consumer(
           builder: (context, ref, _) {
             final step = ref.watch(
               leakReportProvider.select((s) => s.currentStep),
             );
-            return Text(
-              _titles[step] ?? 'Reportar',
-              style: Theme.of(context).appBarTheme.titleTextStyle
-                  ?.copyWith(color: Colors.white),
+            final stepIndex = step.index; // 0-4 for location, photos, data, review, result
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _titles[step] ?? 'Reportar',
+                  style: Theme.of(context).appBarTheme.titleTextStyle
+                      ?.copyWith(color: Colors.white),
+                ),
+                SizedBox(height: AppSpacing.lg),
+                _StepIndicator(currentStep: stepIndex),
+              ],
             );
           },
         ),
@@ -897,6 +907,59 @@ class ResultStepView extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Indicador visual de progreso de pasos (4 pasos: ubicación → fotos → datos → revisar).
+class _StepIndicator extends StatelessWidget {
+  const _StepIndicator({required this.currentStep});
+
+  final int currentStep; // 0-indexed: 0=location, 1=photos, 2=data, 3=review, 4=result
+  static const _stepLabels = ['Ubicación', 'Fotos', 'Datos', 'Revisar'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: List.generate(_stepLabels.length, (index) {
+            final isCompleted = index < currentStep;
+            final isCurrent = index == currentStep;
+
+            return Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isCompleted || isCurrent
+                          ? AppColors.primary
+                          : AppColors.border,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  SizedBox(height: AppSpacing.sm),
+                  Text(
+                    _stepLabels[index],
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: isCompleted || isCurrent
+                          ? Colors.white
+                          : Colors.white.withValues(alpha: 0.6),
+                      fontSize: 11,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }

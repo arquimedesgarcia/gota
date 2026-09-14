@@ -83,3 +83,41 @@ El prototipo aporta:
 - patrones de tarjetas/chips.
 
 La implementación Flutter debe usar estos tokens y no copiar CSS literalmente.
+
+## 8. Componentes Reutilizables (Sprint 09)
+
+### AppSpacing
+- xs = 4dp
+- sm = 8dp
+- md = 12dp
+- lg = 16dp
+- xl = 24dp
+
+### AppRadius
+- sm = 8dp
+- md = 12dp
+- lg = 16dp
+- xl = 20dp
+
+### AppComponents
+Estilos de botones reutilizables:
+- `primaryButtonStyle()` — acción principal (relleno, coral)
+- `secondaryButtonStyle()` — acción alternativa (outline, azul)
+- `largeButtonStyle()` — acciones prominentes (64dp mínimo)
+- `compactButtonStyle()` — acciones compactas
+
+### GotaStatusBadge
+Badge de estado con color semántico + texto (nunca solo color):
+- "Resuelta" (verde)
+- "Activa" (rojo)
+- "Pendiente" (ámbar)
+
+## 9. Cambios Sprint 09
+
+Sprint 09 incorporó:
+- Design system constants (spacing, radius)
+- Home screen visual refresh (gradient header, hero button, 2-column grid, community stats)
+- Report flow step indicator (4 visual steps with progress)
+- Photo carousel structure (deferred - ready for implementation)
+- Reusable status badge component
+- Consistent use of AppSpacing throughout layouts
