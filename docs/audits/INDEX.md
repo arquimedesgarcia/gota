@@ -17,7 +17,7 @@
 | 05 | Map (get_map_reports, MapLibre/OSM, filtros) | ✅ VERIFICADO | [sprint05_map.md](2026-09-12_sprint05_map.md) |
 | 06 | Notifications (webhook → notify-push → FCM v1) | ✅ VERIFICADO (prueba funcional OK) | [sprint06_webhook_5e34092.md](2026-09-12_sprint06_webhook_5e34092.md) |
 | 07 | Security & Abuse Hardening (rate limits, RLS preferencias, helper SECURITY DEFINER) | 🔴 BLOCKED (DEF-01 crítico) | [2026-09-13_sprint07_security_abuse.md](2026-09-13_sprint07_security_abuse.md) |
-| 08 | Stabilization (regresión, rate limiting, concurrencia, UX de errores, higiene E2E, release Android) | 🔴 BLOCKED (2 IMPORTANTES + UX/APK no ejecutados) | [2026-09-14_sprint08_stabilization.md](2026-09-14_sprint08_stabilization.md) |
+| 08 | Stabilization (regresión, rate limiting, concurrencia, UX de errores, higiene E2E, release Android) | ✅ CERRADO (re-auditoría final 2026-09-14) | [2026-09-14_sprint08_final_closure.md](2026-09-14_sprint08_final_closure.md) |
 
 ## Estado global
 
@@ -33,24 +33,23 @@
   aislamiento, Water Events, resolución) pasó de forma independiente.
 - **Discrepancia de entorno:** la instancia viva estaba en migración `00019`; S07 no
   estaba desplegado. Requiere `supabase db push` (aplicar `00020`–`00024`) antes de liberar.
-- **Sprint 08 (Stabilization)** — el núcleo pasa: rate limiting de las 5 operaciones
-  (límite exacto, siguiente llamada, aislamiento por usuario, sin bypass ni llamada directa
-  a los helpers, rechazo sin efectos de negocio, ventana/reset), concurrencia real
-  (8 simultáneas contra límite 3; 6 confirmaciones y 6 validaciones concurrentes con
-  `resolved_at` íntegro y sin doble resolución), RLS/privilegios y contratos de error.
-  Suites SQL 8/8, E2E 64 PASS/0 FAIL, `flutter analyze` 0 issues, `flutter test` 123/123,
-  migraciones 26/26 aplicadas.
-- **AUD-S08-01 (IMPORTANTE):** `water_events` tiene grant de tabla a `anon`/`authenticated`,
-  así que la clave anon pública lee `created_by` (identidad pseudónima del autor). `reports`
-  sí está protegido con grants por columna.
-- **AUD-S08-02 (IMPORTANTE):** `public.temp` existe en la instancia local con DML abierto a
-  `anon` y RLS desactivada; no está en las migraciones del repo (residuo del volumen Docker).
-  Si existiera en el Supabase desplegado, sería BLOQUEANTE.
-- **AUD-S08-03/04/05/06/07/08 (MENORES):** funciones `test_*` ejecutables por `anon`;
-  `system_config` con RLS desactivada; los 401/403 de PostgREST filtran nombres de objetos;
-  los E2E no limpian sus usuarios anónimos ni filas de tracking/auditoría; el cleanup ante
-  interrupción no quedó probado; y `flutter build apk` no es reproducible en
-  `D:\Proyectos\Gota\v0.2` (mismo árbol compila OK desde una copia en temp).
+- **Sprint 08 (Stabilization)** — re-auditado el 2026-09-14 y **CERRADO**. Ver informe
+  `2026-09-14_sprint08_final_closure.md`. Bloqueadores previos verificados como corregidos en
+  la instancia viva: `water_events.created_by` denegado a cliente (401/42501), `system_config`
+  con RLS on (401 anon), `public.temp` y funciones `test_*` ausentes. Rate limiting (8/8 SQL,
+  5/5 E2E, límites 3/20/10/5/20), concurrencia (6 confirmaciones → 1 RESOLVED; 6 validaciones →
+  6 filas) e idempotencia de notifications (`UNIQUE(user_id,water_event_id)` + sonda webhook
+  +1 por INSERT) pasaron. Flutter `analyze` 0 issues / `test` 123/123. Migraciones 26/26.
+- **S08 — hallazgos previos (todos CERRADOS):** AUD-S08-01 `water_events.created_by` (grants por
+  columna, sin `created_by`); AUD-S08-02 `public.temp` (ausente en entorno auditado);
+  AUD-S08-03 `test_*` (ausentes); AUD-S08-04 `system_config` RLS (on, 401 anon).
+- **S08 — menores a backlog:** AUD-S08-05 (hints de objeto en 401/403), AUD-S08-06 (E2E no
+  limpian usuarios anónimos), AUD-S08-07 (cleanup ante interrupción no probado), AUD-S08-08
+  (build release no reproducible en ruta del repo; OK desde temp → entorno/ruta, no producto).
+- **S08 — limitaciones de entorno (NO bloquean):** FCM real en dispositivo `NOT VERIFIED`
+  (sin `google-services.json` / `FCM_SERVICE_ACCOUNT_JSON`); instalación/arranque/UX en
+  device/AVD `NOT VERIFIED — no device/AVD available`. Verificación estática del APK OK
+  (firma v2, no debuggable, sin secretos).
 - **Cobertura no ejecutada (S08):** UX en ejecución (arranque, navegación, mapa, listado,
   detalle, reportar, validar, resolver, agua, notificaciones, loading/vacíos/error/retry/
   doble tap/rate limit/pérdida de red, sesión anónima) e instalación/arranque/FCM del APK

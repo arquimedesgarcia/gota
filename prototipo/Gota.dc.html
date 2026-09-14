@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEF2F6;font-family:Inter,system-ui,sans-serif;color:#0F172A}
+a{color:#1D84B5}a:hover{color:#0B3C5D}
+*{box-sizing:border-box}
+::-webkit-scrollbar{width:0;height:0}
+@keyframes gota-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes gota-toast{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes gota-spin{to{transform:rotate(360deg)}}
+@keyframes gota-pulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.1;transform:scale(1.9)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;gap:28px;align-items:flex-start;justify-content:center;padding:32px 24px 48px">
+
+  <aside style="width:172px;flex:none;position:sticky;top:32px;display:flex;flex-direction:column;gap:6px">
+    <div style="font:500 10px/14px ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;color:#94A3B8;padding:0 8px 6px">Pantallas</div>
+    <sc-for list="{{ index }}" as="it" hint-placeholder-count="10">
+      <button onClick="{{ it.go }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;font:500 12px/16px Inter,sans-serif;color:{{ it.fg }};background:{{ it.bg }}">
+        <span style="font:500 10px ui-monospace,Menlo,monospace;opacity:.6">{{ it.n }}</span>{{ it.label }}
+      </button>
+    </sc-for>
+    <div style="margin-top:10px;padding:10px;border:1px solid #E2E8F0;border-radius:12px;background:#fff;font:400 11px/16px Inter,sans-serif;color:#64748B">Prototipo navegable. Datos ficticios, sin backend.</div>
+  </aside>
+
+  <div style="flex:none;width:414px;padding:12px;background:#0B3C5D;border-radius:44px;box-shadow:0 24px 60px rgba(11,60,93,.22)">
+    <div style="position:relative;width:390px;height:844px;margin:0 auto;background:#F8FAFC;border-radius:34px;overflow:hidden;display:flex;flex-direction:column">
+
+      <div style="flex:none;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font:500 12px/16px Inter,sans-serif;color:{{ barColor }};background:{{ barBg }}">
+        <span>9:41</span>
+        <span style="display:flex;align-items:center;gap:5px">
+          <span style="display:inline-block;width:3px;height:8px;border-radius:1px;background:currentColor;opacity:.5"></span>
+          <span style="display:inline-block;width:3px;height:11px;border-radius:1px;background:currentColor;opacity:.7"></span>
+          <span style="display:inline-block;width:3px;height:14px;border-radius:1px;background:currentColor"></span>
+          <span style="display:inline-block;width:18px;height:9px;border:1.2px solid currentColor;border-radius:3px;margin-left:4px;position:relative"><span style="position:absolute;inset:1.5px;right:6px;background:currentColor;border-radius:1px"></span></span>
+        </span>
+      </div>
+
+      <!-- INICIO -->
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;overflow:auto;animation:gota-in .28s ease">
+          <div style="position:relative;height:258px;background:linear-gradient(170deg,#0B3C5D,#1D84B5);padding:20px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden">
+            <div style="position:absolute;right:-40px;top:24px;width:220px;height:120px;background:rgba(255,255,255,.10);border-radius:60% 40% 50% 50%/70% 60% 40% 30%"></div>
+            <div style="position:absolute;right:20px;bottom:64px;width:190px;height:76px;background:rgba(255,255,255,.07);border-radius:50% 50% 8% 8%/80% 80% 10% 10%"></div>
+            <div style="position:relative;display:flex;align-items:center;gap:10px">
+              <span style="width:34px;height:34px;border-radius:50% 50% 50% 6%;transform:rotate(-45deg);background:#fff;display:block"></span>
+              <span style="font:600 28px/32px Inter,sans-serif;color:#fff;letter-spacing:-.01em">Gota</span>
+            </div>
+            <div style="position:relative">
+              <div style="font:600 24px/32px Inter,sans-serif;color:#fff;max-width:270px;text-wrap:pretty">Juntos encontramos y cuidamos cada gota.</div>
+              <div style="margin-top:8px;font:400 14px/20px Inter,sans-serif;color:rgba(255,255,255,.78)">Isla de Margarita · Nueva Esparta</div>
+            </div>
+          </div>
+
+          <div style="padding:16px 20px 24px;display:flex;flex-direction:column;gap:12px">
+            <button onClick="{{ goReport }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;height:64px;padding:0 18px;border-radius:16px;background:{{ accent }};color:#fff;box-shadow:0 6px 16px rgba(255,107,91,.28)">
+              <span style="width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3.2 3.6 5.5 6.4 5.5 9.2A5.5 5.5 0 0 1 6.5 12.2C6.5 9.4 8.8 6.6 12 3z"/></svg>
+              </span>
+              <span style="display:flex;flex-direction:column;gap:2px">
+                <span style="font:600 16px/20px Inter,sans-serif">Reportar fuga</span>
+                <span style="font:400 12px/16px Inter,sans-serif;opacity:.85">Toma menos de un minuto</span>
+              </span>
+            </button>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <button onClick="{{ goWater }}" style="all:unset;cursor:pointer;height:96px;padding:14px;border-radius:16px;background:#fff;border:1px solid #E2E8F0;display:flex;flex-direction:column;justify-content:space-between">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#109881" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4c2.8 3.2 4.8 5.6 4.8 8A4.8 4.8 0 0 1 7.2 12c0-2.4 2-4.8 4.8-8z"/><path d="M3 20h18"/></svg>
+                <span style="font:500 14px/20px Inter,sans-serif;color:#0F172A">Llegó / Se fue<br>el agua</span>
+              </button>
+              <button onClick="{{ goMap }}" style="all:unset;cursor:pointer;height:96px;padding:14px;border-radius:16px;background:#fff;border:1px solid #E2E8F0;display:flex;flex-direction:column;justify-content:space-between">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1D84B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
+                <span style="font:500 14px/20px Inter,sans-serif;color:#0F172A">Mapa de<br>fugas</span>
+              </button>
+            </div>
+
+            <div style="margin-top:12px;padding:16px;border-radius:16px;background:#fff;border:1px solid #E2E8F0">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span style="font:500 14px/20px Inter,sans-serif;color:#0F172A">Hoy en tu comunidad</span>
+                <span style="font:500 11px/14px Inter,sans-serif;color:#64748B;letter-spacing:.04em;text-transform:uppercase">Maneiro</span>
+              </div>
+              <div style="margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+                <div><div style="font:600 24px/32px Inter,sans-serif;color:#1D84B5">8</div><div style="font:400 12px/16px Inter,sans-serif;color:#64748B">fugas reportadas</div></div>
+                <div style="border-left:1px solid #E2E8F0;border-right:1px solid #E2E8F0"><div style="font:600 24px/32px Inter,sans-serif;color:#22C55E">3</div><div style="font:400 12px/16px Inter,sans-serif;color:#64748B">fugas resueltas</div></div>
+                <div><div style="font:600 24px/32px Inter,sans-serif;color:#0B3C5D">12</div><div style="font:400 12px/16px Inter,sans-serif;color:#64748B">reportes validados</div></div>
+              </div>
+            </div>
+
+            <button onClick="{{ goList }}" style="all:unset;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:14px;background:#EAF4F9;color:#0B3C5D">
+              <span style="font:500 14px/20px Inter,sans-serif">Ver últimos reportes cerca de ti</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B3C5D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- MAPA -->
+      <sc-if value="{{ isMap }}">
+        <div style="flex:1;position:relative;overflow:hidden;animation:gota-in .28s ease">
+          <div style="position:absolute;inset:0;background:#DCEAF3">
+            <div style="position:absolute;left:8%;top:10%;width:52%;height:46%;background:#EDF1E9;border-radius:58% 42% 46% 54%/62% 58% 42% 38%"></div>
+            <div style="position:absolute;left:44%;top:26%;width:50%;height:52%;background:#EDF1E9;border-radius:46% 54% 60% 40%/52% 48% 52% 48%"></div>
+            <div style="position:absolute;left:38%;top:40%;width:22%;height:14%;background:#EDF1E9;border-radius:40%"></div>
+            <div style="position:absolute;left:14%;top:30%;width:74%;height:2px;background:#fff;transform:rotate(12deg)"></div>
+            <div style="position:absolute;left:26%;top:52%;width:58%;height:2px;background:#fff;transform:rotate(-16deg)"></div>
+            <div style="position:absolute;left:52%;top:18%;width:2px;height:56%;background:#fff;transform:rotate(6deg)"></div>
+            <div style="position:absolute;left:16%;top:18%;font:500 11px/14px Inter,sans-serif;color:#8AA0AE;letter-spacing:.08em">JUAN GRIEGO</div>
+            <div style="position:absolute;left:56%;top:62%;font:500 11px/14px Inter,sans-serif;color:#8AA0AE;letter-spacing:.08em">MANEIRO</div>
+            <div style="position:absolute;left:30%;top:66%;font:500 11px/14px Inter,sans-serif;color:#8AA0AE;letter-spacing:.08em">ARISMENDI</div>
+            <div style="position:absolute;right:14px;bottom:190px;font:500 10px/14px ui-monospace,Menlo,monospace;color:#93AEBE">mapa simulado</div>
+
+            <sc-for list="{{ pins }}" as="p" hint-placeholder-count="5">
+              <button onClick="{{ p.pick }}" style="all:unset;cursor:pointer;position:absolute;left:{{ p.x }}%;top:{{ p.y }}%;width:34px;height:34px;margin:-17px 0 0 -17px;display:flex;align-items:center;justify-content:center">
+                <span style="position:absolute;inset:0;border-radius:50%;background:{{ p.dot }};animation:gota-pulse 2.6s ease-in-out infinite"></span>
+                <span style="position:relative;width:{{ p.size }};height:{{ p.size }};border-radius:50%;background:{{ p.dot }};border:2.5px solid #fff;box-shadow:0 2px 6px rgba(15,23,42,.25)"></span>
+              </button>
+            </sc-for>
+          </div>
+
+          <div style="position:absolute;left:0;right:0;top:0;padding:12px 16px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;border-radius:12px;background:#fff;box-shadow:0 2px 10px rgba(15,23,42,.08)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <span style="font:400 14px/20px Inter,sans-serif;color:#94A3B8">Buscar sector o municipio</span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3">
+                <button onClick="{{ f.set }}" style="all:unset;cursor:pointer;height:34px;padding:0 14px;border-radius:20px;font:500 13px/34px Inter,sans-serif;background:{{ f.bg }};color:{{ f.fg }};border:1px solid {{ f.bd }};box-shadow:0 1px 4px rgba(15,23,42,.06)">{{ f.label }}</button>
+              </sc-for>
+              <button onClick="{{ goList }}" style="all:unset;cursor:pointer;margin-left:auto;width:34px;height:34px;border-radius:10px;background:#fff;border:1px solid #E2E8F0;display:flex;align-items:center;justify-content:center">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B3C5D" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div style="position:absolute;left:16px;right:16px;bottom:16px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.92);border:1px solid #E2E8F0;font:500 11px/16px Inter,sans-serif;color:#64748B">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:50%;background:#EF4444"></span>Activa</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:50%;background:#22C55E"></span>Resuelta</span>
+            </div>
+            <sc-if value="{{ hasSelection }}">
+              <div style="padding:14px;border-radius:16px;background:#fff;border:1px solid #E2E8F0;box-shadow:0 10px 24px rgba(15,23,42,.12);animation:gota-in .22s ease">
+                <div style="display:flex;gap:12px">
+                  <div style="flex:none;width:64px;height:64px;border-radius:12px;background:repeating-linear-gradient(135deg,#DCEAF2 0 8px,#CFE2EE 8px 16px)"></div>
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <span style="font:500 11px/16px Inter,sans-serif;padding:2px 8px;border-radius:20px;background:{{ sel.statusBg }};color:{{ sel.statusFg }}">{{ sel.statusLabel }}</span>
+                      <span style="font:400 12px/16px Inter,sans-serif;color:#64748B">{{ sel.ago }}</span>
+                    </div>
+                    <div style="margin-top:6px;font:500 15px/20px Inter,sans-serif">{{ sel.title }}</div>
+                    <div style="font:400 13px/20px Inter,sans-serif;color:#64748B">{{ sel.place }}</div>
+                  </div>
+                </div>
+                <div style="margin-top:12px;display:flex;align-items:center;gap:10px">
+                  <span style="display:flex;align-items:center;gap:6px;font:400 13px/20px Inter,sans-serif;color:#64748B">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D84B5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>{{ sel.valText }}
+                  </span>
+                  <button onClick="{{ openSel }}" style="all:unset;cursor:pointer;margin-left:auto;height:40px;padding:0 18px;border-radius:12px;background:#1D84B5;color:#fff;font:600 14px/40px Inter,sans-serif">Ver detalle</button>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- LISTA -->
+      <sc-if value="{{ isList }}">
+        <div style="flex:1;overflow:auto;animation:gota-in .28s ease">
+          <div style="padding:12px 20px 8px;background:#fff;border-bottom:1px solid #E2E8F0;position:sticky;top:0">
+            <div style="display:flex;align-items:center;gap:12px">
+              <button onClick="{{ goMap }}" style="all:unset;cursor:pointer;width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#F1F5F9">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>
+              </button>
+              <span style="font:600 20px/28px Inter,sans-serif">Reportes</span>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:8px">
+              <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3">
+                <button onClick="{{ f.set }}" style="all:unset;cursor:pointer;height:34px;padding:0 14px;border-radius:20px;font:500 13px/34px Inter,sans-serif;background:{{ f.bg }};color:{{ f.fg }};border:1px solid {{ f.bd }}">{{ f.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:16px 20px 24px;display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ visibleLeaks }}" as="l" hint-placeholder-count="4">
+              <button onClick="{{ l.open }}" style="all:unset;cursor:pointer;display:flex;gap:12px;padding:12px;border-radius:16px;background:#fff;border:1px solid #E2E8F0">
+                <div style="flex:none;width:76px;height:76px;border-radius:12px;background:repeating-linear-gradient(135deg,#DCEAF2 0 8px,#CFE2EE 8px 16px);display:flex;align-items:flex-end;padding:6px;font:500 9px ui-monospace,Menlo,monospace;color:#5A7E92">foto</div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="width:8px;height:8px;border-radius:50%;background:{{ l.dot }}"></span>
+                    <span style="font:500 11px/16px Inter,sans-serif;color:{{ l.statusFg }}">{{ l.statusLabel }}</span>
+                    <span style="margin-left:auto;font:400 12px/16px Inter,sans-serif;color:#94A3B8">{{ l.ago }}</span>
+                  </div>
+                  <div style="margin-top:4px;font:500 15px/20px Inter,sans-serif">{{ l.title }}</div>
+                  <div style="font:400 13px/20px Inter,sans-serif;color:#64748B">{{ l.place }}</div>
+                  <div style="margin-top:6px;font:500 12px/16px Inter,sans-serif;color:#1D84B5">{{ l.valText }}</div>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- DETALLE -->
+      <sc-if value="{{ isDetail }}">
+        <div style="flex:1;overflow:auto;animation:gota-in .28s ease;background:#fff">
+          <div style="position:relative;height:250px;background:repeating-linear-gradient(135deg,#D6E7F1 0 10px,#C7DCEA 10px 20px)">
+            <button onClick="{{ back }}" style="all:unset;cursor:pointer;position:absolute;left:16px;top:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>
+            </button>
+            <div style="position:absolute;right:16px;top:16px;padding:4px 10px;border-radius:20px;background:rgba(15,23,42,.55);color:#fff;font:500 11px/20px Inter,sans-serif">1 / 3</div>
+            <div style="position:absolute;left:16px;bottom:16px;font:500 10px ui-monospace,Menlo,monospace;color:#5A7E92">foto principal de la fuga</div>
+          </div>
+          <div style="padding:16px 20px 8px;display:flex;gap:8px">
+            <div style="flex:1;height:64px;border-radius:12px;background:repeating-linear-gradient(135deg,#DCEAF2 0 8px,#CFE2EE 8px 16px);border:2px solid #1D84B5"></div>
+            <div style="flex:1;height:64px;border-radius:12px;background:repeating-linear-gradient(135deg,#DCEAF2 0 8px,#CFE2EE 8px 16px)"></div>
+            <div style="flex:1;height:64px;border-radius:12px;background:repeating-linear-gradient(135deg,#DCEAF2 0 8px,#CFE2EE 8px 16px)"></div>
+          </div>
+          <div style="padding:12px 20px 24px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font:500 11px/16px Inter,sans-serif;padding:3px 10px;border-radius:20px;background:{{ sel.statusBg }};color:{{ sel.statusFg }}">{{ sel.statusLabel }}</span>
+              <span style="font:400 12px/16px Inter,sans-serif;color:#64748B">{{ sel.ago }}</span>
+            </div>
+            <h2 style="margin:10px 0 4px;font:600 24px/32px Inter,sans-serif">{{ sel.title }}</h2>
+            <div style="display:flex;align-items:center;gap:6px;font:400 14px/20px Inter,sans-serif;color:#64748B">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+              {{ sel.place }}
+            </div>
+            <p style="margin:14px 0 0;font:400 16px/24px Inter,sans-serif;color:#0F172A;text-wrap:pretty">{{ sel.desc }}</p>
+
+            <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div style="padding:14px;border-radius:14px;border:1px solid #E2E8F0;background:#F8FAFC">
+                <div style="font:500 11px/14px Inter,sans-serif;color:#64748B;text-transform:uppercase;letter-spacing:.06em">Reportada</div>
+                <div style="margin-top:6px;font:500 15px/20px Inter,sans-serif">{{ sel.date }}</div>
+              </div>
+              <div style="padding:14px;border-radius:14px;border:1px solid #E2E8F0;background:#F8FAFC">
+                <div style="font:500 11px/14px Inter,sans-serif;color:#64748B;text-transform:uppercase;letter-spacing:.06em">Validaciones</div>
+                <div style="margin-top:6px;font:500 15px/20px Inter,sans-serif;color:#1D84B5">{{ sel.valText }}</div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px;padding:14px;border-radius:14px;background:#F1F8FB;border:1px solid #D5E8F1">
+              <div style="display:flex;align-items:center;justify-content:space-between;font:500 13px/20px Inter,sans-serif;color:#0B3C5D">
+                <span>Confirmaciones para cerrar</span><span>{{ sel.confText }}</span>
+              </div>
+              <div style="margin-top:8px;height:6px;border-radius:4px;background:#D5E8F1;overflow:hidden">
+                <div style="height:100%;width:{{ sel.confPct }}%;background:#22C55E;border-radius:4px;transition:width .3s ease"></div>
+              </div>
+              <div style="margin-top:8px;font:400 12px/16px Inter,sans-serif;color:#64748B">Se requieren al menos 3 confirmaciones para cerrar la fuga.</div>
+            </div>
+
+            <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
+              <button onClick="{{ validate }}" style="all:unset;cursor:pointer;height:52px;border-radius:14px;background:#1D84B5;color:#fff;font:600 16px/52px Inter,sans-serif;text-align:center">Validar (+1)</button>
+              <button onClick="{{ resolve }}" style="all:unset;cursor:pointer;height:52px;border-radius:14px;border:1.5px solid #1D84B5;color:#1D84B5;font:600 16px/49px Inter,sans-serif;text-align:center">Marcar como resuelta</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- REPORTAR -->
+      <sc-if value="{{ isReport }}">
+        <div style="flex:1;overflow:auto;animation:gota-in .28s ease">
+          <div style="padding:12px 20px 14px;background:#fff;border-bottom:1px solid #E2E8F0">
+            <div style="display:flex;align-items:center;gap:12px">
+              <button onClick="{{ back }}" style="all:unset;cursor:pointer;width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#F1F5F9">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>
+              </button>
+              <span style="font:600 20px/28px Inter,sans-serif">Reportar fuga</span>
+            </div>
+            <div style="margin-top:16px;display:flex;align-items:center;gap:6px">
+              <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+                <div style="flex:1;display:flex;flex-direction:column;gap:6px;align-items:center">
+                  <div style="width:100%;height:4px;border-radius:3px;background:{{ s.bar }}"></div>
+                  <span style="font:500 11px/14px Inter,sans-serif;color:{{ s.fg }}">{{ s.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="padding:20px">
+            <sc-if value="{{ step1 }}">
+              <div>
+                <h3 style="margin:0;font:600 20px/28px Inter,sans-serif">Ubicación de la fuga</h3>
+                <p style="margin:6px 0 16px;font:400 14px/20px Inter,sans-serif;color:#64748B">Indica exactamente dónde está la fuga.</p>
+                <div style="position:relative;height:240px;border-radius:16px;overflow:hidden;background:#DCEAF3;border:1px solid #E2E8F0">
+                  <div style="position:absolute;left:-6%;top:14%;width:70%;height:60%;background:#EDF1E9;border-radius:52% 48% 44% 56%/58% 52% 48% 42%"></div>
+                  <div style="position:absolute;left:46%;top:32%;width:62%;height:56%;background:#EDF1E9;border-radius:48% 52% 56% 44%/50% 50% 50% 50%"></div>
+                  <div style="position:absolute;left:10%;top:44%;width:84%;height:2px;background:#fff;transform:rotate(-8deg)"></div>
+                  <div style="position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-40px 0 0 -20px;display:flex;align-items:flex-start;justify-content:center">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="#1D84B5" stroke="#fff" stroke-width="1.4"><path d="M12 22s7-6 7-11.5A7 7 0 1 0 5 10.5C5 16 12 22 12 22z"/><circle cx="12" cy="10" r="2.6" fill="#fff" stroke="none"/></svg>
+                  </div>
+                  <div style="position:absolute;left:12px;bottom:12px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.94);font:500 12px/16px Inter,sans-serif;color:#0B3C5D">Los Robles · Maneiro</div>
+                </div>
+                <button style="all:unset;cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;border-radius:12px;border:1px solid #E2E8F0;background:#fff;font:500 14px/48px Inter,sans-serif;color:#0B3C5D">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1D84B5" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+                  Usar mi ubicación actual
+                </button>
+                <div style="margin-top:12px;padding:12px 14px;border-radius:12px;background:#F1F8FB;font:400 12px/16px Inter,sans-serif;color:#64748B">La ubicación se comparte de forma aproximada para proteger tu privacidad.</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ step2 }}">
+              <div>
+                <h3 style="margin:0;font:600 20px/28px Inter,sans-serif">Agregar fotos</h3>
+                <p style="margin:6px 0 16px;font:400 14px/20px Inter,sans-serif;color:#64748B">{{ photoHint }}</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                  <sc-for list="{{ photos }}" as="p" hint-placeholder-count="1">
+                    <div style="position:relative;height:130px;border-radius:14px;background:repeating-linear-gradient(135deg,#DCEAF2 0 8px,#CFE2EE 8px 16px);display:flex;align-items:flex-end;padding:8px">
+                      <span style="font:500 10px ui-monospace,Menlo,monospace;color:#5A7E92">{{ p.label }}</span>
+                      <button onClick="{{ p.remove }}" style="all:unset;cursor:pointer;position:absolute;right:8px;top:8px;width:28px;height:28px;border-radius:50%;background:rgba(15,23,42,.6);display:flex;align-items:center;justify-content:center">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                      </button>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ canAddPhoto }}">
+                    <button onClick="{{ addPhoto }}" style="all:unset;cursor:pointer;height:130px;border-radius:14px;border:1.5px dashed #A9C6D6;background:#F8FBFD;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#1D84B5">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1D84B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg>
+                      <span style="font:500 14px/20px Inter,sans-serif">Agregar foto</span>
+                    </button>
+                  </sc-if>
+                </div>
+                <div style="margin-top:16px;padding:12px 14px;border-radius:12px;background:#fff;border:1px solid #E2E8F0;font:400 12px/16px Inter,sans-serif;color:#64748B">Una foto clara ayuda a que la comunidad confirme la fuga más rápido.</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ step3 }}">
+              <div>
+                <h3 style="margin:0;font:600 20px/28px Inter,sans-serif">Datos de la fuga</h3>
+                <p style="margin:6px 0 16px;font:400 14px/20px Inter,sans-serif;color:#64748B">Solo lo necesario. No pedimos datos personales.</p>
+                <div style="display:flex;flex-direction:column;gap:14px">
+                  <label style="display:flex;flex-direction:column;gap:6px">
+                    <span style="font:500 12px/16px Inter,sans-serif;color:#64748B">Municipio</span>
+                    <span style="display:flex;align-items:center;justify-content:space-between;height:50px;padding:0 14px;border-radius:12px;background:#fff;border:1px solid #E2E8F0;font:400 15px/50px Inter,sans-serif">Maneiro
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </span>
+                  </label>
+                  <label style="display:flex;flex-direction:column;gap:6px">
+                    <span style="font:500 12px/16px Inter,sans-serif;color:#64748B">Sector</span>
+                    <span style="display:flex;align-items:center;justify-content:space-between;height:50px;padding:0 14px;border-radius:12px;background:#fff;border:1px solid #E2E8F0;font:400 15px/50px Inter,sans-serif">Los Robles
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </span>
+                  </label>
+                  <label style="display:flex;flex-direction:column;gap:6px">
+                    <span style="font:500 12px/16px Inter,sans-serif;color:#64748B">Descripción</span>
+                    <span style="display:block;min-height:96px;padding:14px;border-radius:12px;background:#fff;border:1px solid #E2E8F0;font:400 15px/22px Inter,sans-serif;color:#0F172A">Fuga constante frente a la entrada del edificio.</span>
+                  </label>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ step4 }}">
+              <div>
+                <h3 style="margin:0;font:600 20px/28px Inter,sans-serif">Revisa y envía</h3>
+                <p style="margin:6px 0 16px;font:400 14px/20px Inter,sans-serif;color:#64748B">Así verá la comunidad tu reporte.</p>
+                <div style="padding:16px;border-radius:16px;background:#fff;border:1px solid #E2E8F0;display:flex;flex-direction:column;gap:12px">
+                  <div style="display:flex;justify-content:space-between;gap:12px"><span style="font:400 13px/20px Inter,sans-serif;color:#64748B">Ubicación</span><span style="font:500 13px/20px Inter,sans-serif;text-align:right">Los Robles, Maneiro</span></div>
+                  <div style="height:1px;background:#E2E8F0"></div>
+                  <div style="display:flex;justify-content:space-between;gap:12px"><span style="font:400 13px/20px Inter,sans-serif;color:#64748B">Fotos</span><span style="font:500 13px/20px Inter,sans-serif">{{ photoCount }}</span></div>
+                  <div style="height:1px;background:#E2E8F0"></div>
+                  <div style="display:flex;justify-content:space-between;gap:12px"><span style="font:400 13px/20px Inter,sans-serif;color:#64748B">Descripción</span><span style="font:500 13px/20px Inter,sans-serif;text-align:right;max-width:200px">Fuga constante frente a la entrada del edificio.</span></div>
+                </div>
+
+                <div style="margin-top:14px;padding:14px;border-radius:14px;background:#FEF6E9;border:1px solid #F6DCAE">
+                  <div style="display:flex;gap:10px;align-items:flex-start">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F2A93B" stroke-width="1.9" stroke-linecap="round"><path d="M12 4l8 15H4z"/><path d="M12 10v4M12 17h.01"/></svg>
+                    <div>
+                      <div style="font:500 14px/20px Inter,sans-serif;color:#8A5A0B">Posible reporte duplicado</div>
+                      <div style="margin-top:4px;font:400 13px/18px Inter,sans-serif;color:#8A5A0B">Ya existe un reporte cerca de este lugar. Puedes revisar el reporte existente o continuar si se trata de otra fuga.</div>
+                    </div>
+                  </div>
+                  <div style="margin-top:12px;display:flex;gap:8px">
+                    <button onClick="{{ openSel }}" style="all:unset;cursor:pointer;flex:1;height:44px;border-radius:12px;background:#fff;border:1px solid #E5C98F;color:#8A5A0B;font:500 13px/44px Inter,sans-serif;text-align:center">Ver reporte existente</button>
+                    <button onClick="{{ submitReport }}" style="all:unset;cursor:pointer;flex:1;height:44px;border-radius:12px;background:#0B3C5D;color:#fff;font:500 13px/44px Inter,sans-serif;text-align:center">Continuar como otra fuga</button>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <div style="margin-top:20px;display:flex;gap:10px">
+              <sc-if value="{{ canGoBackStep }}">
+                <button onClick="{{ prevStep }}" style="all:unset;cursor:pointer;width:110px;height:52px;border-radius:14px;border:1.5px solid #CBD5E1;color:#0F172A;font:500 15px/49px Inter,sans-serif;text-align:center">Atrás</button>
+              </sc-if>
+              <button onClick="{{ nextStep }}" style="all:unset;cursor:pointer;flex:1;height:52px;border-radius:14px;background:#1D84B5;color:#fff;font:600 16px/52px Inter,sans-serif;text-align:center">{{ nextLabel }}</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ENVIADO -->
+      <sc-if value="{{ isSent }}">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;background:#fff;animation:gota-in .3s ease">
+          <div style="width:88px;height:88px;border-radius:50%;background:#DCFCE7;display:flex;align-items:center;justify-content:center">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          </div>
+          <h2 style="margin:22px 0 8px;font:600 24px/32px Inter,sans-serif">Reporte enviado</h2>
+          <p style="margin:0;font:400 16px/24px Inter,sans-serif;color:#64748B;max-width:260px">Gracias por ayudar a cuidar nuestra comunidad.</p>
+          <div style="margin-top:24px;width:100%;padding:14px;border-radius:14px;background:#F8FAFC;border:1px solid #E2E8F0;font:400 13px/18px Inter,sans-serif;color:#64748B">Te avisaremos cuando otros vecinos confirmen esta fuga.</div>
+          <div style="margin-top:20px;width:100%;display:flex;flex-direction:column;gap:10px">
+            <button onClick="{{ goMap }}" style="all:unset;cursor:pointer;height:52px;border-radius:14px;background:#1D84B5;color:#fff;font:600 16px/52px Inter,sans-serif;text-align:center">Ver en el mapa</button>
+            <button onClick="{{ goHome }}" style="all:unset;cursor:pointer;height:52px;border-radius:14px;color:#1D84B5;font:600 16px/52px Inter,sans-serif;text-align:center">Volver al inicio</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- AGUA -->
+      <sc-if value="{{ isWater }}">
+        <div style="flex:1;overflow:auto;animation:gota-in .28s ease">
+          <div style="padding:16px 20px 20px;background:#fff;border-bottom:1px solid #E2E8F0">
+            <h2 style="margin:0;font:600 24px/32px Inter,sans-serif">¿Llegó o se fue el agua?</h2>
+            <p style="margin:6px 0 16px;font:400 14px/20px Inter,sans-serif;color:#64748B">Avisar toma dos toques y ayuda a todo tu sector.</p>
+            <div style="display:flex;gap:10px">
+              <button onClick="{{ pickArrived }}" style="all:unset;cursor:pointer;flex:1;height:96px;border-radius:16px;padding:14px;background:{{ arrivedBg }};border:1.5px solid {{ arrivedBd }};display:flex;flex-direction:column;justify-content:space-between">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#109881" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4c2.8 3.2 4.8 5.6 4.8 8A4.8 4.8 0 0 1 7.2 12c0-2.4 2-4.8 4.8-8z"/></svg>
+                <span style="font:600 15px/20px Inter,sans-serif;color:#0F172A">Llegó el agua</span>
+              </button>
+              <button onClick="{{ pickGone }}" style="all:unset;cursor:pointer;flex:1;height:96px;border-radius:16px;padding:14px;background:{{ goneBg }};border:1.5px solid {{ goneBd }};display:flex;flex-direction:column;justify-content:space-between">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4c2.8 3.2 4.8 5.6 4.8 8A4.8 4.8 0 0 1 7.2 12c0-2.4 2-4.8 4.8-8z"/><path d="M5 19 19 5"/></svg>
+                <span style="font:600 15px/20px Inter,sans-serif;color:#0F172A">Se fue el agua</span>
+              </button>
+            </div>
+          </div>
+
+          <div style="padding:20px">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;gap:10px">
+                <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                  <span style="font:500 12px/16px Inter,sans-serif;color:#64748B">Municipio</span>
+                  <span style="height:50px;padding:0 14px;border-radius:12px;background:#fff;border:1px solid #E2E8F0;font:400 15px/50px Inter,sans-serif">Maneiro</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+                  <span style="font:500 12px/16px Inter,sans-serif;color:#64748B">Sector</span>
+                  <span style="height:50px;padding:0 14px;border-radius:12px;background:#fff;border:1px solid #E2E8F0;font:400 15px/50px Inter,sans-serif">Los Robles</span>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <span style="font:500 12px/16px Inter,sans-serif;color:#64748B">Hora</span>
+                <span style="height:50px;padding:0 14px;border-radius:12px;background:#fff;border:1px solid #E2E8F0;font:400 15px/50px Inter,sans-serif">08:25 AM</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <span style="font:500 12px/16px Inter,sans-serif;color:#64748B">Comentario (opcional)</span>
+                <span style="display:block;min-height:72px;padding:14px;border-radius:12px;background:#fff;border:1px solid #E2E8F0;font:400 15px/22px Inter,sans-serif;color:#94A3B8">Ej: solo en la parte alta del sector</span>
+              </div>
+              <button onClick="{{ submitWater }}" style="all:unset;cursor:pointer;height:52px;border-radius:14px;background:#109881;color:#fff;font:600 16px/52px Inter,sans-serif;text-align:center">Registrar</button>
+            </div>
+
+            <div style="margin-top:28px">
+              <div style="font:500 14px/20px Inter,sans-serif;color:#0F172A">Eventos recientes</div>
+              <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ waterEvents }}" as="w" hint-placeholder-count="3">
+                  <div style="padding:14px;border-radius:14px;background:#fff;border:1px solid #E2E8F0">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <span style="width:32px;height:32px;border-radius:10px;background:{{ w.iconBg }};display:flex;align-items:center;justify-content:center;font:600 13px/32px Inter,sans-serif;color:{{ w.iconFg }}">{{ w.mark }}</span>
+                      <div style="flex:1;min-width:0">
+                        <div style="font:500 14px/20px Inter,sans-serif">{{ w.title }}</div>
+                        <div style="font:400 12px/16px Inter,sans-serif;color:#64748B">{{ w.meta }}</div>
+                      </div>
+                      <button onClick="{{ w.confirm }}" style="all:unset;cursor:pointer;height:36px;padding:0 14px;border-radius:20px;background:{{ w.btnBg }};color:{{ w.btnFg }};border:1px solid {{ w.btnBd }};font:500 13px/36px Inter,sans-serif">{{ w.btnLabel }}</button>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- HISTORIAL -->
+      <sc-if value="{{ isHistory }}">
+        <div style="flex:1;overflow:auto;animation:gota-in .28s ease">
+          <div style="padding:12px 20px 14px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;gap:12px">
+            <button onClick="{{ goMore }}" style="all:unset;cursor:pointer;width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#F1F5F9">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>
+            </button>
+            <span style="font:600 20px/28px Inter,sans-serif">Historial</span>
+          </div>
+          <div style="padding:20px">
+            <div style="font:500 12px/16px Inter,sans-serif;color:#64748B;text-transform:uppercase;letter-spacing:.06em">Activas</div>
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ activeLeaks }}" as="l" hint-placeholder-count="3">
+                <button onClick="{{ l.open }}" style="all:unset;cursor:pointer;display:flex;gap:12px;padding:12px;border-radius:14px;background:#fff;border:1px solid #E2E8F0">
+                  <div style="flex:none;width:56px;height:56px;border-radius:10px;background:repeating-linear-gradient(135deg,#DCEAF2 0 8px,#CFE2EE 8px 16px)"></div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font:500 14px/20px Inter,sans-serif">{{ l.title }}</div>
+                    <div style="font:400 12px/16px Inter,sans-serif;color:#64748B">{{ l.place }} · {{ l.ago }}</div>
+                    <div style="margin-top:4px;font:500 12px/16px Inter,sans-serif;color:#1D84B5">{{ l.valText }}</div>
+                  </div>
+                </button>
+              </sc-for>
+            </div>
+            <div style="margin-top:26px;font:500 12px/16px Inter,sans-serif;color:#64748B;text-transform:uppercase;letter-spacing:.06em">Resueltas</div>
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ resolvedLeaks }}" as="l" hint-placeholder-count="1">
+                <button onClick="{{ l.open }}" style="all:unset;cursor:pointer;display:flex;gap:12px;padding:12px;border-radius:14px;background:#F8FAFC;border:1px solid #E2E8F0">
+                  <div style="flex:none;width:56px;height:56px;border-radius:10px;background:repeating-linear-gradient(135deg,#E3EDE5 0 8px,#D5E5D9 8px 16px)"></div>
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <span style="width:8px;height:8px;border-radius:50%;background:#22C55E"></span>
+                      <span style="font:500 14px/20px Inter,sans-serif">{{ l.title }}</span>
+                    </div>
+                    <div style="font:400 12px/16px Inter,sans-serif;color:#64748B">{{ l.place }} · {{ l.ago }}</div>
+                    <div style="margin-top:4px;font:400 12px/16px Inter,sans-serif;color:#15803D">Cerrada con 3 confirmaciones</div>
+                  </div>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- NOTIFICACIONES -->
+      <sc-if value="{{ isNotif }}">
+        <div style="flex:1;overflow:auto;animation:gota-in .28s ease">
+          <div style="padding:12px 20px 14px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;gap:12px">
+            <button onClick="{{ goMore }}" style="all:unset;cursor:pointer;width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#F1F5F9">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>
+            </button>
+            <span style="font:600 20px/28px Inter,sans-serif">Notificaciones</span>
+          </div>
+          <div style="padding:12px 20px 24px;display:flex;flex-direction:column;gap:4px">
+            <sc-for list="{{ notifications }}" as="n" hint-placeholder-count="4">
+              <button onClick="{{ n.read }}" style="all:unset;cursor:pointer;display:flex;gap:12px;padding:14px 12px;border-radius:14px;background:{{ n.bg }}">
+                <span style="flex:none;width:36px;height:36px;border-radius:12px;background:{{ n.iconBg }};display:flex;align-items:center;justify-content:center;font:600 13px/36px Inter,sans-serif;color:{{ n.iconFg }}">{{ n.mark }}</span>
+                <span style="flex:1;min-width:0;display:block">
+                  <span style="display:flex;align-items:center;gap:8px">
+                    <span style="font:{{ n.titleFont }};color:#0F172A">{{ n.title }}</span>
+                    <sc-if value="{{ n.unread }}"><span style="width:8px;height:8px;border-radius:50%;background:#1D84B5"></span></sc-if>
+                    <span style="margin-left:auto;font:400 12px/16px Inter,sans-serif;color:#94A3B8">{{ n.time }}</span>
+                  </span>
+                  <span style="display:block;margin-top:2px;font:400 13px/18px Inter,sans-serif;color:#64748B">{{ n.body }}</span>
+                </span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- COMUNIDAD -->
+      <sc-if value="{{ isCommunity }}">
+        <div style="flex:1;overflow:auto;animation:gota-in .28s ease">
+          <div style="padding:12px 20px 14px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;gap:12px">
+            <button onClick="{{ goMore }}" style="all:unset;cursor:pointer;width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#F1F5F9">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>
+            </button>
+            <span style="font:600 20px/28px Inter,sans-serif">Comunidad</span>
+          </div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:20px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div style="padding:16px;border-radius:16px;background:#0B3C5D;color:#fff">
+                <div style="font:500 12px/16px Inter,sans-serif;opacity:.7">Fugas activas</div>
+                <div style="margin-top:6px;font:600 28px/32px Inter,sans-serif">{{ community.activeCount }}</div>
+                <div style="margin-top:2px;font:400 12px/16px Inter,sans-serif;opacity:.7">en tu municipio</div>
+              </div>
+              <div style="padding:16px;border-radius:16px;background:#E7F6F2;color:#0F172A">
+                <div style="font:500 12px/16px Inter,sans-serif;color:#109881">Resueltas (30 d)</div>
+                <div style="margin-top:6px;font:600 28px/32px Inter,sans-serif">{{ community.resolvedCount }}</div>
+                <div style="margin-top:2px;font:400 12px/16px Inter,sans-serif;color:#64748B">gracias a tu sector</div>
+              </div>
+            </div>
+
+            <div style="padding:16px;border-radius:16px;background:#fff;border:1px solid #E2E8F0">
+              <div style="font:600 14px/20px Inter,sans-serif">Validaciones por día</div>
+              <div style="margin-top:14px;display:flex;align-items:flex-end;gap:8px;height:96px">
+                <sc-for list="{{ community.chart }}" as="c" hint-placeholder-count="7">
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end">
+                    <div style="width:100%;border-radius:8px 8px 4px 4px;background:{{ c.bg }};height:{{ c.h }}%"></div>
+                    <span style="font:400 11px/14px Inter,sans-serif;color:#94A3B8">{{ c.d }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="font:500 14px/20px Inter,sans-serif;color:#0F172A">Vecinos más activos</div>
+              <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ community.topContributors }}" as="u" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:#fff;border:1px solid #E2E8F0">
+                    <span style="flex:none;width:38px;height:38px;border-radius:50%;background:{{ u.avatarBg }};display:flex;align-items:center;justify-content:center;font:600 14px/38px Inter,sans-serif;color:#fff">{{ u.initials }}</span>
+                    <div style="flex:1;min-width:0">
+                      <div style="font:500 14px/20px Inter,sans-serif">{{ u.name }}</div>
+                      <div style="font:400 12px/16px Inter,sans-serif;color:#64748B">{{ u.role }}</div>
+                    </div>
+                    <span style="font:600 13px/18px Inter,sans-serif;color:#1D84B5">{{ u.count }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <button onClick="{{ goHome }}" style="all:unset;cursor:pointer;height:50px;border-radius:14px;background:#1D84B5;color:#fff;font:600 15px/50px Inter,sans-serif;text-align:center">Volver al inicio</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- MÁS -->
+      <sc-if value="{{ isMore }}">
+        <div style="flex:1;overflow:auto;animation:gota-in .28s ease">
+          <div style="padding:20px 20px 16px;background:#fff;border-bottom:1px solid #E2E8F0">
+            <h2 style="margin:0;font:600 24px/32px Inter,sans-serif">Más</h2>
+            <div style="margin-top:12px;display:flex;gap:10px;align-items:center;padding:12px;border-radius:14px;background:#F1F8FB">
+              <span style="width:36px;height:36px;border-radius:50%;background:#1D84B5;display:flex;align-items:center;justify-content:center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M12 5c2.6 3 4.4 5.2 4.4 7.3A4.4 4.4 0 0 1 7.6 12.3C7.6 10.2 9.4 8 12 5z"/></svg>
+              </span>
+              <div>
+                <div style="font:500 14px/20px Inter,sans-serif;color:#0B3C5D">Vecino anónimo</div>
+                <div style="font:400 12px/16px Inter,sans-serif;color:#64748B">Sin cuenta. Tus reportes se guardan en este dispositivo.</div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:16px 20px 24px;display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ moreItems }}" as="m" hint-placeholder-count="6">
+              <button onClick="{{ m.go }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;height:56px;padding:0 14px;border-radius:14px;background:#fff;border:1px solid #E2E8F0">
+                <span style="font:500 15px/20px Inter,sans-serif;flex:1">{{ m.label }}</span>
+                <sc-if value="{{ m.badge }}"><span style="padding:2px 8px;border-radius:20px;background:#FEE4E2;color:#B42318;font:500 11px/16px Inter,sans-serif">{{ m.badge }}</span></sc-if>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+              </button>
+            </sc-for>
+            <div style="margin-top:14px;text-align:center;font:400 12px/16px Inter,sans-serif;color:#94A3B8">Gota · versión de prototipo 0.2</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- PERMISOS -->
+      <sc-if value="{{ isPerms }}">
+        <div style="flex:1;overflow:auto;animation:gota-in .28s ease">
+          <div style="padding:12px 20px 14px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;gap:12px">
+            <button onClick="{{ goMore }}" style="all:unset;cursor:pointer;width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#F1F5F9">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>
+            </button>
+            <span style="font:600 20px/28px Inter,sans-serif">Permisos</span>
+          </div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ perms }}" as="p" hint-placeholder-count="3">
+              <div style="padding:16px;border-radius:16px;background:#fff;border:1px solid #E2E8F0">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="font:500 15px/20px Inter,sans-serif;flex:1">{{ p.label }}</span>
+                  <span style="padding:3px 10px;border-radius:20px;background:{{ p.stateBg }};color:{{ p.stateFg }};font:500 11px/16px Inter,sans-serif">{{ p.state }}</span>
+                </div>
+                <p style="margin:8px 0 12px;font:400 13px/18px Inter,sans-serif;color:#64748B">{{ p.why }}</p>
+                <button onClick="{{ p.toggle }}" style="all:unset;cursor:pointer;height:44px;width:100%;border-radius:12px;background:{{ p.btnBg }};color:{{ p.btnFg }};border:1px solid {{ p.btnBd }};font:500 14px/44px Inter,sans-serif;text-align:center">{{ p.btnLabel }}</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ESTADOS -->
+      <sc-if value="{{ isStates }}">
+        <div style="flex:1;overflow:auto;animation:gota-in .28s ease">
+          <div style="padding:12px 20px 14px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;gap:12px">
+            <button onClick="{{ goMore }}" style="all:unset;cursor:pointer;width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#F1F5F9">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>
+            </button>
+            <span style="font:600 20px/28px Inter,sans-serif">Estados del sistema</span>
+          </div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+
+            <div style="padding:18px;border-radius:16px;background:#fff;border:1px solid #E2E8F0;display:flex;align-items:center;gap:14px">
+              <span style="width:26px;height:26px;border-radius:50%;border:3px solid #E2E8F0;border-top-color:#1D84B5;animation:gota-spin .9s linear infinite"></span>
+              <span style="font:400 14px/20px Inter,sans-serif;color:#64748B">Cargando reportes cercanos…</span>
+            </div>
+
+            <div style="padding:18px;border-radius:16px;background:#fff;border:1px solid #E2E8F0">
+              <div style="display:flex;gap:10px;align-items:center"><span style="width:10px;height:10px;border-radius:50%;background:#EF4444"></span><span style="font:500 14px/20px Inter,sans-serif">No pudimos enviar tu reporte</span></div>
+              <p style="margin:6px 0 12px;font:400 13px/18px Inter,sans-serif;color:#64748B">Guardamos tus datos. Intenta de nuevo en un momento.</p>
+              <button style="all:unset;cursor:pointer;height:44px;padding:0 18px;border-radius:12px;background:#1D84B5;color:#fff;font:500 14px/44px Inter,sans-serif">Reintentar</button>
+            </div>
+
+            <div style="padding:18px;border-radius:16px;background:#F1F5F9;border:1px solid #E2E8F0;display:flex;gap:10px;align-items:center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.8" stroke-linecap="round"><path d="M3 8.5A14 14 0 0 1 21 8.5M6.5 12.5a9 9 0 0 1 11 0M10 16.5a4.5 4.5 0 0 1 4 0M12 20h.01"/><path d="M4 20 20 4"/></svg>
+              <div><div style="font:500 14px/20px Inter,sans-serif">Sin conexión</div><div style="font:400 13px/18px Inter,sans-serif;color:#64748B">Tu reporte se enviará cuando vuelva el internet.</div></div>
+            </div>
+
+            <div style="padding:18px;border-radius:16px;background:#F0FDF4;border:1px solid #BBF7D0;display:flex;gap:10px;align-items:center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+              <div><div style="font:500 14px/20px Inter,sans-serif;color:#15803D">Acción completada</div><div style="font:400 13px/18px Inter,sans-serif;color:#3F7A54">Tu confirmación fue registrada.</div></div>
+            </div>
+
+            <div style="padding:18px;border-radius:16px;background:#FEF6E9;border:1px solid #F6DCAE">
+              <div style="font:500 14px/20px Inter,sans-serif;color:#8A5A0B">Posible reporte duplicado</div>
+              <p style="margin:6px 0 12px;font:400 13px/18px Inter,sans-serif;color:#8A5A0B">Ya existe un reporte cerca de este lugar.</p>
+              <div style="display:flex;gap:8px">
+                <button onClick="{{ openSel }}" style="all:unset;cursor:pointer;flex:1;height:44px;border-radius:12px;background:#fff;border:1px solid #E5C98F;color:#8A5A0B;font:500 13px/44px Inter,sans-serif;text-align:center">Ver reporte existente</button>
+                <button style="all:unset;cursor:pointer;flex:1;height:44px;border-radius:12px;background:#0B3C5D;color:#fff;font:500 13px/44px Inter,sans-serif;text-align:center">Continuar</button>
+              </div>
+            </div>
+
+            <div style="padding:28px 18px;border-radius:16px;background:#fff;border:1px dashed #CBD5E1;text-align:center">
+              <div style="font:500 14px/20px Inter,sans-serif">Sin resultados</div>
+              <div style="margin-top:4px;font:400 13px/18px Inter,sans-serif;color:#64748B">No hay fugas activas en este sector. Buena señal.</div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ hasToast }}">
+        <div style="position:absolute;left:16px;right:16px;bottom:96px;padding:14px 16px;border-radius:14px;background:#0B3C5D;color:#fff;font:500 14px/20px Inter,sans-serif;box-shadow:0 10px 24px rgba(11,60,93,.3);animation:gota-toast .24s ease;z-index:5">{{ toast }}</div>
+      </sc-if>
+
+      <sc-if value="{{ showNav }}">
+        <div style="flex:none;height:76px;background:#fff;border-top:1px solid #E2E8F0;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;padding-bottom:6px">
+          <button onClick="{{ goHome }}" style="all:unset;cursor:pointer;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:{{ nav.home }}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>
+            <span style="font:500 11px/14px Inter,sans-serif">Inicio</span>
+          </button>
+          <button onClick="{{ goMap }}" style="all:unset;cursor:pointer;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:{{ nav.map }}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
+            <span style="font:500 11px/14px Inter,sans-serif">Mapa</span>
+          </button>
+          <div style="display:flex;align-items:center;justify-content:center">
+            <button onClick="{{ goReport }}" style="all:unset;cursor:pointer;width:58px;height:58px;margin-top:-22px;border-radius:50%;background:{{ accent }};display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px rgba(255,107,91,.36);border:4px solid #fff">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg>
+            </button>
+          </div>
+          <button onClick="{{ goWater }}" style="all:unset;cursor:pointer;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:{{ nav.water }}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4c2.8 3.2 4.8 5.6 4.8 8A4.8 4.8 0 0 1 7.2 12c0-2.4 2-4.8 4.8-8z"/></svg>
+            <span style="font:500 11px/14px Inter,sans-serif">Agua</span>
+          </button>
+          <button onClick="{{ goMore }}" style="all:unset;cursor:pointer;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:{{ nav.more }}">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg>
+            <span style="font:500 11px/14px Inter,sans-serif">Más</span>
+          </button>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#FF6B5B&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#FF6B5B&quot;,&quot;#1D84B5&quot;,&quot;#109881&quot;],&quot;section&quot;:&quot;Marca&quot;}}">
+const LEAKS = [
+  {id:'l1',title:'Fuga en Av. Bolívar',sector:'Los Robles',muni:'Maneiro',status:'ACTIVE',ago:'Hace 3 horas',date:'Hoy, 06:10 AM',val:5,conf:2,x:46,y:40,desc:'Fuga constante frente a la entrada del edificio. El agua corre por toda la acera.'},
+  {id:'l2',title:'Fuga en la acera',sector:'Pampatar',muni:'Maneiro',status:'ACTIVE',ago:'Hace 5 horas',date:'Hoy, 04:20 AM',val:3,conf:1,x:63,y:48,desc:'Sale agua del brocal en la esquina, se acumula en la vía.'},
+  {id:'l3',title:'Tubería rota',sector:'La Caranta',muni:'Maneiro',status:'ACTIVE',ago:'Hace 7 horas',date:'Hoy, 02:05 AM',val:3,conf:0,x:56,y:30,desc:'Tubería rota en la vía principal, mucha agua en la calle.'},
+  {id:'l4',title:'Fuga frente al liceo',sector:'La Asunción',muni:'Arismendi',status:'ACTIVE',ago:'Hace 9 horas',date:'Ayer, 11:40 PM',val:2,conf:0,x:38,y:60,desc:'Chorro de agua desde la tubería de la acera, frente al liceo.'},
+  {id:'l5',title:'Fuga en la bomba',sector:'Juan Griego',muni:'Arismendi',status:'RESOLVED',ago:'Hace 1 día',date:'Ayer, 09:15 AM',val:5,conf:3,x:28,y:24,desc:'Fuga reparada por la cuadrilla del sector.'}
+];
+
+class Component extends DCLogic {
+  state = {
+    screen:'home', prev:'home', selId:'l1', filter:'Todas',
+    leaks: LEAKS.map(l => ({...l})),
+    step:1, photos:['Foto 1'], toast:'',
+    waterType:'arrived',
+    events:[
+      {id:'e1',type:'arrived',title:'El agua llegó en Los Robles',meta:'Hace 25 min · 4 personas lo confirmaron',c:4,done:false},
+      {id:'e2',type:'gone',title:'Se fue el agua en Pampatar',meta:'Hace 1 h · 7 personas lo confirmaron',c:7,done:false},
+      {id:'e3',type:'arrived',title:'El agua llegó en La Asunción',meta:'Hace 3 h · 12 personas lo confirmaron',c:12,done:false}
+    ],
+    notifs:[
+      {id:'n1',mark:'!',title:'Fuga cerca de tu sector',body:'Se detectó una fuga a 300 m de Los Robles.',time:'8 min',unread:true,kind:'alert'},
+      {id:'n2',mark:'✓',title:'Fuga resuelta',body:'La fuga de Los Robles fue marcada como resuelta.',time:'2 h',unread:true,kind:'ok'},
+      {id:'n3',mark:'≈',title:'Llegó el agua',body:'El agua llegó al sector La Asunción.',time:'5 h',unread:false,kind:'water'},
+      {id:'n4',mark:'+',title:'Nuevo reporte cerca de ti',body:'Un vecino reportó una fuga en Pampatar.',time:'1 d',unread:false,kind:'alert'}
+    ],
+    perms:{loc:true,cam:false,notif:false}
+  };
+
+  go = (s) => this.setState(st => ({screen:s, prev:st.screen}));
+  toast = (t) => {
+    this.setState({toast:t});
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({toast:''}), 2200);
+  };
+  componentWillUnmount(){ clearTimeout(this._t); }
+
+  renderVals() {
+    const s = this.state;
+    const sc = s.screen;
+    const accent = this.props.accentColor || '#FF6B5B';
+    const sel = s.leaks.find(l => l.id === s.selId) || s.leaks[0];
+
+    const dec = (l) => ({
+      ...l,
+      statusLabel: l.status === 'RESOLVED' ? 'Resuelta' : 'Activa',
+      statusFg: l.status === 'RESOLVED' ? '#15803D' : '#B42318',
+      statusBg: l.status === 'RESOLVED' ? '#DCFCE7' : '#FEE4E2',
+      dot: l.status === 'RESOLVED' ? '#22C55E' : '#EF4444',
+      place: l.sector + ' · ' + l.muni,
+      valText: l.val + ' validaciones',
+      open: () => this.setState(st => ({selId:l.id, screen:'detail', prev:st.screen}))
+    });
+
+    const all = s.leaks.map(dec);
+    const visible = s.filter === 'Activas' ? all.filter(l => l.status === 'ACTIVE')
+      : s.filter === 'Resueltas' ? all.filter(l => l.status === 'RESOLVED') : all;
+
+    const chip = (label) => {
+      const on = s.filter === label;
+      return {label, bg: on ? '#1D84B5' : '#fff', fg: on ? '#fff' : '#0F172A', bd: on ? '#1D84B5' : '#E2E8F0', set: () => this.setState({filter:label})};
+    };
+
+    const navC = (k) => (sc === k ? '#1D84B5' : '#94A3B8');
+    const stepLabels = ['Ubicación','Fotos','Datos','Enviar'];
+    const selD = dec(sel);
+    const conf = Math.min(sel.conf, 3);
+
+    const permDefs = [
+      {key:'loc',label:'Ubicación',why:'Usamos tu ubicación para ayudarte a reportar una fuga exactamente donde ocurre.'},
+      {key:'cam',label:'Cámara',why:'La foto ayuda a que otros vecinos reconozcan la fuga rápido.'},
+      {key:'notif',label:'Notificaciones',why:'Te avisamos cuando llega el agua o hay una fuga cerca de tu sector.'}
+    ];
+
+    return {
+      accent,
+      barBg: sc === 'home' ? '#0B3C5D' : (sc === 'detail' ? '#D6E7F1' : '#fff'),
+      barColor: sc === 'home' ? '#fff' : '#0F172A',
+
+      isHome: sc === 'home', isMap: sc === 'map', isList: sc === 'list', isDetail: sc === 'detail',
+      isReport: sc === 'report', isSent: sc === 'sent', isWater: sc === 'water', isHistory: sc === 'history',
+      isNotif: sc === 'notif', isMore: sc === 'more', isPerms: sc === 'perms', isStates: sc === 'states',
+      isCommunity: sc === 'community',
+      showNav: ['home','map','list','water','more'].indexOf(sc) >= 0,
+
+      community: {
+        activeCount: s.leaks.filter(l => l.status === 'ACTIVE').length,
+        resolvedCount: s.leaks.filter(l => l.status === 'RESOLVED').length,
+        chart: [
+          {d:'L',h:40,bg:'#1D84B5'},{d:'M',h:62,bg:'#1D84B5'},{d:'X',h:35,bg:'#1D84B5'},{d:'J',h:78,bg:'#1D84B5'},
+          {d:'V',h:54,bg:'#1D84B5'},{d:'S',h:90,bg:'#0B3C5D'},{d:'D',h:68,bg:'#1D84B5'}
+        ],
+        topContributors: [
+          {initials:'MR',name:'María R.',role:'Reportó 5 fugas',count:'23',avatarBg:'#109881'},
+          {initials:'JL',name:'José L.',role:'12 confirmaciones',count:'18',avatarBg:'#1D84B5'},
+          {initials:'CP',name:'Carlos P.',role:'8 fotos aportadas',count:'11',avatarBg:'#B42318'}
+        ]
+      },
+
+      goHome: () => this.go('home'), goMap: () => this.go('map'), goList: () => this.go('list'),
+      goWater: () => this.go('water'), goMore: () => this.go('more'),
+      goReport: () => this.setState(st => ({screen:'report', step:1, prev:st.screen})),
+      goCommunity: () => this.go('community'),
+      back: () => this.go(s.prev === s.screen ? 'home' : s.prev),
+
+      index: [
+        {n:'01',label:'Inicio',k:'home'},{n:'02',label:'Mapa',k:'map'},{n:'03',label:'Reportes',k:'list'},
+        {n:'04',label:'Detalle',k:'detail'},{n:'05',label:'Reportar',k:'report'},{n:'06',label:'Agua',k:'water'},
+        {n:'07',label:'Historial',k:'history'},{n:'08',label:'Notificaciones',k:'notif'},{n:'09',label:'Más',k:'more'},
+        {n:'10',label:'Permisos',k:'perms'},{n:'11',label:'Estados',k:'states'},{n:'12',label:'Comunidad',k:'community'}
+      ].map(i => ({...i,
+        bg: sc === i.k ? '#fff' : 'transparent',
+        fg: sc === i.k ? '#0B3C5D' : '#64748B',
+        go: () => this.go(i.k)
+      })),
+
+      filters: ['Todas','Activas','Resueltas'].map(chip),
+      visibleLeaks: visible,
+      activeLeaks: all.filter(l => l.status === 'ACTIVE'),
+      resolvedLeaks: all.filter(l => l.status === 'RESOLVED'),
+      pins: visible.map(l => ({...l, size: l.id === s.selId ? '20px' : '14px', pick: () => this.setState({selId:l.id})})),
+      hasSelection: true,
+      sel: {...selD, confText: conf + ' de 3 confirmaciones', confPct: Math.round(conf / 3 * 100)},
+      openSel: () => this.go('detail'),
+
+      validate: () => {
+        this.setState(st => ({leaks: st.leaks.map(l => l.id === st.selId ? {...l, val:l.val + 1} : l)}));
+        this.toast('Gracias, sumaste una validación');
+      },
+      resolve: () => {
+        this.setState(st => ({leaks: st.leaks.map(l => {
+          if (l.id !== st.selId) return l;
+          const c = l.conf + 1;
+          return {...l, conf:c, status: c >= 3 ? 'RESOLVED' : l.status};
+        })}));
+        const c = Math.min(sel.conf + 1, 3);
+        this.toast(c >= 3 ? 'Fuga marcada como resuelta' : 'Confirmación registrada: ' + c + ' de 3');
+      },
+
+      steps: stepLabels.map((label, i) => ({
+        label,
+        bar: i < s.step ? '#1D84B5' : '#E2E8F0',
+        fg: i < s.step ? '#0B3C5D' : '#94A3B8'
+      })),
+      step1: s.step === 1, step2: s.step === 2, step3: s.step === 3, step4: s.step === 4,
+      canGoBackStep: s.step > 1,
+      nextLabel: s.step === 4 ? 'Enviar reporte' : 'Continuar',
+      nextStep: () => {
+        if (s.step === 4) { this.go('sent'); return; }
+        this.setState({step: s.step + 1});
+      },
+      prevStep: () => this.setState({step: Math.max(1, s.step - 1)}),
+      submitReport: () => this.go('sent'),
+      photos: s.photos.map((label, i) => ({label, remove: () => this.setState(st => ({photos: st.photos.filter((_, j) => j !== i)}))})),
+      canAddPhoto: s.photos.length < 3,
+      addPhoto: () => this.setState(st => ({photos: st.photos.concat(['Foto ' + (st.photos.length + 1)])})),
+      photoHint: s.photos.length + ' de 3 fotos. Puedes agregar hasta tres.',
+      photoCount: s.photos.length + (s.photos.length === 1 ? ' foto' : ' fotos'),
+
+      arrivedBg: s.waterType === 'arrived' ? '#E7F6F2' : '#fff',
+      arrivedBd: s.waterType === 'arrived' ? '#109881' : '#E2E8F0',
+      goneBg: s.waterType === 'gone' ? '#F1F5F9' : '#fff',
+      goneBd: s.waterType === 'gone' ? '#64748B' : '#E2E8F0',
+      pickArrived: () => this.setState({waterType:'arrived'}),
+      pickGone: () => this.setState({waterType:'gone'}),
+      submitWater: () => this.toast('Registrado. Gracias por avisar a tu sector'),
+      waterEvents: s.events.map(e => ({
+        ...e,
+        mark: e.type === 'arrived' ? '≈' : '×',
+        iconBg: e.type === 'arrived' ? '#E7F6F2' : '#F1F5F9',
+        iconFg: e.type === 'arrived' ? '#109881' : '#64748B',
+        meta: e.done ? e.meta.replace(String(e.c - 1), String(e.c)) : e.meta,
+        btnLabel: e.done ? 'Confirmado' : 'Confirmar',
+        btnBg: e.done ? '#E7F6F2' : '#fff',
+        btnFg: e.done ? '#109881' : '#1D84B5',
+        btnBd: e.done ? '#BFE6DD' : '#CBE3EF',
+        confirm: () => {
+          if (e.done) return;
+          this.setState(st => ({events: st.events.map(x => x.id === e.id ? {...x, done:true, c:x.c + 1, meta:x.meta.replace(String(x.c) + ' personas', String(x.c + 1) + ' personas')} : x)}));
+          this.toast('Confirmado');
+        }
+      })),
+
+      notifications: s.notifs.map(n => ({
+        ...n,
+        bg: n.unread ? '#F1F8FB' : 'transparent',
+        titleFont: (n.unread ? '600 ' : '500 ') + '14px/20px Inter,sans-serif',
+        iconBg: n.kind === 'ok' ? '#DCFCE7' : n.kind === 'water' ? '#E7F6F2' : '#FEE4E2',
+        iconFg: n.kind === 'ok' ? '#15803D' : n.kind === 'water' ? '#109881' : '#B42318',
+        read: () => this.setState(st => ({notifs: st.notifs.map(x => x.id === n.id ? {...x, unread:false} : x)}))
+      })),
+
+      moreItems: [
+        {label:'Historial', k:'history'},
+        {label:'Comunidad', k:'community', badge:''},
+        {label:'Notificaciones', k:'notif', badge: s.notifs.filter(n => n.unread).length ? s.notifs.filter(n => n.unread).length + ' nuevas' : ''},
+        {label:'Permisos', k:'perms'},
+        {label:'Estados del sistema', k:'states'},
+        {label:'Privacidad', k:'more'},
+        {label:'Ayuda', k:'more'},
+        {label:'Acerca de Gota', k:'more'}
+      ].map(m => ({...m, badge:m.badge || '', go: () => this.go(m.k)})),
+
+      perms: permDefs.map(p => {
+        const on = s.perms[p.key];
+        return {...p,
+          state: on ? 'Permitido' : 'Sin permiso',
+          stateBg: on ? '#DCFCE7' : '#F1F5F9',
+          stateFg: on ? '#15803D' : '#64748B',
+          btnLabel: on ? 'Quitar permiso' : 'Permitir',
+          btnBg: on ? '#fff' : '#1D84B5',
+          btnFg: on ? '#64748B' : '#fff',
+          btnBd: on ? '#E2E8F0' : '#1D84B5',
+          toggle: () => this.setState(st => ({perms:{...st.perms, [p.key]: !st.perms[p.key]}}))
+        };
+      }),
+
+      nav: {home: navC('home'), map: navC('map'), water: navC('water'), more: navC('more')},
+      hasToast: !!s.toast,
+      toast: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
