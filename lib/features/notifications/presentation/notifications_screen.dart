@@ -4,12 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/gota_icon_tile.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../water/domain/water_event_type.dart';
 import '../domain/water_notification.dart';
 import 'notification_providers.dart';
 
 /// Bandeja de notificaciones del usuario (Sprint 06).
+///
+/// Sprint 09-UI: patrón de lista del prototipo §notif — icono en caja
+/// cuadrada teñida por tipo, punto de unread + título con peso diferenciado
+/// y fondo de superficie para las no leídas. Las acciones funcionales
+/// (marcado individual, marcar todas, paginación, pull-to-refresh) no
+/// cambian.
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
@@ -68,7 +75,7 @@ class NotificationsScreen extends ConsumerWidget {
           ref.read(notificationInboxControllerProvider.notifier).refresh(),
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         itemCount: items.length + (state.hasMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= items.length) {
@@ -101,21 +108,21 @@ class _EmptyInbox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.notifications_none,
-              size: 64,
+            const GotaIconTile(
+              icon: Icons.notifications_none,
+              size: 48,
               color: AppColors.textMuted,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             Text(
               'Aún no tienes notificaciones.',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               'Cuando haya avisos del servicio de agua en tu sector de '
               'interés aparecerán aquí.',
@@ -139,12 +146,13 @@ class _NotificationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final unread = notification.isUnread;
+    final arrived = notification.type == WaterEventType.arrived;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+        padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: unread
               ? AppColors.primary.withValues(alpha: 0.05)
@@ -153,38 +161,60 @@ class _NotificationTile extends StatelessWidget {
             color: unread ? AppColors.primary : AppColors.border,
             width: unread ? 1.5 : 1,
           ),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              notification.type == WaterEventType.arrived
-                  ? Icons.water_drop
-                  : Icons.water_drop_outlined,
-              color: notification.type == WaterEventType.arrived
-                  ? AppColors.success
-                  : AppColors.warning,
+            GotaIconTile(
+              icon: arrived ? Icons.water_drop : Icons.water_drop_outlined,
+              color: arrived ? AppColors.success : AppColors.warning,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    notification.title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: unread ? FontWeight.w700 : FontWeight.w400,
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          notification.title,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: unread
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                      if (unread) ...[
+                        const SizedBox(width: AppSpacing.sm),
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ],
+                      const Spacer(),
+                      Text(
+                        _formatDateTime(notification.eventTime),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.xs),
                   Text(
                     notification.body,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: AppColors.text,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
                   Text(
                     _subtitle(notification),
                     style: theme.textTheme.bodySmall,
@@ -201,8 +231,7 @@ class _NotificationTile extends StatelessWidget {
   String _subtitle(WaterNotification notification) {
     final place = <String>[
       if (notification.sectorName != null) notification.sectorName!,
-      if (notification.municipalityName != null)
-        notification.municipalityName!,
+      if (notification.municipalityName != null) notification.municipalityName!,
     ].join(' · ');
     final date = _formatDateTime(notification.eventTime);
     return place.isEmpty ? date : '$place · $date';
@@ -218,7 +247,7 @@ class _LoadMoreFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
       child: Center(
         child: isLoading
             ? const SizedBox(
@@ -226,10 +255,7 @@ class _LoadMoreFooter extends StatelessWidget {
                 height: 24,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : FilledButton.tonal(
-                onPressed: onPressed,
-                child: const Text('Cargar más'),
-              ),
+            : TextButton(onPressed: onPressed, child: const Text('Cargar más')),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/gota_icon_tile.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../domain/water_errors.dart';
 import '../domain/water_event.dart';
@@ -27,6 +28,11 @@ const waterLoadMoreProgressKey = Key('water-load-more-progress');
 /// comunitarios (docs/FUNCTIONAL_SPEC.md §10).
 ///
 /// Todo el contenido del historial y los contadores vienen del backend.
+///
+/// Sprint 09-UI: tarjetas de acción tipo selector del prototipo
+/// (superficie blanca + borde + icono teñido, sin bloques de color),
+/// resumen con jerarquía numérica y tiles de evento con icono en caja.
+/// Sin cambios funcionales.
 class WaterScreen extends ConsumerWidget {
   const WaterScreen({super.key});
 
@@ -89,40 +95,49 @@ class _WaterBody extends ConsumerWidget {
     final events = history.events.value ?? const <WaterEventSummary>[];
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
-        _ActionButton(
-          key: waterArrivedButtonKey,
-          label: WaterEventType.arrived.label,
-          icon: Icons.water_drop,
-          background: AppColors.primary,
-          onPressed: () => onRegister(WaterEventType.arrived),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: WaterEventCard(
+                key: waterArrivedButtonKey,
+                label: WaterEventType.arrived.label,
+                icon: Icons.water_drop,
+                tint: AppColors.success,
+                onTap: () => onRegister(WaterEventType.arrived),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: WaterEventCard(
+                key: waterLeftButtonKey,
+                label: WaterEventType.left.label,
+                icon: Icons.water_drop_outlined,
+                tint: AppColors.danger,
+                onTap: () => onRegister(WaterEventType.left),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
-        _ActionButton(
-          key: waterLeftButtonKey,
-          label: WaterEventType.left.label,
-          icon: Icons.water_drop_outlined,
-          background: AppColors.danger,
-          onPressed: () => onRegister(WaterEventType.left),
-        ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.xl),
         Text(
           WaterCopy.summaryTitle,
           style: Theme.of(context).textTheme.titleLarge,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpacing.sm),
         const _StatisticsCard(),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.xl),
         Text(
           WaterCopy.historyTitle,
           style: Theme.of(context).textTheme.titleLarge,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpacing.sm),
         if (events.isEmpty)
           const Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(AppSpacing.lg),
               child: Text(
                 WaterCopy.emptyList,
                 style: TextStyle(color: AppColors.textMuted, fontSize: 13),
@@ -132,15 +147,15 @@ class _WaterBody extends ConsumerWidget {
         else ...[
           for (final event in events)
             Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: WaterEventTile(event: event),
             ),
         ],
         if (history.hasMore) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: AppSpacing.xs),
           history.isLoadingMore
               ? const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
                   child: Center(
                     child: SizedBox(
                       key: waterLoadMoreProgressKey,
@@ -163,36 +178,50 @@ class _WaterBody extends ConsumerWidget {
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
+/// Tarjeta de acción del ciclo de agua (patrón prototipo §agua):
+/// superficie blanca con borde sutil, icono teñido arriba y etiqueta
+/// semibold debajo. Target táctil >= 48dp (alto 96dp).
+class WaterEventCard extends StatelessWidget {
+  const WaterEventCard({
     super.key,
     required this.label,
     required this.icon,
-    required this.background,
-    required this.onPressed,
+    required this.tint,
+    required this.onTap,
   });
 
   final String label;
   final IconData icon;
-  final Color background;
-  final VoidCallback onPressed;
+  final Color tint;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton.icon(
-        style: FilledButton.styleFrom(
-          backgroundColor: background,
-          foregroundColor: Colors.white,
-          minimumSize: const Size.fromHeight(52),
-          shape: RoundedRectangleBorder(
+    return Card(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Container(
+          height: 96,
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GotaIconTile(icon: icon, color: tint),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+                maxLines: 2,
+              ),
+            ],
           ),
         ),
-        icon: Icon(icon),
-        label: Text(label, style: const TextStyle(fontSize: 16)),
-        onPressed: onPressed,
       ),
     );
   }
@@ -200,6 +229,9 @@ class _ActionButton extends StatelessWidget {
 
 /// Tarjeta de resumen con estadísticas DESCRIPTIVAS sobre los eventos
 /// cargados (REQ-077: sin predicción).
+///
+/// Sprint 09-UI: pareja ficha izquierda/derecha con divisor vertical,
+/// usando la jerarquía del prototipo (valor acentuado + caption).
 class _StatisticsCard extends ConsumerWidget {
   const _StatisticsCard();
 
@@ -210,7 +242,7 @@ class _StatisticsCard extends ConsumerWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -219,7 +251,7 @@ class _StatisticsCard extends ConsumerWidget {
               '${WaterCopy.totalArrivals}: ${stats.arrivedCount}',
               '${WaterCopy.totalDepartures}: ${stats.leftCount}',
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             _statRow(
               context,
               '${WaterCopy.lastArrival}: '
@@ -227,7 +259,7 @@ class _StatisticsCard extends ConsumerWidget {
               '${WaterCopy.lastDeparture}: '
                   '${stats.lastDeparture == null ? '—' : describeWaterEventTime(stats.lastDeparture!, now: now)}',
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             _statRow(
               context,
               '${WaterCopy.averageSupply}: '
@@ -244,9 +276,24 @@ class _StatisticsCard extends ConsumerWidget {
   Widget _statRow(BuildContext context, String left, String right) {
     final style = const TextStyle(fontSize: 13, color: AppColors.text);
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(child: Text(left, style: style)),
-        Expanded(child: Text(right, style: style)),
+        Expanded(
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 1,
+                  color: AppColors.border,
+                  margin: const EdgeInsets.only(right: AppSpacing.md),
+                ),
+                Expanded(child: Text(right, style: style)),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -254,6 +301,10 @@ class _StatisticsCard extends ConsumerWidget {
 
 /// Tile de un evento en el historial: entrada al detalle, donde vive la
 /// validación comunitaria.
+///
+/// Sprint 09-UI: icono en caja cuadrada teñida (patrón prototipo §agua),
+/// jerarquía fecha/hora/sector y comentario recortado. Copia centralizada
+/// en [WaterCopy] — no se inventan textos.
 class WaterEventTile extends StatelessWidget {
   const WaterEventTile({super.key, required this.event});
 
@@ -277,16 +328,15 @@ class WaterEventTile extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                arrived ? Icons.water_drop : Icons.water_drop_outlined,
-                color: arrived ? AppColors.primary : AppColors.danger,
-                size: 28,
+              GotaIconTile(
+                icon: arrived ? Icons.water_drop : Icons.water_drop_outlined,
+                color: arrived ? AppColors.success : AppColors.danger,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,7 +345,7 @@ class WaterEventTile extends StatelessWidget {
                       event.type.label,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.xs),
                     Text(
                       '${describeWaterEventTime(event.eventTime, now: DateTime.now())} '
                       '· ${WaterCopy.validationCount(event.validationCount)}',
@@ -315,7 +365,7 @@ class WaterEventTile extends StatelessWidget {
                       ),
                     ],
                     if (event.comment != null && event.comment!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.xs),
                       Text(
                         event.comment!,
                         maxLines: 2,

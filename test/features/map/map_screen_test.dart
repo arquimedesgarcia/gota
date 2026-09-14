@@ -11,7 +11,11 @@ import 'package:gota/features/map/domain/map_filter.dart';
 import 'package:gota/features/map/presentation/map_screen.dart';
 import 'package:gota/features/map/presentation/map_providers.dart';
 import 'package:gota/features/map/presentation/widgets/gota_map_view.dart'
-    show gotaMapContainerKey, LatLngBounds, mapMarkerKey, mapWidgetBuilderProvider;
+    show
+        gotaMapContainerKey,
+        LatLngBounds,
+        mapMarkerKey,
+        mapWidgetBuilderProvider;
 
 class _MockLeakCommunityRepository extends Mock
     implements LeakCommunityRepository {}
@@ -279,7 +283,14 @@ void main() {
       await tester.tap(find.byKey(mapFilterMenuKey));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Activas'));
+      // Sprint 09-UI: los chips de la superficie y los ítems del popup
+      // comparten texto; el tap se limita al ítem del popup para desambiguar.
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PopupMenuItem<MapFilterType>),
+          matching: find.text('Activas'),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Verify the filter was applied by checking repository was called with status=ACTIVE
@@ -297,31 +308,32 @@ void main() {
       ).called(1);
     });
 
-    testWidgets('filtro Mi sector sin sector ni ubicación retorna vacío con mensaje específico', (
-      tester,
-    ) async {
-      await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
+    testWidgets(
+      'filtro Mi sector sin sector ni ubicación retorna vacío con mensaje específico',
+      (tester) async {
+        await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
 
-      await tester.tap(find.byKey(mapFilterMenuKey));
-      await tester.pumpAndSettle();
+        await tester.tap(find.byKey(mapFilterMenuKey));
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Mi sector'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Mi sector'));
+        await tester.pumpAndSettle();
 
-      expect(find.byKey(mapEmptyStateKey), findsOneWidget);
-      expect(
-        find.text('Configura tu sector'),
-        findsOneWidget,
-        reason: 'debe mostrar título específico para Mi sector',
-      );
-      expect(
-        find.text(
-          'Para usar el filtro "Mi sector", establece tu sector desde tu perfil.',
-        ),
-        findsOneWidget,
-        reason: 'debe mostrar descripción específica para Mi sector',
-      );
-    });
+        expect(find.byKey(mapEmptyStateKey), findsOneWidget);
+        expect(
+          find.text('Configura tu sector'),
+          findsOneWidget,
+          reason: 'debe mostrar título específico para Mi sector',
+        );
+        expect(
+          find.text(
+            'Para usar el filtro "Mi sector", establece tu sector desde tu perfil.',
+          ),
+          findsOneWidget,
+          reason: 'debe mostrar descripción específica para Mi sector',
+        );
+      },
+    );
 
     testWidgets('filtro Más validadas usa orderBy validated', (tester) async {
       await _pumpMapScreen(
@@ -352,16 +364,19 @@ void main() {
     testWidgets('filtro Recientes usa orderBy recent sin filtro de estado', (
       tester,
     ) async {
-      await _pumpMapScreen(
-        tester,
-        repository,
-        reports: [_summary(id: 'r1')],
-      );
+      await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
 
       // Cambia a Resueltas para que el estado del provider sea distinto.
       await tester.tap(find.byKey(mapFilterMenuKey));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Resueltas'));
+      // Sprint 09-UI: los chips de la superficie y los ítems del popup
+      // comparten texto; el tap se limita al ítem del popup para desambiguar.
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PopupMenuItem<MapFilterType>),
+          matching: find.text('Resueltas'),
+        ),
+      );
       await tester.pumpAndSettle();
 
       // Resetea el contador de invocaciones del mock para aislar la siguiente llamada.
@@ -381,7 +396,12 @@ void main() {
 
       await tester.tap(find.byKey(mapFilterMenuKey));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Recientes'));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(PopupMenuItem<MapFilterType>),
+          matching: find.text('Recientes'),
+        ),
+      );
       await tester.pumpAndSettle();
 
       verify(
@@ -398,36 +418,33 @@ void main() {
       ).called(1);
     });
 
-    testWidgets('filtro Mi sector con sector preseleccionado filtra por sectorId', (
-      tester,
-    ) async {
-      await _pumpMapScreen(
-        tester,
-        repository,
-        reports: [_summary(id: 'r1')],
-      );
+    testWidgets(
+      'filtro Mi sector con sector preseleccionado filtra por sectorId',
+      (tester) async {
+        await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
 
-      // Establece el sector vía el notifier (equivale a que el usuario lo haya
-      // seleccionado en un paso previo de la UI).
-      final element = tester.element(find.byType(MapScreen));
-      ProviderScope.containerOf(element)
-          .read(mapFilterProvider.notifier)
-          .setSectorId('sector-abc');
-      await tester.pumpAndSettle();
+        // Establece el sector vía el notifier (equivale a que el usuario lo haya
+        // seleccionado en un paso previo de la UI).
+        final element = tester.element(find.byType(MapScreen));
+        ProviderScope.containerOf(element)
+            .read(mapFilterProvider.notifier)
+            .setSectorId('sector-abc');
+        await tester.pumpAndSettle();
 
-      verify(
-        () => repository.mapReports(
-          status: any(named: 'status'),
-          sectorId: 'sector-abc',
-          minLat: any(named: 'minLat'),
-          minLng: any(named: 'minLng'),
-          maxLat: any(named: 'maxLat'),
-          maxLng: any(named: 'maxLng'),
-          orderBy: any(named: 'orderBy'),
-          limit: any(named: 'limit'),
-        ),
-      ).called(greaterThanOrEqualTo(1));
-    });
+        verify(
+          () => repository.mapReports(
+            status: any(named: 'status'),
+            sectorId: 'sector-abc',
+            minLat: any(named: 'minLat'),
+            minLng: any(named: 'minLng'),
+            maxLat: any(named: 'maxLat'),
+            maxLng: any(named: 'maxLng'),
+            orderBy: any(named: 'orderBy'),
+            limit: any(named: 'limit'),
+          ),
+        ).called(greaterThanOrEqualTo(1));
+      },
+    );
 
     testWidgets('tocar marker en modo mapa desencadena navegación al detalle', (
       tester,
