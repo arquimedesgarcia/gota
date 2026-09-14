@@ -72,7 +72,7 @@ iOS debe mantenerse compatible desde arquitectura, pero su release puede venir d
 
 ### Build de release (Sprint 08)
 
-1. **Signing:** el build de release usa `android/key.properties` (`storeFile`, `keyAlias`, `storePassword`, `keyPassword`) si existe; en su ausencia firma con la clave de debug, así el build sigue siendo reproducible desde un clon limpio. Generar el keystore con `keytool` y crear `key.properties` solo en máquinas de release (ambos ignorados por Git).
+1. **Signing:** el build de release usa `android/key.properties` (`storeFile`, `keyAlias`, `storePassword`, `keyPassword`) si existe; en su ausencia firma con la clave de debug, lo que permite compilar desde un clon limpio, pero no constituye un artefacto de release reproducible ni apto para distribución. Generar el keystore con `keytool` y crear `key.properties` solo en máquinas de release (ambos ignorados por Git).
 2. **Firebase:** para que el APK tenga FCM, colocar `google-services.json` en `android/app/` antes de compilar (ignorado por Git). Sin él la app compila y funciona sin push.
 3. **Comando:**
 

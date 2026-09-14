@@ -391,6 +391,9 @@ end $$;
 -- =====================================================================
 -- 4. RPC confirm_leak_resolution (umbral 3, REQ-053)
 -- =====================================================================
+-- La lectura directa de system_config es interna (migración 00027, AUD-S08-04:
+-- el cliente ya no tiene grant; solo el owner/postgres lee la tabla).
+set local role postgres;
 do $$
 declare v jsonb; begin
   select value into v from public.system_config where key = 'resolution';
@@ -398,6 +401,7 @@ declare v jsonb; begin
     'FALLO 4-0: el umbral configurado no es 3: ' || v::text;
   raise notice 'OK 4-0: umbral de resolución configurado = 3';
 end $$;
+set local role authenticated;
 
 -- 4a. Sin identidad → UNAUTHORIZED.
 set request.jwt.claims = '{"role": "authenticated", "aud": "authenticated"}';

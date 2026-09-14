@@ -91,6 +91,10 @@ cleanup() {
   fi
   # auth.users: borrado directo (cascada sobre app_users), como en
   # community_concurrency_e2e.sh; las cadenas vacías no coinciden con nada.
+  # La auditoría de estas identidades se borra aparte: audit_events no tiene
+  # FK y quedaría como residuo (AUD-S08-06).
+  psql_db -c "delete from public.audit_events where user_id in
+              ('${U_CREATOR:-}','${U_VAL1:-}','${U_VAL2:-}','${U_VAL3:-}');" >/dev/null
   psql_db -c "delete from auth.users where id in
               ('${U_CREATOR:-}','${U_VAL1:-}','${U_VAL2:-}','${U_VAL3:-}');" >/dev/null
 }

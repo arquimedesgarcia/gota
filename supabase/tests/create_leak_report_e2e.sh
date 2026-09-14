@@ -99,6 +99,13 @@ cleanup() {
                 select id from public.reports where sector_id = '$SECTOR_ID');" >/dev/null
   psql_db -c "delete from public.reports where sector_id = '$SECTOR_ID';" >/dev/null
   psql_db -c "delete from public.sectors where id = '$SECTOR_ID';" >/dev/null
+  # Higiene (AUD-S08-06): auditoría del usuario (audit_events no tiene FK)
+  # y el propio auth.users (cascada sobre app_users/rate_limit_tracking),
+  # con el mismo mecanismo admin de community_*_e2e.sh.
+  if [ -n "${USER_ID:-}" ]; then
+    psql_db -c "delete from public.audit_events where user_id = '$USER_ID';" >/dev/null
+    psql_db -c "delete from auth.users where id = '$USER_ID';" >/dev/null
+  fi
 }
 trap cleanup EXIT
 
