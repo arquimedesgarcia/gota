@@ -4,6 +4,7 @@ import '../../leaks/data/geolocator_location_service.dart';
 import '../../leaks/data/leak_community_repository.dart';
 import '../../leaks/data/location_service.dart';
 import '../../leaks/domain/leak_community.dart';
+import '../../leaks/domain/leak_errors.dart';
 import '../domain/map_filter.dart';
 
 /// Coordenadas por defecto (centro de Isla de Margarita / Nueva Esparta).
@@ -193,20 +194,24 @@ class MapLocationAction {
   MapLocationAction(this._ref);
 
   final Ref _ref;
+  String? lastError;
 
   LocationService get _locationService => _ref.read(locationServiceProvider);
 
   /// Intenta obtener la posición una sola vez para centrar el mapa (§13).
   Future<({double latitude, double longitude})?> locateUser() async {
+    lastError = null;
     try {
       final pos = await _locationService.getCurrentPosition();
       _ref
           .read(mapFilterProvider.notifier)
           .setUserLocation(pos.latitude, pos.longitude);
       return pos;
+    } on LeakFlowException catch (error) {
+      lastError = error.userMessage;
+      return null;
     } on Exception {
-      // Cubre LocationPermissionDeniedException, LocationServiceOffException,
-      // LocationUnavailableException y cualquier fallo del proveedor (§13/§14).
+      lastError = 'No pudimos obtener tu ubicación. Intenta de nuevo.';
       return null;
     }
   }

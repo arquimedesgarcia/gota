@@ -111,6 +111,31 @@ void main() {
     expect(find.text('Ubicación por GPS'), findsNothing);
   });
 
+  testWidgets('GPS apagado muestra feedback visible', (tester) async {
+    await tester.pumpWidget(
+      _app(gpsError: const LocationServiceOffException()),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Usar mi ubicación (GPS)'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('GPS parece estar apagado'), findsOneWidget);
+  });
+
+  testWidgets('ubicación no disponible muestra feedback visible', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _app(gpsError: const LocationUnavailableException()),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Usar mi ubicación (GPS)'));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('No pudimos obtener tu ubicación'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('manual: la fuente visible es "Ubicación manual"', (
     tester,
   ) async {

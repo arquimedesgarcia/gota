@@ -7,6 +7,7 @@ import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/gota_icon_tile.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../water/domain/water_event_type.dart';
+import '../../water/presentation/water_event_detail_screen.dart';
 import '../domain/water_notification.dart';
 import 'notification_providers.dart';
 
@@ -89,11 +90,20 @@ class NotificationsScreen extends ConsumerWidget {
           final notification = items[index];
           return _NotificationTile(
             notification: notification,
-            onTap: notification.isUnread
-                ? () => ref
-                      .read(notificationInboxControllerProvider.notifier)
-                      .markRead(notification.id)
-                : null,
+            onTap: () async {
+              if (notification.isUnread) {
+                await ref
+                    .read(notificationInboxControllerProvider.notifier)
+                    .markRead(notification.id);
+              }
+              if (!context.mounted || notification.eventId == null) return;
+              await Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      WaterEventDetailScreen(eventId: notification.eventId!),
+                ),
+              );
+            },
           );
         },
       ),

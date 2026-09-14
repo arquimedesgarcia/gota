@@ -446,7 +446,7 @@ void main() {
       },
     );
 
-    testWidgets('tocar marker en modo mapa desencadena navegación al detalle', (
+    testWidgets('tocar marker muestra tarjeta y permite ver detalle', (
       tester,
     ) async {
       final observer = _MockNavigatorObserver();
@@ -456,13 +456,16 @@ void main() {
         observer,
         reports: [_summary(id: 'r1')],
       );
-
-      // MaterialApp empuja la ruta inicial; reset para aislar el tap del marker.
       clearInteractions(observer);
 
       await tester.tap(find.byKey(mapMarkerKey('r1')));
-      await tester.pump();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('map-selection-card')), findsOneWidget);
+      expect(find.text('Ver detalle'), findsOneWidget);
+      verifyNever(() => observer.didPush(any(), any()));
 
+      await tester.tap(find.byKey(const Key('map-view-detail-button')));
+      await tester.pump();
       verify(() => observer.didPush(any(), any())).called(1);
     });
 

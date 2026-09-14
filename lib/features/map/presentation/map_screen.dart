@@ -95,17 +95,26 @@ class MapScreen extends ConsumerWidget {
                           ref
                               .read(selectedMarkerProvider.notifier)
                               .select(leak);
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) =>
-                                  LeakDetailScreen(reportId: leak.id),
-                            ),
-                          );
                         },
                         centerLat: filterState.userLatitude,
                         centerLng: filterState.userLongitude,
                       ),
                       const _MapLegend(),
+                      if (selectedLeak != null)
+                        Positioned(
+                          left: AppSpacing.lg,
+                          right: AppSpacing.lg,
+                          bottom: AppSpacing.lg,
+                          child: _SelectedLeakCard(
+                            leak: selectedLeak,
+                            onViewDetail: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) =>
+                                    LeakDetailScreen(reportId: selectedLeak.id),
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                   MapViewMode.list => _MapListView(
@@ -308,6 +317,50 @@ class _LocateButton extends ConsumerWidget {
         await action.locateUser();
       },
       child: const Icon(Icons.my_location),
+    );
+  }
+}
+
+class _SelectedLeakCard extends StatelessWidget {
+  const _SelectedLeakCard({required this.leak, required this.onViewDetail});
+
+  final LeakSummary leak;
+  final VoidCallback onViewDetail;
+
+  @override
+  Widget build(BuildContext context) {
+    final place = [
+      if (leak.sectorName != null) leak.sectorName!,
+      if (leak.municipalityName != null) leak.municipalityName!,
+    ].join(' · ');
+    return Card(
+      key: const Key('map-selection-card'),
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    place.isEmpty ? 'Reporte de fuga' : place,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(leak.isResolved ? 'Resuelta' : 'Activa'),
+                ],
+              ),
+            ),
+            TextButton(
+              key: const Key('map-view-detail-button'),
+              onPressed: onViewDetail,
+              child: const Text('Ver detalle'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

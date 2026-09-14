@@ -12,6 +12,7 @@ class WaterNotification {
     required this.createdAt,
     this.readAt,
     required this.eventTime,
+    this.eventId,
     this.sectorName,
     this.municipalityName,
   });
@@ -23,6 +24,7 @@ class WaterNotification {
   final DateTime createdAt;
   final DateTime? readAt;
   final DateTime eventTime;
+  final String? eventId;
   final String? sectorName;
   final String? municipalityName;
 
@@ -36,6 +38,7 @@ class WaterNotification {
     createdAt: createdAt,
     readAt: readAt ?? this.readAt,
     eventTime: eventTime,
+    eventId: eventId,
     sectorName: sectorName,
     municipalityName: municipalityName,
   );
@@ -55,6 +58,7 @@ class WaterNotification {
       createdAt: _parseDate(json['created_at']) ?? DateTime.now(),
       readAt: _parseDate(json['read_at']),
       eventTime: _parseDate(event?['event_time']) ?? DateTime.now(),
+      eventId: event?['id'] as String?,
       sectorName: sector?['name'] as String?,
       municipalityName: municipality?['name'] as String?,
     );

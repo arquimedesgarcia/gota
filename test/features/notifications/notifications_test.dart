@@ -27,6 +27,7 @@ WaterNotification _notification({
   required String id,
   WaterEventType type = WaterEventType.arrived,
   bool unread = true,
+  String? eventId,
 }) => WaterNotification(
   id: id,
   type: type,
@@ -35,6 +36,7 @@ WaterNotification _notification({
   createdAt: DateTime(2026, 9, 12, 10),
   readAt: unread ? null : DateTime(2026, 9, 12, 11),
   eventTime: DateTime(2026, 9, 12, 9, 55),
+  eventId: eventId,
   sectorName: 'Centro',
   municipalityName: 'Maneiro',
 );
@@ -167,7 +169,10 @@ void main() {
   group('NotificationInboxController', () {
     test('carga inicial: inbox con datos y conteo de no leídas', () async {
       final repo = _FakeNotificationRepository(
-        inbox: [_notification(id: 'n1'), _notification(id: 'n2', unread: false)],
+        inbox: [
+          _notification(id: 'n1'),
+          _notification(id: 'n2', unread: false),
+        ],
       );
       final container = ProviderContainer(
         overrides: [
@@ -215,7 +220,10 @@ void main() {
       addTearDown(failingContainer.dispose);
       await _waitForInbox(failingContainer);
       expect(
-        failingContainer.read(notificationInboxControllerProvider).items.hasError,
+        failingContainer
+            .read(notificationInboxControllerProvider)
+            .items
+            .hasError,
         isTrue,
       );
     });
@@ -248,35 +256,87 @@ void main() {
     });
   });
 
+  testWidgets('tap marca leída y navega solo al Water Event válido', (
+    tester,
+  ) async {
+    final repo = _FakeNotificationRepository(
+      inbox: [_notification(id: 'n1', eventId: 'event-42')],
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          notificationRepositoryProvider.overrideWithValue(repo),
+          sessionBootstrapProvider.overrideWith(
+            (ref) async => _sessionUserValue,
+          ),
+          waterEventRepositoryProvider.overrideWithValue(
+            _FakeWaterRepository(),
+          ),
+        ],
+        child: const MaterialApp(home: NotificationsScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Llegó el agua'));
+    await tester.pumpAndSettle();
+    expect(repo.readIds, ['n1']);
+    expect(find.byType(WaterEventDetailScreen), findsOneWidget);
+  });
+
+  testWidgets('tap sin destino conserva la bandeja y no inventa navegación', (
+    tester,
+  ) async {
+    final repo = _FakeNotificationRepository(inbox: [_notification(id: 'n2')]);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          notificationRepositoryProvider.overrideWithValue(repo),
+          sessionBootstrapProvider.overrideWith(
+            (ref) async => _sessionUserValue,
+          ),
+        ],
+        child: const MaterialApp(home: NotificationsScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Llegó el agua'));
+    await tester.pumpAndSettle();
+    expect(repo.readIds, ['n2']);
+    expect(find.byType(NotificationsScreen), findsOneWidget);
+    expect(find.byType(WaterEventDetailScreen), findsNothing);
+  });
+
   group('NotificationPreferencesController', () {
-    test('seleccionar, quitar sector y toggle ON/OFF conservan la regla 0..1',
-        () async {
-      final repo = _FakeNotificationRepository();
-      final container = ProviderContainer(
-        overrides: [notificationRepositoryProvider.overrideWithValue(repo)],
-      );
-      addTearDown(container.dispose);
-      await _waitForPreferences(container);
+    test(
+      'seleccionar, quitar sector y toggle ON/OFF conservan la regla 0..1',
+      () async {
+        final repo = _FakeNotificationRepository();
+        final container = ProviderContainer(
+          overrides: [notificationRepositoryProvider.overrideWithValue(repo)],
+        );
+        addTearDown(container.dispose);
+        await _waitForPreferences(container);
 
-      await container
-          .read(notificationPreferencesControllerProvider.notifier)
-          .selectSector('sector-x');
-      expect(repo.savedPreferences.last, ('sector-x', false));
+        await container
+            .read(notificationPreferencesControllerProvider.notifier)
+            .selectSector('sector-x');
+        expect(repo.savedPreferences.last, ('sector-x', false));
 
-      await container
-          .read(notificationPreferencesControllerProvider.notifier)
-          .setWaterNotificationsEnabled(true);
-      expect(repo.savedPreferences.last, ('sector-x', true));
+        await container
+            .read(notificationPreferencesControllerProvider.notifier)
+            .setWaterNotificationsEnabled(true);
+        expect(repo.savedPreferences.last, ('sector-x', true));
 
-      await container
-          .read(notificationPreferencesControllerProvider.notifier)
-          .clearSector();
-      expect(repo.savedPreferences.last, (null, true));
+        await container
+            .read(notificationPreferencesControllerProvider.notifier)
+            .clearSector();
+        expect(repo.savedPreferences.last, (null, true));
 
-      final state = container.read(notificationPreferencesControllerProvider);
-      expect(state.value!.preferredSectorId, isNull);
-      expect(state.value!.waterNotificationsEnabled, isTrue);
-    });
+        final state = container.read(notificationPreferencesControllerProvider);
+        expect(state.value!.preferredSectorId, isNull);
+        expect(state.value!.waterNotificationsEnabled, isTrue);
+      },
+    );
 
     test('fallo de guardado: saveError expuesto y estado revertido', () async {
       final repo = _FakeNotificationRepository();
@@ -304,7 +364,9 @@ void main() {
       expect(controller.saveError, isA<QueryException>());
       // El estado conserva el dato previo (sector-x), no el fallido.
       expect(
-        container.read(notificationPreferencesControllerProvider).value!
+        container
+            .read(notificationPreferencesControllerProvider)
+            .value!
             .preferredSectorId,
         'sector-x',
       );
@@ -312,8 +374,9 @@ void main() {
   });
 
   group('Push: registro de token y navegación', () {
-    testWidgets('background: tap push navega al Water Event (water_event_id)',
-        (tester) async {
+    testWidgets('background: tap push navega al Water Event (water_event_id)', (
+      tester,
+    ) async {
       final push = _FakePushService();
       final notifications = _FakeNotificationRepository();
       await _pumpApp(tester, push, notifications);
@@ -323,15 +386,16 @@ void main() {
 
       expect(find.byType(WaterEventDetailScreen), findsOneWidget);
       expect(
-        tester.widget<WaterEventDetailScreen>(
-          find.byType(WaterEventDetailScreen),
-        ).eventId,
+        tester
+            .widget<WaterEventDetailScreen>(find.byType(WaterEventDetailScreen))
+            .eventId,
         'event-42',
       );
     });
 
-    testWidgets('terminated: getInitialMessage navega al Water Event',
-        (tester) async {
+    testWidgets('terminated: getInitialMessage navega al Water Event', (
+      tester,
+    ) async {
       final push = _FakePushService()
         ..initialMessage = _messageWith(waterEventId: 'event-77');
       final notifications = _FakeNotificationRepository();
@@ -385,7 +449,8 @@ final _sessionUserValue = AppUser(
 RemoteMessage _messageWith({String? waterEventId}) => RemoteMessage(
   data: {
     'water_event_id': ?waterEventId,
-    'notification_id': 'n1',    'type': 'WATER_ARRIVED',
+    'notification_id': 'n1',
+    'type': 'WATER_ARRIVED',
   },
 );
 
