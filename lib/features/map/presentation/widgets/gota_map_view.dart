@@ -145,23 +145,29 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
   final Map<Circle, LeakSummary> _circleToLeak = {};
   double? _lastCenteredLat;
   double? _lastCenteredLng;
+  bool _mapCreated = false;
+  bool _styleLoaded = false;
 
   void _onMapCreated(MapLibreMapController controller) {
     _controller = controller;
+    _mapCreated = false;
+    _styleLoaded = false;
     controller.onCircleTapped.add((circle) {
       final leak = _circleToLeak[circle];
       if (leak != null) {
         widget.onMarkerTapped(leak);
       }
     });
-    _updateMarkers();
+    _mapCreated = true;
   }
 
   void _onStyleLoaded() {
+    _styleLoaded = true;
     _updateMarkers();
   }
 
   void _onCameraIdle() {
+    if (!_mapCreated || !_styleLoaded) return;
     // Captura los límites visibles cuando la cámara está en reposo (Sprint 05).
     _controller?.getVisibleRegion().then((region) {
       if (widget.onBoundsChanged != null) {
@@ -202,6 +208,7 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
   Future<void> _animateToNewCenter(double lat, double lng) async {
     final c = _controller;
     if (c == null) return;
+    if (!_mapCreated || !_styleLoaded) return;
     if (lat == _lastCenteredLat && lng == _lastCenteredLng) return;
 
     try {
@@ -227,6 +234,7 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
   Future<void> _updateMarkers() async {
     final c = _controller;
     if (c == null) return;
+    if (!_mapCreated || !_styleLoaded) return;
 
     try {
       await c.clearCircles();
@@ -264,6 +272,13 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
     final g = (color.g * 255).toInt().toRadixString(16).padLeft(2, '0');
     final b = (color.b * 255).toInt().toRadixString(16).padLeft(2, '0');
     return '#$r$g$b';
+  }
+
+  @override
+  void dispose() {
+    _mapCreated = false;
+    _styleLoaded = false;
+    super.dispose();
   }
 
   @override
