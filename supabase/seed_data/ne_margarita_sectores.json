@@ -1,0 +1,1917 @@
+{
+  "estado": "Nueva Esparta",
+  "municipios": [
+    {
+      "codigo_ine": "1701",
+      "nombre": "Antolín del Campo",
+      "capital": "La Plaza de Paraguachí",
+      "sectores": [
+        {
+          "nombre": "Aricagua",
+          "osm_place": "town",
+          "lat": 11.122755,
+          "lon": -63.861554
+        },
+        {
+          "nombre": "Casco Central",
+          "osm_place": "neighbourhood",
+          "lat": 11.118401,
+          "lon": -63.847346
+        },
+        {
+          "nombre": "Cimarrón",
+          "osm_place": "neighbourhood",
+          "lat": 11.121897,
+          "lon": -63.857506
+        },
+        {
+          "nombre": "El Barrero",
+          "osm_place": "neighbourhood",
+          "lat": 11.094029,
+          "lon": -63.865274
+        },
+        {
+          "nombre": "El Cardón",
+          "osm_place": "town",
+          "lat": 11.103589,
+          "lon": -63.846505
+        },
+        {
+          "nombre": "El Portachuelo",
+          "osm_place": "neighbourhood",
+          "lat": 11.077368,
+          "lon": -63.848001
+        },
+        {
+          "nombre": "El Rincón",
+          "osm_place": "village",
+          "lat": 11.066328,
+          "lon": -63.858311
+        },
+        {
+          "nombre": "El Salado",
+          "osm_place": "town",
+          "lat": 11.081996,
+          "lon": -63.863924
+        },
+        {
+          "nombre": "El Tirano",
+          "osm_place": "town",
+          "lat": 11.115588,
+          "lon": -63.85151
+        },
+        {
+          "nombre": "El Toco",
+          "osm_place": "quarter",
+          "lat": 11.130066,
+          "lon": -63.874941
+        },
+        {
+          "nombre": "Guarame",
+          "osm_place": "town",
+          "lat": 11.076475,
+          "lon": -63.835989
+        },
+        {
+          "nombre": "Güirigüire",
+          "osm_place": "neighbourhood",
+          "lat": 11.097925,
+          "lon": -63.868482
+        },
+        {
+          "nombre": "La Estancia",
+          "osm_place": "neighbourhood",
+          "lat": 11.096704,
+          "lon": -63.876357
+        },
+        {
+          "nombre": "La Fuente",
+          "osm_place": "village",
+          "lat": 11.071216,
+          "lon": -63.859627
+        },
+        {
+          "nombre": "La Mira",
+          "osm_place": "town",
+          "lat": 11.138828,
+          "lon": -63.869203
+        },
+        {
+          "nombre": "La Plaza Paraguachí",
+          "osm_place": "town",
+          "lat": 11.096427,
+          "lon": -63.86299
+        },
+        {
+          "nombre": "La Polvorosa",
+          "osm_place": "village",
+          "lat": 11.079571,
+          "lon": -63.855216
+        },
+        {
+          "nombre": "La Rinconada",
+          "osm_place": "neighbourhood",
+          "lat": 11.094177,
+          "lon": -63.887601
+        },
+        {
+          "nombre": "La Rumencito",
+          "osm_place": "neighbourhood",
+          "lat": 11.072503,
+          "lon": -63.829397
+        },
+        {
+          "nombre": "La Sabana",
+          "osm_place": "neighbourhood",
+          "lat": 11.123581,
+          "lon": -63.869534
+        },
+        {
+          "nombre": "Las Flandes",
+          "osm_place": "village",
+          "lat": 11.086744,
+          "lon": -63.854739
+        },
+        {
+          "nombre": "Los Colorados",
+          "osm_place": "village",
+          "lat": 11.167945,
+          "lon": -63.880085
+        },
+        {
+          "nombre": "Los Ranchos de Chana",
+          "osm_place": "quarter",
+          "lat": 11.086591,
+          "lon": -63.83257
+        },
+        {
+          "nombre": "Manzanillo",
+          "osm_place": "town",
+          "lat": 11.15423,
+          "lon": -63.885587
+        },
+        {
+          "nombre": "Pachaco",
+          "osm_place": "neighbourhood",
+          "lat": 11.158035,
+          "lon": -63.887032
+        },
+        {
+          "nombre": "Playa Cardón",
+          "osm_place": "neighbourhood",
+          "lat": 11.106511,
+          "lon": -63.843151
+        },
+        {
+          "nombre": "Playa El Agua",
+          "osm_place": "town",
+          "lat": 11.146132,
+          "lon": -63.868443
+        },
+        {
+          "nombre": "Playa Manzanillo",
+          "osm_place": "neighbourhood",
+          "lat": 11.156919,
+          "lon": -63.891624
+        },
+        {
+          "nombre": "Playa Parguito",
+          "osm_place": "village",
+          "lat": 11.127523,
+          "lon": -63.84725
+        },
+        {
+          "nombre": "Pozo de Agua",
+          "osm_place": "quarter",
+          "lat": 11.137234,
+          "lon": -63.865027
+        },
+        {
+          "nombre": "Urbanización Sabana de El Tirano",
+          "osm_place": "neighbourhood",
+          "lat": 11.111222,
+          "lon": -63.848569
+        },
+        {
+          "nombre": "Viento Fresco",
+          "osm_place": "town",
+          "lat": 11.130529,
+          "lon": -63.864834
+        }
+      ]
+    },
+    {
+      "codigo_ine": "1702",
+      "nombre": "Arismendi",
+      "capital": "La Asunción",
+      "sectores": [
+        {
+          "nombre": "Atamo Norte",
+          "osm_place": "village",
+          "lat": 11.030639,
+          "lon": -63.839299
+        },
+        {
+          "nombre": "Atamo Sur",
+          "osm_place": "village",
+          "lat": 11.023808,
+          "lon": -63.841703
+        },
+        {
+          "nombre": "Brisas de La Asunción",
+          "osm_place": "neighbourhood",
+          "lat": 11.023022,
+          "lon": -63.86618
+        },
+        {
+          "nombre": "Camoruco",
+          "osm_place": "suburb",
+          "lat": 11.030713,
+          "lon": -63.853412
+        },
+        {
+          "nombre": "Cantarrana",
+          "osm_place": "neighbourhood",
+          "lat": 11.027705,
+          "lon": -63.866685
+        },
+        {
+          "nombre": "Casco Histórico",
+          "osm_place": "neighbourhood",
+          "lat": 11.029536,
+          "lon": -63.865676
+        },
+        {
+          "nombre": "Cocheima",
+          "osm_place": "neighbourhood",
+          "lat": 11.043067,
+          "lon": -63.857644
+        },
+        {
+          "nombre": "El Chorro",
+          "osm_place": "village",
+          "lat": 11.010981,
+          "lon": -63.876228
+        },
+        {
+          "nombre": "El Conchal",
+          "osm_place": "village",
+          "lat": 11.060484,
+          "lon": -63.820503
+        },
+        {
+          "nombre": "El Copey",
+          "osm_place": "neighbourhood",
+          "lat": 11.029254,
+          "lon": -63.875717
+        },
+        {
+          "nombre": "El Limón",
+          "osm_place": "neighbourhood",
+          "lat": 11.030499,
+          "lon": -63.869332
+        },
+        {
+          "nombre": "El Mamey",
+          "osm_place": "quarter",
+          "lat": 11.031672,
+          "lon": -63.862311
+        },
+        {
+          "nombre": "El Samán",
+          "osm_place": "quarter",
+          "lat": 11.042826,
+          "lon": -63.866894
+        },
+        {
+          "nombre": "El Tamarindo",
+          "osm_place": "neighbourhood",
+          "lat": 11.034075,
+          "lon": -63.86558
+        },
+        {
+          "nombre": "Guatamare",
+          "osm_place": "neighbourhood",
+          "lat": 11.016363,
+          "lon": -63.853902
+        },
+        {
+          "nombre": "Guayabal La Caña",
+          "osm_place": "suburb",
+          "lat": 11.05102,
+          "lon": -63.865371
+        },
+        {
+          "nombre": "La Aguada",
+          "osm_place": "village",
+          "lat": 11.002012,
+          "lon": -63.86417
+        },
+        {
+          "nombre": "La Portada",
+          "osm_place": "quarter",
+          "lat": 11.026,
+          "lon": -63.858675
+        },
+        {
+          "nombre": "La Sierra",
+          "osm_place": "village",
+          "lat": 11.008455,
+          "lon": -63.885246
+        },
+        {
+          "nombre": "Los Chuares",
+          "osm_place": "quarter",
+          "lat": 11.054672,
+          "lon": -63.856829
+        },
+        {
+          "nombre": "Palo Sano",
+          "osm_place": "suburb",
+          "lat": 11.024321,
+          "lon": -63.852038
+        },
+        {
+          "nombre": "Quebrancho de Arismendi",
+          "osm_place": "suburb",
+          "lat": 11.045682,
+          "lon": -63.874628
+        },
+        {
+          "nombre": "Sabana de Guacuco",
+          "osm_place": "town",
+          "lat": 11.040755,
+          "lon": -63.824141
+        },
+        {
+          "nombre": "Salamanca",
+          "osm_place": "neighbourhood",
+          "lat": 11.047691,
+          "lon": -63.860668
+        },
+        {
+          "nombre": "San Martín de Porres",
+          "osm_place": "quarter",
+          "lat": 11.040293,
+          "lon": -63.874049
+        },
+        {
+          "nombre": "Santa Isabel de Hungría",
+          "osm_place": "quarter",
+          "lat": 11.036845,
+          "lon": -63.864859
+        },
+        {
+          "nombre": "Urbanización Guanare",
+          "osm_place": "neighbourhood",
+          "lat": 11.003955,
+          "lon": -63.862366
+        }
+      ]
+    },
+    {
+      "codigo_ine": "1703",
+      "nombre": "Díaz",
+      "capital": "San Juan Bautista",
+      "sectores": [
+        {
+          "nombre": "Agua de Vaca",
+          "osm_place": "suburb",
+          "lat": 11.01102,
+          "lon": -63.957068
+        },
+        {
+          "nombre": "Boquerón",
+          "osm_place": "suburb",
+          "lat": 11.021701,
+          "lon": -63.951105
+        },
+        {
+          "nombre": "Carapacho",
+          "osm_place": "suburb",
+          "lat": 11.001089,
+          "lon": -63.959238
+        },
+        {
+          "nombre": "Casco Central",
+          "osm_place": "quarter",
+          "lat": 11.010612,
+          "lon": -63.945982
+        },
+        {
+          "nombre": "Cotoperíz",
+          "osm_place": "town",
+          "lat": 10.944485,
+          "lon": -63.967283
+        },
+        {
+          "nombre": "El Dátil",
+          "osm_place": "town",
+          "lat": 10.960661,
+          "lon": -63.968264
+        },
+        {
+          "nombre": "El Espinal",
+          "osm_place": "town",
+          "lat": 10.974346,
+          "lon": -63.983971
+        },
+        {
+          "nombre": "El Hatico",
+          "osm_place": "neighbourhood",
+          "lat": 10.958666,
+          "lon": -63.996795
+        },
+        {
+          "nombre": "El Macho",
+          "osm_place": "suburb",
+          "lat": 11.021659,
+          "lon": -63.957167
+        },
+        {
+          "nombre": "El Manglillo",
+          "osm_place": "village",
+          "lat": 10.891581,
+          "lon": -63.991437
+        },
+        {
+          "nombre": "El Rincón",
+          "osm_place": "neighbourhood",
+          "lat": 11.015217,
+          "lon": -64.013934
+        },
+        {
+          "nombre": "El Tuey",
+          "osm_place": "suburb",
+          "lat": 11.016225,
+          "lon": -63.964505
+        },
+        {
+          "nombre": "El Yaque",
+          "osm_place": "village",
+          "lat": 10.900058,
+          "lon": -63.962854
+        },
+        {
+          "nombre": "Fuentidueño",
+          "osm_place": "suburb",
+          "lat": 11.014948,
+          "lon": -63.92532
+        },
+        {
+          "nombre": "Guatacaral",
+          "osm_place": "village",
+          "lat": 10.995383,
+          "lon": -63.974515
+        },
+        {
+          "nombre": "La Cruz del Pastel",
+          "osm_place": "town",
+          "lat": 10.943253,
+          "lon": -63.95333
+        },
+        {
+          "nombre": "La Guardia",
+          "osm_place": "town",
+          "lat": 10.995282,
+          "lon": -64.017517
+        },
+        {
+          "nombre": "La Salineta",
+          "osm_place": "village",
+          "lat": 11.045084,
+          "lon": -64.013853
+        },
+        {
+          "nombre": "Las Barrancas",
+          "osm_place": "village",
+          "lat": 10.990221,
+          "lon": -63.977312
+        },
+        {
+          "nombre": "Las Bermúdez",
+          "osm_place": "village",
+          "lat": 10.938616,
+          "lon": -63.984726
+        },
+        {
+          "nombre": "Las Guevaras",
+          "osm_place": "town",
+          "lat": 10.956166,
+          "lon": -64.004256
+        },
+        {
+          "nombre": "Lomas de El Yaque",
+          "osm_place": "neighbourhood",
+          "lat": 10.901653,
+          "lon": -63.962225
+        },
+        {
+          "nombre": "Los Bagres",
+          "osm_place": "town",
+          "lat": 10.94669,
+          "lon": -63.97979
+        },
+        {
+          "nombre": "Los Fermines",
+          "osm_place": "suburb",
+          "lat": 11.018949,
+          "lon": -63.94538
+        },
+        {
+          "nombre": "Los Villaroel",
+          "osm_place": "village",
+          "lat": 10.989426,
+          "lon": -63.985147
+        },
+        {
+          "nombre": "Piedras Negras",
+          "osm_place": "suburb",
+          "lat": 10.986499,
+          "lon": -64.023023
+        },
+        {
+          "nombre": "Punta Cuji",
+          "osm_place": "suburb",
+          "lat": 11.012116,
+          "lon": -63.934112
+        },
+        {
+          "nombre": "Punta Sabita",
+          "osm_place": "village",
+          "lat": 11.039681,
+          "lon": -64.013725
+        },
+        {
+          "nombre": "Sector El Copey",
+          "osm_place": "neighbourhood",
+          "lat": 11.016257,
+          "lon": -63.929476
+        },
+        {
+          "nombre": "Urbanización Brisas del Caraney",
+          "osm_place": "neighbourhood",
+          "lat": 10.994356,
+          "lon": -63.967017
+        },
+        {
+          "nombre": "Urbanización Cerromar",
+          "osm_place": "neighbourhood",
+          "lat": 10.981991,
+          "lon": -63.983382
+        },
+        {
+          "nombre": "Urbanización Chaguaramal",
+          "osm_place": "neighbourhood",
+          "lat": 10.999299,
+          "lon": -63.964754
+        },
+        {
+          "nombre": "Urbanización Cotoperíz I",
+          "osm_place": "quarter",
+          "lat": 10.946785,
+          "lon": -63.967724
+        },
+        {
+          "nombre": "Urbanización Cotoperíz II",
+          "osm_place": "neighbourhood",
+          "lat": 10.940286,
+          "lon": -63.967574
+        },
+        {
+          "nombre": "Urbanización El Morichal",
+          "osm_place": "neighbourhood",
+          "lat": 11.002407,
+          "lon": -63.967042
+        },
+        {
+          "nombre": "Urbanización La Guarida del Sol",
+          "osm_place": "neighbourhood",
+          "lat": 10.978065,
+          "lon": -64.02612
+        },
+        {
+          "nombre": "Urbanización La Pista",
+          "osm_place": "suburb",
+          "lat": 11.032117,
+          "lon": -63.952093
+        },
+        {
+          "nombre": "Valle Verde",
+          "osm_place": "suburb",
+          "lat": 10.944363,
+          "lon": -63.949351
+        }
+      ]
+    },
+    {
+      "codigo_ine": "1704",
+      "nombre": "García",
+      "capital": "El Valle del Espíritu Santo",
+      "sectores": [
+        {
+          "nombre": "Barrio El Guayabo",
+          "osm_place": "neighbourhood",
+          "lat": 10.980912,
+          "lon": -63.854454
+        },
+        {
+          "nombre": "Bloques de Villa Rosa",
+          "osm_place": "neighbourhood",
+          "lat": 10.948268,
+          "lon": -63.92577
+        },
+        {
+          "nombre": "Conejeros",
+          "osm_place": "suburb",
+          "lat": 10.965348,
+          "lon": -63.869103
+        },
+        {
+          "nombre": "Conuco Viejo",
+          "osm_place": "town",
+          "lat": 10.94352,
+          "lon": -63.928778
+        },
+        {
+          "nombre": "Doña Elisa",
+          "osm_place": "town",
+          "lat": 10.940221,
+          "lon": -63.903317
+        },
+        {
+          "nombre": "El Hato",
+          "osm_place": "village",
+          "lat": 10.892216,
+          "lon": -63.911733
+        },
+        {
+          "nombre": "El Toporo",
+          "osm_place": "neighbourhood",
+          "lat": 10.979158,
+          "lon": -63.879033
+        },
+        {
+          "nombre": "El Valle del Espíritu Santo",
+          "osm_place": "town",
+          "lat": 10.985292,
+          "lon": -63.885869
+        },
+        {
+          "nombre": "Guatamare",
+          "osm_place": "suburb",
+          "lat": 10.976533,
+          "lon": -63.867628
+        },
+        {
+          "nombre": "La Isleta",
+          "osm_place": "village",
+          "lat": 10.894645,
+          "lon": -63.928225
+        },
+        {
+          "nombre": "Las Piedras",
+          "osm_place": "town",
+          "lat": 10.991329,
+          "lon": -63.86448
+        },
+        {
+          "nombre": "Praderas de San Antonio",
+          "osm_place": "neighbourhood",
+          "lat": 10.942669,
+          "lon": -63.921469
+        },
+        {
+          "nombre": "San Antonio",
+          "osm_place": "town",
+          "lat": 10.956274,
+          "lon": -63.921086
+        },
+        {
+          "nombre": "Urbanización 28 de Mayo",
+          "osm_place": "neighbourhood",
+          "lat": 10.959641,
+          "lon": -63.92834
+        },
+        {
+          "nombre": "Urbanización Marisal",
+          "osm_place": "neighbourhood",
+          "lat": 10.945324,
+          "lon": -63.934686
+        },
+        {
+          "nombre": "Urbanización Nueva Esparta",
+          "osm_place": "neighbourhood",
+          "lat": 10.942303,
+          "lon": -63.934665
+        },
+        {
+          "nombre": "Urbanización Pedro Luis Briceño",
+          "osm_place": "suburb",
+          "lat": 10.964045,
+          "lon": -63.918752
+        },
+        {
+          "nombre": "Urbanización Villa Juana",
+          "osm_place": "neighbourhood",
+          "lat": 10.952699,
+          "lon": -63.931329
+        },
+        {
+          "nombre": "Urbanización Villa Rosa",
+          "osm_place": "suburb",
+          "lat": 10.952375,
+          "lon": -63.925793
+        },
+        {
+          "nombre": "Urbanización Villas de San Antonio",
+          "osm_place": "neighbourhood",
+          "lat": 10.965448,
+          "lon": -63.927243
+        }
+      ]
+    },
+    {
+      "codigo_ine": "1705",
+      "nombre": "Gómes",
+      "capital": "Santa Ana",
+      "sectores": [
+        {
+          "nombre": "Altagracia",
+          "osm_place": "town",
+          "lat": 11.095201,
+          "lon": -63.948829
+        },
+        {
+          "nombre": "Bahía de Plata",
+          "osm_place": "suburb",
+          "lat": 11.105515,
+          "lon": -63.943864
+        },
+        {
+          "nombre": "Belén",
+          "osm_place": "suburb",
+          "lat": 11.106262,
+          "lon": -63.926309
+        },
+        {
+          "nombre": "Blanco Lugar",
+          "osm_place": "suburb",
+          "lat": 11.083424,
+          "lon": -63.945322
+        },
+        {
+          "nombre": "Conjunto Residencial NENA II",
+          "osm_place": "neighbourhood",
+          "lat": 11.08318,
+          "lon": -63.955539
+        },
+        {
+          "nombre": "El Cercado",
+          "osm_place": "town",
+          "lat": 11.04937,
+          "lon": -63.920873
+        },
+        {
+          "nombre": "El Maco",
+          "osm_place": "town",
+          "lat": 11.048374,
+          "lon": -63.942753
+        },
+        {
+          "nombre": "El Salado",
+          "osm_place": "suburb",
+          "lat": 11.115885,
+          "lon": -63.902031
+        },
+        {
+          "nombre": "Guayacán",
+          "osm_place": "town",
+          "lat": 11.136162,
+          "lon": -63.911915
+        },
+        {
+          "nombre": "La Boquita",
+          "osm_place": "suburb",
+          "lat": 11.099377,
+          "lon": -63.958455
+        },
+        {
+          "nombre": "La Tagua",
+          "osm_place": "town",
+          "lat": 11.057135,
+          "lon": -63.928359
+        },
+        {
+          "nombre": "La Vecindad",
+          "osm_place": "suburb",
+          "lat": 11.068805,
+          "lon": -63.943799
+        },
+        {
+          "nombre": "Las Gamboas",
+          "osm_place": "suburb",
+          "lat": 11.079132,
+          "lon": -63.928771
+        },
+        {
+          "nombre": "Pedro González",
+          "osm_place": "town",
+          "lat": 11.111316,
+          "lon": -63.919559
+        },
+        {
+          "nombre": "Residencias Catame",
+          "osm_place": "neighbourhood",
+          "lat": 11.085776,
+          "lon": -63.961302
+        },
+        {
+          "nombre": "Residencias Villas Castilla Mar",
+          "osm_place": "neighbourhood",
+          "lat": 11.082174,
+          "lon": -63.956319
+        },
+        {
+          "nombre": "San Sebastián",
+          "osm_place": "town",
+          "lat": 11.046282,
+          "lon": -63.908652
+        },
+        {
+          "nombre": "Santa Ana",
+          "osm_place": "town",
+          "lat": 11.069115,
+          "lon": -63.923349
+        },
+        {
+          "nombre": "Tacarigua",
+          "osm_place": "town",
+          "lat": 11.052286,
+          "lon": -63.902346
+        },
+        {
+          "nombre": "Urbanización La Isla",
+          "osm_place": "neighbourhood",
+          "lat": 11.077612,
+          "lon": -63.949249
+        },
+        {
+          "nombre": "Urbanización Los Cocoteros",
+          "osm_place": "neighbourhood",
+          "lat": 11.067488,
+          "lon": -63.952878
+        },
+        {
+          "nombre": "Urbanización Los Veleros",
+          "osm_place": "neighbourhood",
+          "lat": 11.050679,
+          "lon": -63.950808
+        },
+        {
+          "nombre": "Urbanización Nuevo Juan Griego",
+          "osm_place": "suburb",
+          "lat": 11.08431,
+          "lon": -63.956418
+        },
+        {
+          "nombre": "Villa Castillamar",
+          "osm_place": "neighbourhood",
+          "lat": 11.086419,
+          "lon": -63.952294
+        }
+      ]
+    },
+    {
+      "codigo_ine": "1706",
+      "nombre": "Maneiro",
+      "capital": "Pampatar",
+      "sectores": [
+        {
+          "nombre": "1°. Etapa de Jorge Coll",
+          "osm_place": "quarter",
+          "lat": 10.997305,
+          "lon": -63.821817
+        },
+        {
+          "nombre": "2°. Etapa de Jorge Coll",
+          "osm_place": "neighbourhood",
+          "lat": 11.002758,
+          "lon": -63.826422
+        },
+        {
+          "nombre": "Agua de Vaca",
+          "osm_place": "town",
+          "lat": 11.022258,
+          "lon": -63.819018
+        },
+        {
+          "nombre": "Apostadero",
+          "osm_place": "town",
+          "lat": 11.012389,
+          "lon": -63.813185
+        },
+        {
+          "nombre": "Barrio Los Pescadores",
+          "osm_place": "neighbourhood",
+          "lat": 11.003077,
+          "lon": -63.787737
+        },
+        {
+          "nombre": "Campiare",
+          "osm_place": "neighbourhood",
+          "lat": 11.006694,
+          "lon": -63.80008
+        },
+        {
+          "nombre": "Casco Central",
+          "osm_place": "neighbourhood",
+          "lat": 10.996663,
+          "lon": -63.800279
+        },
+        {
+          "nombre": "El Hato",
+          "osm_place": "neighbourhood",
+          "lat": 11.028041,
+          "lon": -63.81715
+        },
+        {
+          "nombre": "El Potrero",
+          "osm_place": "neighbourhood",
+          "lat": 11.005625,
+          "lon": -63.795258
+        },
+        {
+          "nombre": "La Caranta",
+          "osm_place": "suburb",
+          "lat": 10.998914,
+          "lon": -63.788121
+        },
+        {
+          "nombre": "Las Casitas",
+          "osm_place": "neighbourhood",
+          "lat": 11.003825,
+          "lon": -63.791771
+        },
+        {
+          "nombre": "Los Cerritos",
+          "osm_place": "village",
+          "lat": 11.01988,
+          "lon": -63.82862
+        },
+        {
+          "nombre": "Los Chacos",
+          "osm_place": "village",
+          "lat": 11.012279,
+          "lon": -63.833719
+        },
+        {
+          "nombre": "Los Pozos",
+          "osm_place": "neighbourhood",
+          "lat": 10.987721,
+          "lon": -63.840882
+        },
+        {
+          "nombre": "Los Robles",
+          "osm_place": "town",
+          "lat": 10.996319,
+          "lon": -63.833702
+        },
+        {
+          "nombre": "Micaure",
+          "osm_place": "neighbourhood",
+          "lat": 11.008253,
+          "lon": -63.81354
+        },
+        {
+          "nombre": "Playa Moreno",
+          "osm_place": "suburb",
+          "lat": 10.986316,
+          "lon": -63.809752
+        },
+        {
+          "nombre": "Polanco",
+          "osm_place": "neighbourhood",
+          "lat": 11.00087,
+          "lon": -63.800547
+        },
+        {
+          "nombre": "San Lorenzo",
+          "osm_place": "suburb",
+          "lat": 11.000265,
+          "lon": -63.812005
+        },
+        {
+          "nombre": "Urbanización Fundación Margarita",
+          "osm_place": "neighbourhood",
+          "lat": 11.002829,
+          "lon": -63.83739
+        },
+        {
+          "nombre": "Urbanización Jorge Coll",
+          "osm_place": "suburb",
+          "lat": 10.999099,
+          "lon": -63.822771
+        },
+        {
+          "nombre": "Urbanización Jóvilo Villalba",
+          "osm_place": "quarter",
+          "lat": 11.010712,
+          "lon": -63.808798
+        },
+        {
+          "nombre": "Urbanización Maneiro",
+          "osm_place": "neighbourhood",
+          "lat": 10.997821,
+          "lon": -63.81845
+        },
+        {
+          "nombre": "Urbanización Nuevo Mundo",
+          "osm_place": "neighbourhood",
+          "lat": 11.010696,
+          "lon": -63.834091
+        },
+        {
+          "nombre": "Urbanización Paraíso",
+          "osm_place": "quarter",
+          "lat": 10.998785,
+          "lon": -63.805155
+        },
+        {
+          "nombre": "Urbanización Playa El Ángel",
+          "osm_place": "suburb",
+          "lat": 10.990549,
+          "lon": -63.819247
+        },
+        {
+          "nombre": "Urbanización San Fernando",
+          "osm_place": "neighbourhood",
+          "lat": 11.005336,
+          "lon": -63.832363
+        }
+      ]
+    },
+    {
+      "codigo_ine": "1707",
+      "nombre": "Marcano",
+      "capital": "Juangriego",
+      "sectores": [
+        {
+          "nombre": "Boca de Monte",
+          "osm_place": "suburb",
+          "lat": 11.070531,
+          "lon": -63.976654
+        },
+        {
+          "nombre": "Casco Central",
+          "osm_place": "neighbourhood",
+          "lat": 11.082292,
+          "lon": -63.970511
+        },
+        {
+          "nombre": "El Morro",
+          "osm_place": "hamlet",
+          "lat": 11.061523,
+          "lon": -64.011656
+        },
+        {
+          "nombre": "El Tamarindo",
+          "osm_place": "suburb",
+          "lat": 11.068832,
+          "lon": -63.954418
+        },
+        {
+          "nombre": "La Cruz",
+          "osm_place": "hamlet",
+          "lat": 11.056606,
+          "lon": -64.013214
+        },
+        {
+          "nombre": "La Galera",
+          "osm_place": "suburb",
+          "lat": 11.090355,
+          "lon": -63.975771
+        },
+        {
+          "nombre": "Las Cabreras",
+          "osm_place": "suburb",
+          "lat": 11.051179,
+          "lon": -63.968065
+        },
+        {
+          "nombre": "Los Millanes",
+          "osm_place": "suburb",
+          "lat": 11.062076,
+          "lon": -63.957256
+        },
+        {
+          "nombre": "Pedregales",
+          "osm_place": "suburb",
+          "lat": 11.064825,
+          "lon": -63.973044
+        },
+        {
+          "nombre": "Urbanización Alberto Lobera",
+          "osm_place": "neighbourhood",
+          "lat": 11.074897,
+          "lon": -63.972603
+        },
+        {
+          "nombre": "Urbanización Francisco Adrián",
+          "osm_place": "quarter",
+          "lat": 11.086745,
+          "lon": -63.967692
+        },
+        {
+          "nombre": "Valparaíso",
+          "osm_place": "suburb",
+          "lat": 11.074297,
+          "lon": -63.967549
+        },
+        {
+          "nombre": "Vizcuña",
+          "osm_place": "suburb",
+          "lat": 11.051983,
+          "lon": -63.954954
+        }
+      ]
+    },
+    {
+      "codigo_ine": "1708",
+      "nombre": "Mariño",
+      "capital": "Porlamar",
+      "sectores": [
+        {
+          "nombre": "Achipano",
+          "osm_place": "suburb",
+          "lat": 10.977563,
+          "lon": -63.854728
+        },
+        {
+          "nombre": "Aeropuerto Viejo",
+          "osm_place": "suburb",
+          "lat": 10.969315,
+          "lon": -63.829811
+        },
+        {
+          "nombre": "Barrio Brasil",
+          "osm_place": "neighbourhood",
+          "lat": 10.95192,
+          "lon": -63.848363
+        },
+        {
+          "nombre": "Barrio Colindante",
+          "osm_place": "neighbourhood",
+          "lat": 10.962511,
+          "lon": -63.85292
+        },
+        {
+          "nombre": "Barrio El Clavelito",
+          "osm_place": "neighbourhood",
+          "lat": 10.972839,
+          "lon": -63.841622
+        },
+        {
+          "nombre": "Bella Vista",
+          "osm_place": "suburb",
+          "lat": 10.959741,
+          "lon": -63.838561
+        },
+        {
+          "nombre": "Brisas de Achipano",
+          "osm_place": "neighbourhood",
+          "lat": 10.975304,
+          "lon": -63.858644
+        },
+        {
+          "nombre": "Campomar",
+          "osm_place": "quarter",
+          "lat": 10.964163,
+          "lon": -63.830508
+        },
+        {
+          "nombre": "Centro",
+          "osm_place": "suburb",
+          "lat": 10.954959,
+          "lon": -63.850683
+        },
+        {
+          "nombre": "Cerro Colorado",
+          "osm_place": "quarter",
+          "lat": 10.947744,
+          "lon": -63.872173
+        },
+        {
+          "nombre": "Ciudad Cartón",
+          "osm_place": "quarter",
+          "lat": 10.954791,
+          "lon": -63.865392
+        },
+        {
+          "nombre": "Cruz Grande",
+          "osm_place": "suburb",
+          "lat": 10.970922,
+          "lon": -63.861375
+        },
+        {
+          "nombre": "El Cuarto",
+          "osm_place": "suburb",
+          "lat": 10.945378,
+          "lon": -63.877246
+        },
+        {
+          "nombre": "El Piache",
+          "osm_place": "town",
+          "lat": 10.955286,
+          "lon": -63.877946
+        },
+        {
+          "nombre": "El Poblado",
+          "osm_place": "neighbourhood",
+          "lat": 10.967272,
+          "lon": -63.857077
+        },
+        {
+          "nombre": "El Silguero",
+          "osm_place": "village",
+          "lat": 10.922802,
+          "lon": -63.887428
+        },
+        {
+          "nombre": "Fajardo",
+          "osm_place": "quarter",
+          "lat": 10.96348,
+          "lon": -63.859685
+        },
+        {
+          "nombre": "Genovés",
+          "osm_place": "suburb",
+          "lat": 10.973377,
+          "lon": -63.837805
+        },
+        {
+          "nombre": "Llano Adentro",
+          "osm_place": "quarter",
+          "lat": 10.965113,
+          "lon": -63.846467
+        },
+        {
+          "nombre": "Los Cocos",
+          "osm_place": "suburb",
+          "lat": 10.948629,
+          "lon": -63.864298
+        },
+        {
+          "nombre": "Los Cocos Norte",
+          "osm_place": "neighbourhood",
+          "lat": 10.954138,
+          "lon": -63.861047
+        },
+        {
+          "nombre": "Los Delfines",
+          "osm_place": "quarter",
+          "lat": 10.964268,
+          "lon": -63.836673
+        },
+        {
+          "nombre": "Macho Muerto",
+          "osm_place": "town",
+          "lat": 10.94257,
+          "lon": -63.887745
+        },
+        {
+          "nombre": "Morro El Palmar",
+          "osm_place": "suburb",
+          "lat": 10.955191,
+          "lon": -63.823936
+        },
+        {
+          "nombre": "Palguarime",
+          "osm_place": "neighbourhood",
+          "lat": 10.972823,
+          "lon": -63.860178
+        },
+        {
+          "nombre": "Pueblo Nuevo",
+          "osm_place": "quarter",
+          "lat": 10.959267,
+          "lon": -63.854384
+        },
+        {
+          "nombre": "Punda",
+          "osm_place": "quarter",
+          "lat": 10.9528,
+          "lon": -63.856434
+        },
+        {
+          "nombre": "Sector Cocopozuelo",
+          "osm_place": "neighbourhood",
+          "lat": 10.935146,
+          "lon": -63.900677
+        },
+        {
+          "nombre": "Urbanismo Luisa Cáceres de Arismendi",
+          "osm_place": "neighbourhood",
+          "lat": 10.982029,
+          "lon": -63.830051
+        },
+        {
+          "nombre": "Urbanización Ali Primera",
+          "osm_place": "neighbourhood",
+          "lat": 10.95527,
+          "lon": -63.882896
+        },
+        {
+          "nombre": "Urbanización Costa Azul",
+          "osm_place": "suburb",
+          "lat": 10.97722,
+          "lon": -63.822933
+        },
+        {
+          "nombre": "Urbanización Dumar Country Club",
+          "osm_place": "suburb",
+          "lat": 10.966183,
+          "lon": -63.824134
+        },
+        {
+          "nombre": "Urbanización La Arboleda",
+          "osm_place": "neighbourhood",
+          "lat": 10.976152,
+          "lon": -63.833184
+        },
+        {
+          "nombre": "Urbanización Los Restos",
+          "osm_place": "neighbourhood",
+          "lat": 10.948223,
+          "lon": -63.869823
+        },
+        {
+          "nombre": "Urbanización Sabanamar",
+          "osm_place": "suburb",
+          "lat": 10.972613,
+          "lon": -63.834364
+        },
+        {
+          "nombre": "Urbanización Táchira",
+          "osm_place": "suburb",
+          "lat": 10.96031,
+          "lon": -63.843836
+        },
+        {
+          "nombre": "Villas de Campo",
+          "osm_place": "quarter",
+          "lat": 10.952231,
+          "lon": -63.889521
+        },
+        {
+          "nombre": "Vista Bella I",
+          "osm_place": "neighbourhood",
+          "lat": 10.966831,
+          "lon": -63.832721
+        },
+        {
+          "nombre": "Vista Bella II",
+          "osm_place": "neighbourhood",
+          "lat": 10.967837,
+          "lon": -63.830638
+        },
+        {
+          "nombre": "Vista Bella III",
+          "osm_place": "neighbourhood",
+          "lat": 10.968811,
+          "lon": -63.828373
+        },
+        {
+          "nombre": "Vista Bella IV",
+          "osm_place": "neighbourhood",
+          "lat": 10.969998,
+          "lon": -63.826118
+        },
+        {
+          "nombre": "Zona Industrial de El Piache",
+          "osm_place": "suburb",
+          "lat": 10.957069,
+          "lon": -63.879978
+        }
+      ]
+    },
+    {
+      "codigo_ine": "1709",
+      "nombre": "Península de Macanao",
+      "capital": "Boca del Río",
+      "sectores": [
+        {
+          "nombre": "Arenas",
+          "osm_place": "village",
+          "lat": 11.067596,
+          "lon": -64.247427
+        },
+        {
+          "nombre": "Arenitas",
+          "osm_place": "hamlet",
+          "lat": 11.061302,
+          "lon": -64.201714
+        },
+        {
+          "nombre": "Barbasco",
+          "osm_place": "suburb",
+          "lat": 10.950775,
+          "lon": -64.187201
+        },
+        {
+          "nombre": "Barrancas",
+          "osm_place": "hamlet",
+          "lat": 10.939975,
+          "lon": -64.243375
+        },
+        {
+          "nombre": "Barrio Caracas",
+          "osm_place": "suburb",
+          "lat": 10.956186,
+          "lon": -64.182537
+        },
+        {
+          "nombre": "Boca del Pozo",
+          "osm_place": "town",
+          "lat": 11.010546,
+          "lon": -64.376643
+        },
+        {
+          "nombre": "Boca del Río",
+          "osm_place": "town",
+          "lat": 10.962248,
+          "lon": -64.183137
+        },
+        {
+          "nombre": "Campo Arriba",
+          "osm_place": "village",
+          "lat": 11.022481,
+          "lon": -64.350851
+        },
+        {
+          "nombre": "Caraquita",
+          "osm_place": "hamlet",
+          "lat": 10.958609,
+          "lon": -64.32905
+        },
+        {
+          "nombre": "Chacaracual",
+          "osm_place": "hamlet",
+          "lat": 10.963275,
+          "lon": -64.287599
+        },
+        {
+          "nombre": "Champoturo",
+          "osm_place": "quarter",
+          "lat": 11.007753,
+          "lon": -64.380988
+        },
+        {
+          "nombre": "Comejenes",
+          "osm_place": "village",
+          "lat": 11.026755,
+          "lon": -64.220555
+        },
+        {
+          "nombre": "Crucero de Macanao",
+          "osm_place": "suburb",
+          "lat": 10.974108,
+          "lon": -64.178299
+        },
+        {
+          "nombre": "Curichicual",
+          "osm_place": "village",
+          "lat": 10.958246,
+          "lon": -64.337391
+        },
+        {
+          "nombre": "El Campo",
+          "osm_place": "suburb",
+          "lat": 11.023723,
+          "lon": -64.367867
+        },
+        {
+          "nombre": "El Carujo",
+          "osm_place": "neighbourhood",
+          "lat": 10.968473,
+          "lon": -64.185052
+        },
+        {
+          "nombre": "El Cascabel",
+          "osm_place": "neighbourhood",
+          "lat": 10.944636,
+          "lon": -64.216901
+        },
+        {
+          "nombre": "El Cementerio",
+          "osm_place": "neighbourhood",
+          "lat": 10.958267,
+          "lon": -64.319533
+        },
+        {
+          "nombre": "El Horcón",
+          "osm_place": "village",
+          "lat": 10.947498,
+          "lon": -64.293352
+        },
+        {
+          "nombre": "El Indio",
+          "osm_place": "hamlet",
+          "lat": 11.033275,
+          "lon": -64.226653
+        },
+        {
+          "nombre": "El Manantial",
+          "osm_place": "suburb",
+          "lat": 11.019479,
+          "lon": -64.374728
+        },
+        {
+          "nombre": "El Manglillo",
+          "osm_place": "town",
+          "lat": 10.958675,
+          "lon": -64.315142
+        },
+        {
+          "nombre": "El Pozo",
+          "osm_place": "suburb",
+          "lat": 10.945469,
+          "lon": -64.198673
+        },
+        {
+          "nombre": "El Relámpago",
+          "osm_place": "neighbourhood",
+          "lat": 11.031469,
+          "lon": -64.377286
+        },
+        {
+          "nombre": "El Robledal",
+          "osm_place": "town",
+          "lat": 11.027575,
+          "lon": -64.372331
+        },
+        {
+          "nombre": "El Tunal",
+          "osm_place": "village",
+          "lat": 11.06796,
+          "lon": -64.296865
+        },
+        {
+          "nombre": "Guamachito",
+          "osm_place": "suburb",
+          "lat": 11.013287,
+          "lon": -64.378917
+        },
+        {
+          "nombre": "Guayacancito",
+          "osm_place": "town",
+          "lat": 10.940689,
+          "lon": -64.214716
+        },
+        {
+          "nombre": "La Auyama",
+          "osm_place": "hamlet",
+          "lat": 11.061095,
+          "lon": -64.284257
+        },
+        {
+          "nombre": "La Escusa",
+          "osm_place": "neighbourhood",
+          "lat": 10.945858,
+          "lon": -64.21276
+        },
+        {
+          "nombre": "La Figa",
+          "osm_place": "quarter",
+          "lat": 10.967525,
+          "lon": -64.177682
+        },
+        {
+          "nombre": "La Paliza",
+          "osm_place": "hamlet",
+          "lat": 10.940802,
+          "lon": -64.247467
+        },
+        {
+          "nombre": "La Pared",
+          "osm_place": "village",
+          "lat": 11.059476,
+          "lon": -64.312239
+        },
+        {
+          "nombre": "La Salina",
+          "osm_place": "neighbourhood",
+          "lat": 10.956892,
+          "lon": -64.312801
+        },
+        {
+          "nombre": "La Yegua",
+          "osm_place": "suburb",
+          "lat": 10.96466,
+          "lon": -64.192214
+        },
+        {
+          "nombre": "Las Lajas",
+          "osm_place": "neighbourhood",
+          "lat": 10.979066,
+          "lon": -64.404838
+        },
+        {
+          "nombre": "Las Vegas",
+          "osm_place": "neighbourhood",
+          "lat": 10.942814,
+          "lon": -64.226782
+        },
+        {
+          "nombre": "Los Robles",
+          "osm_place": "neighbourhood",
+          "lat": 10.955323,
+          "lon": -64.201709
+        },
+        {
+          "nombre": "Manzanillito",
+          "osm_place": "hamlet",
+          "lat": 11.063996,
+          "lon": -64.265771
+        },
+        {
+          "nombre": "Navio Quebrao",
+          "osm_place": "village",
+          "lat": 10.968953,
+          "lon": -64.385768
+        },
+        {
+          "nombre": "Pedro Luis Briceño",
+          "osm_place": "suburb",
+          "lat": 11.014919,
+          "lon": -64.373671
+        },
+        {
+          "nombre": "Playa Brava",
+          "osm_place": "neighbourhood",
+          "lat": 11.055456,
+          "lon": -64.318809
+        },
+        {
+          "nombre": "Punta Arenas",
+          "osm_place": "village",
+          "lat": 10.974611,
+          "lon": -64.399063
+        },
+        {
+          "nombre": "Punta Manzanillo",
+          "osm_place": "neighbourhood",
+          "lat": 10.93496,
+          "lon": -64.208717
+        },
+        {
+          "nombre": "Párate Bueno",
+          "osm_place": "village",
+          "lat": 10.978732,
+          "lon": -64.364662
+        },
+        {
+          "nombre": "Raúl Leoni",
+          "osm_place": "quarter",
+          "lat": 11.008442,
+          "lon": -64.378515
+        },
+        {
+          "nombre": "San Francisco de Macanao",
+          "osm_place": "town",
+          "lat": 11.026014,
+          "lon": -64.293312
+        },
+        {
+          "nombre": "Santa Inés",
+          "osm_place": "suburb",
+          "lat": 11.033689,
+          "lon": -64.290168
+        },
+        {
+          "nombre": "Sector 1 de El Manantial",
+          "osm_place": "neighbourhood",
+          "lat": 11.018631,
+          "lon": -64.373183
+        },
+        {
+          "nombre": "Sector 2 de El Manantial",
+          "osm_place": "neighbourhood",
+          "lat": 11.021923,
+          "lon": -64.374594
+        },
+        {
+          "nombre": "Sector Buenos Aires",
+          "osm_place": "suburb",
+          "lat": 11.009475,
+          "lon": -64.37469
+        },
+        {
+          "nombre": "Sector Los Marinos",
+          "osm_place": "quarter",
+          "lat": 10.962996,
+          "lon": -64.18134
+        },
+        {
+          "nombre": "Urbanización Augusto Malavé Villalba",
+          "osm_place": "suburb",
+          "lat": 10.968147,
+          "lon": -64.181078
+        }
+      ]
+    },
+    {
+      "codigo_ine": "1710",
+      "nombre": "Tubores",
+      "capital": "Punta de Piedras",
+      "sectores": [
+        {
+          "nombre": "Barrio Las Mercedes",
+          "osm_place": "neighbourhood",
+          "lat": 10.901951,
+          "lon": -64.087264
+        },
+        {
+          "nombre": "Barrio Simón Marval",
+          "osm_place": "neighbourhood",
+          "lat": 10.90075,
+          "lon": -64.085227
+        },
+        {
+          "nombre": "Boca de Palo",
+          "osm_place": "neighbourhood",
+          "lat": 10.95934,
+          "lon": -64.148657
+        },
+        {
+          "nombre": "Chacachacare",
+          "osm_place": "town",
+          "lat": 10.961172,
+          "lon": -64.152386
+        },
+        {
+          "nombre": "El Guamache",
+          "osm_place": "town",
+          "lat": 10.895514,
+          "lon": -64.064777
+        },
+        {
+          "nombre": "El Indio",
+          "osm_place": "hamlet",
+          "lat": 10.976069,
+          "lon": -64.164242
+        },
+        {
+          "nombre": "El Sur",
+          "osm_place": "village",
+          "lat": 10.949898,
+          "lon": -64.079995
+        },
+        {
+          "nombre": "El Águila",
+          "osm_place": "neighbourhood",
+          "lat": 10.916954,
+          "lon": -64.070049
+        },
+        {
+          "nombre": "La Blanquilla",
+          "osm_place": "suburb",
+          "lat": 10.917548,
+          "lon": -64.078718
+        },
+        {
+          "nombre": "La Giles",
+          "osm_place": "town",
+          "lat": 10.952343,
+          "lon": -64.031235
+        },
+        {
+          "nombre": "La Ponderosa",
+          "osm_place": "neighbourhood",
+          "lat": 10.906336,
+          "lon": -64.08337
+        },
+        {
+          "nombre": "La Restinga",
+          "osm_place": "village",
+          "lat": 11.004699,
+          "lon": -64.152067
+        },
+        {
+          "nombre": "Laguna de Raya",
+          "osm_place": "town",
+          "lat": 10.93169,
+          "lon": -64.111442
+        },
+        {
+          "nombre": "Las Cuibas",
+          "osm_place": "village",
+          "lat": 10.917421,
+          "lon": -64.041867
+        },
+        {
+          "nombre": "Las Hernández",
+          "osm_place": "town",
+          "lat": 10.938281,
+          "lon": -64.051443
+        },
+        {
+          "nombre": "Las Lares",
+          "osm_place": "village",
+          "lat": 10.938331,
+          "lon": -64.076509
+        },
+        {
+          "nombre": "Las Mariales",
+          "osm_place": "village",
+          "lat": 10.923134,
+          "lon": -64.042032
+        },
+        {
+          "nombre": "Las Marvales",
+          "osm_place": "town",
+          "lat": 10.940806,
+          "lon": -64.038399
+        },
+        {
+          "nombre": "Las Vásquez",
+          "osm_place": "village",
+          "lat": 10.933123,
+          "lon": -64.024398
+        },
+        {
+          "nombre": "Los Algodones",
+          "osm_place": "hamlet",
+          "lat": 10.873548,
+          "lon": -64.017768
+        },
+        {
+          "nombre": "Los Gómez",
+          "osm_place": "town",
+          "lat": 10.952867,
+          "lon": -64.083526
+        },
+        {
+          "nombre": "Los Narvales",
+          "osm_place": "village",
+          "lat": 10.932607,
+          "lon": -64.061569
+        },
+        {
+          "nombre": "Mata Redonda",
+          "osm_place": "village",
+          "lat": 10.942151,
+          "lon": -64.119245
+        },
+        {
+          "nombre": "Orinoco",
+          "osm_place": "village",
+          "lat": 10.913738,
+          "lon": -64.031492
+        },
+        {
+          "nombre": "Palo Sano",
+          "osm_place": "village",
+          "lat": 10.943502,
+          "lon": -64.103731
+        },
+        {
+          "nombre": "Punta de Mangle",
+          "osm_place": "village",
+          "lat": 10.876777,
+          "lon": -64.044217
+        },
+        {
+          "nombre": "Punta de Piedras",
+          "osm_place": "town",
+          "lat": 10.901449,
+          "lon": -64.094267
+        },
+        {
+          "nombre": "Santa María",
+          "osm_place": "town",
+          "lat": 10.952082,
+          "lon": -64.100538
+        },
+        {
+          "nombre": "Urbanización El Aguila",
+          "osm_place": "neighbourhood",
+          "lat": 10.915093,
+          "lon": -64.074417
+        },
+        {
+          "nombre": "Urbanización Las Mercedes",
+          "osm_place": "neighbourhood",
+          "lat": 10.89845,
+          "lon": -64.088729
+        },
+        {
+          "nombre": "Urbanización Perlas de Cubagua",
+          "osm_place": "neighbourhood",
+          "lat": 10.900267,
+          "lon": -64.089127
+        }
+      ]
+    }
+  ]
+}

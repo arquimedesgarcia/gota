@@ -30,7 +30,7 @@ Leer en este orden:
 - Conexión Supabase con autenticación anónima y persistencia de sesión.
 - Creación idempotente del perfil en `app_users` para cada usuario anónimo.
 - Repositorios de municipios y sectores con Riverpod (la UI nunca llama a Supabase directamente).
-- Migraciones versionadas: PostGIS, `municipalities`, `sectors`, `app_users`, RLS y seed de Maneiro/Arismendi.
+- Migraciones versionadas: PostGIS, `municipalities`, `sectors`, `app_users`, RLS y catálogo piloto (Maneiro/Arismendi/Mariño, 96 sectores).
 
 ## Requisitos
 
@@ -120,6 +120,7 @@ Contenido de las migraciones:
 4. `...0004_app_users` — tabla `app_users`, trigger de aprovisionamiento desde `auth.users` y función idempotente `ensure_app_user()` (llamada por la app vía RPC al iniciar).
 5. `...0005_rls` — RLS: lectura pública de municipios/sectores activos; `app_users` solo accesible por su propietario.
 6. `...0006_seed_municipalities` — seed: **Maneiro** y **Arismendi** (Nueva Esparta, Venezuela).
+   `...00028_seed_sectores_piloto` — catálogo piloto: sectores de Maneiro (27), Arismendi (27) y Mariño (42).
 
 ### Sprint 02 — Leak Reporting
 
@@ -258,7 +259,7 @@ UI → Provider (Riverpod) → Repository → GotaAuth/GotaDatabase → Supabase
 ## Decisiones y problemas conocidos
 
 - **Navegación:** `UX_SPEC.md` y `FUNCTIONAL_SPEC.md` definen cinco posiciones con acción central (Reportar); cualquier otra numeración es anterior y la documentación manda.
-- **Sectores:** estructura lista; seed pendiente de fuente validada. Sin sectores el flujo de reporte responde `INVALID_SECTOR` (ver `docs/SETUP.md` § "Seed inicial").
+- **Sectores:** catálogo piloto cargado (96 activos en 3 municipios). El dataset completo de la isla (10 municipios, 307 sectores) está en `supabase/seed_data/ne_margarita_sectores.json` (ver `docs/SETUP.md` § "Seed inicial").
 - **iOS:** compatible arquitectónicamente; el release iOS puede venir después (Android es la prioridad).
 - El test RLS es un script SQL y requiere Supabase CLI/local DB para ejecutarse; no corre en `flutter test`.
 - **Fotos en el detalle:** el detalle de una fuga muestra el conteo de fotos, no los binarios de otros usuarios (Storage sigue siendo privado por carpeta). Publicarlas requiere URLs firmadas server-side y queda para un sprint posterior.

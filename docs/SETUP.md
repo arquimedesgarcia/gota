@@ -58,11 +58,38 @@ Al iniciar:
 
 Crear:
 - Maneiro;
-- Arismendi.
+- Arismendi;
+- Mariño (piloto).
 
-Los sectores se agregan mediante migraciones/seed controlado cuando exista una fuente validada.
+**Estado de sectores — catálogo piloto cargado (migración `20260914000028`):**
+los tres municipios del piloto tienen sectores y el flujo de reporte es ejecutable.
 
-**Estado de sectores (AUD-S1-02):** la estructura (`sectors`, RLS de solo lectura sobre activos) está lista, pero el catálogo está vacío. Hasta que exista una fuente validada de los sectores de Maneiro y Arismendi, el flujo de reporte es inejecutable (`create_leak_report` responde `INVALID_SECTOR`). La carga se hará por una migración nueva posterior a `20260911000015`, con nombres verificados, nunca sembrados a mano ni por la app.
+| Municipio  | Sectores activos |
+|------------|------------------|
+| Arismendi  | 27               |
+| Maneiro    | 27               |
+| Mariño     | 42               |
+| **Total**  | **96**           |
+
+**Fuente y trazabilidad.** Municipios: FeatureServer ArcGIS
+`División_Político_Territorial` (capa `DPT002_MUNICIPIO`, códigos INE). Sectores:
+OpenStreetMap vía Overpass API (licencia ODbL), asignados a municipio por
+point-in-polygon sobre la geometría oficial. El dataset completo de la isla
+(10 municipios, 307 sectores) queda en
+`supabase/seed_data/ne_margarita_sectores.json` para ampliar el piloto.
+
+**Calidad de los nombres.** Se cargaron tal cual la fuente y se depuran con el
+uso real. Casos conocidos a revisar: nombres seriados (`Vista Bella I–IV`,
+`1°.`/`2°. Etapa de Jorge Coll`) y variantes por proximidad (`Los Cocos` /
+`Los Cocos Norte`).
+
+**Ampliar a más municipios:** regenerar la migración desde
+`supabase/seed_data/ne_margarita_sectores.json` añadiendo el municipio al
+conjunto deseado (UUIDs determinísticos por `uuid5`, idempotente).
+
+**Verificación:** `bash supabase/tests/pilot_catalog_e2e.sh` — crea un usuario
+anónimo, sube una foto a Storage y crea un reporte real en un sector sembrado
+(Mariño/Genovés), comprobando `CREATED` y que el catálogo es legible por `anon`.
 
 ## Android
 
