@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_theme.dart';
 import '../../../shared/widgets/app_components.dart';
+import '../../leaks/presentation/leak_community_providers.dart';
 import '../../leaks/presentation/leak_report_controller.dart';
 import '../../leaks/presentation/leak_report_screen.dart';
 import '../../leaks/presentation/recent_leaks_list.dart';
@@ -14,16 +15,22 @@ import '../../water/presentation/water_register_screen.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  void _openReport(BuildContext context) {
+  Future<void> _openReport(BuildContext context) async {
     // Reinicia el borrador para este nuevo reporte.
     final container = ProviderScope.containerOf(context, listen: false);
     container.invalidate(leakReportProvider);
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
+    final created = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
         builder: (_) => const LeakReportScreen(),
         fullscreenDialog: true,
       ),
     );
+    // S10-B: el nuevo reporte solo existe si el flujo devolvió true
+    // (ReportCreated). Sin invalidación, Home (IndexedStack) conserva la
+    // lista anterior de recentLeaksProvider.
+    if (created == true) {
+      container.invalidate(recentLeaksProvider);
+    }
   }
 
   void _openMap(BuildContext context) {

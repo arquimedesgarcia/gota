@@ -860,7 +860,16 @@ class ResultStepView extends ConsumerWidget {
               width: double.infinity,
               child: FilledButton(
                 style: AppComponents.primaryButtonStyle(),
-                onPressed: () => Navigator.of(context).maybePop(),
+                // S10-B: devuelve true solo cuando el backend creó el
+                // reporte (done + ReportCreated, mismo patrón que
+                // WaterRegisterScreen.pop(true)). Duplicado/error devuelven
+                // false para no invalidar recentLeaksProvider sin necesidad.
+                onPressed: () {
+                  final created =
+                      state.submitState == ReportSubmitState.done &&
+                      outcome is ReportCreated;
+                  Navigator.of(context).maybePop(created);
+                },
                 child: const Text('Volver al inicio'),
               ),
             ),

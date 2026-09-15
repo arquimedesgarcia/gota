@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/app_theme.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/leaks/presentation/leak_community_providers.dart';
 import '../../features/leaks/presentation/leak_report_controller.dart';
 import '../../features/leaks/presentation/leak_report_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
@@ -38,16 +39,23 @@ class _AppShellState extends State<AppShell> {
 
   /// Abre el flujo completo de Reportar fuga (Sprint 02) y reinicia el
   /// borrador al volver, para que el próximo reporte empiece limpio.
+  /// S10-B: si el flujo devolvió true (ReportCreated), invalida
+  /// recentLeaksProvider para que Home reconsulte (mismo patrón que Agua).
   Future<void> _openReportFlow() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
+    final created = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
         builder: (_) => const LeakReportScreen(),
         fullscreenDialog: true,
       ),
     );
-    if (mounted) {
-      resetLeakReportDraft();
+    if (!mounted) return;
+    if (created == true) {
+      ProviderScope.containerOf(
+        context,
+        listen: false,
+      ).invalidate(recentLeaksProvider);
     }
+    resetLeakReportDraft();
   }
 
   void _onDestinationSelected(int index) {
