@@ -6,18 +6,13 @@ import '../../../shared/widgets/app_components.dart';
 import '../../leaks/presentation/leak_report_controller.dart';
 import '../../leaks/presentation/leak_report_screen.dart';
 import '../../leaks/presentation/recent_leaks_list.dart';
+import '../../map/presentation/map_screen.dart';
+import '../../water/presentation/water_register_screen.dart';
 
 /// Pantalla principal: estado de agua, acciones principales y secciones
 /// comunitarias (por ahora con estados vacíos honestos).
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  static const _soonMessage = 'Esta función estará disponible próximamente.';
-
-  void _showSoon(BuildContext context) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text(_soonMessage)));
-  }
 
   void _openReport(BuildContext context) {
     // Reinicia el borrador para este nuevo reporte.
@@ -27,6 +22,22 @@ class HomeScreen extends StatelessWidget {
       MaterialPageRoute<void>(
         builder: (_) => const LeakReportScreen(),
         fullscreenDialog: true,
+      ),
+    );
+  }
+
+  void _openMap(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const MapScreen(),
+      ),
+    );
+  }
+
+  void _openWater(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const WaterRegisterScreen(),
       ),
     );
   }
@@ -105,14 +116,13 @@ class HomeScreen extends StatelessWidget {
                         icon: Icons.water_drop_outlined,
                         label: 'Llegó / Se fue el agua',
                         color: AppColors.success,
-                        onTap: () => _showSoon(context),
+                        onTap: () => _openWater(context),
                       ),
                       _ActionCard(
                         icon: Icons.map_outlined,
                         label: 'Mapa de\nfugas',
                         color: AppColors.primary,
-                        onTap: () => Navigator.of(context)
-                            .pushNamed('/map'), // placeholder
+                        onTap: () => _openMap(context),
                       ),
                     ],
                   ),
