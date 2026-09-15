@@ -141,11 +141,7 @@ class LocationStepView extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               FilledButton.icon(
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size.fromHeight(48),
-                ),
+                style: AppComponents.primaryButtonStyle(),
                 icon: const Icon(Icons.gps_fixed),
                 label: const Text('Usar mi ubicación (GPS)'),
                 onPressed: () =>
@@ -453,8 +449,8 @@ class PhotosStepView extends ConsumerWidget {
           child: Row(
             children: [
               Expanded(
-                child: OutlinedButton(
-                  style: AppComponents.secondaryButtonStyle(),
+                child: FilledButton(
+                  style: AppComponents.primaryButtonStyle(),
                   onPressed: () {
                     if (photos.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -552,8 +548,8 @@ class DataStepView extends ConsumerWidget {
           child: Row(
             children: [
               Expanded(
-                child: OutlinedButton(
-                  style: AppComponents.secondaryButtonStyle(),
+                child: FilledButton(
+                  style: AppComponents.primaryButtonStyle(),
                   // El municipio es obligatorio; el sector también
                   // (REQ-020). La descripción es opcional.
                   onPressed:
@@ -860,14 +856,13 @@ class ResultStepView extends ConsumerWidget {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 24),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                minimumSize: const Size.fromHeight(48),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                style: AppComponents.primaryButtonStyle(),
+                onPressed: () => Navigator.of(context).maybePop(),
+                child: const Text('Volver al inicio'),
               ),
-              onPressed: () => Navigator.of(context).maybePop(),
-              child: const Text('Volver al inicio'),
             ),
           ],
         ),
