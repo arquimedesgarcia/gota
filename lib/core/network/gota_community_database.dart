@@ -10,6 +10,24 @@ abstract class GotaCommunityDatabase {
   /// Reportes recientes (ACTIVE primero). Lectura simple por SDK + RLS.
   Future<List<Map<String, dynamic>>> fetchRecentLeakReports({int limit});
 
+  /// Conteo de fugas creadas en `[startIso, endIso)` (S10-C: "reportadas
+  /// hoy"). [sectorId] restringe al sector de interés; `null` = cobertura
+  /// global del piloto. Conteo exacto server-side, sin traer filas.
+  Future<int> countReportsCreatedBetween({
+    required String startIso,
+    required String endIso,
+    String? sectorId,
+  });
+
+  /// Conteo de fugas resueltas en `[startIso, endIso)` (S10-C: "resueltas
+  /// hoy", por `resolved_at` con `status = RESOLVED`). Mismo alcance que
+  /// [countReportsCreatedBetween].
+  Future<int> countReportsResolvedBetween({
+    required String startIso,
+    required String endIso,
+    String? sectorId,
+  });
+
   /// RPC `get_leak_report_detail`: detalle + estado del usuario actual.
   Future<Map<String, dynamic>> rpcLeakReportDetail(String reportId);
 
@@ -55,6 +73,37 @@ class SupabaseGotaCommunityDatabase implements GotaCommunityDatabase {
         .order('created_at', ascending: false)
         .limit(limit);
     return rows;
+  }
+
+  @override
+  Future<int> countReportsCreatedBetween({
+    required String startIso,
+    required String endIso,
+    String? sectorId,
+  }) async {
+    var query = _client
+        .from('reports')
+        .count(supabase.CountOption.exact)
+        .gte('created_at', startIso)
+        .lt('created_at', endIso);
+    if (sectorId != null) query = query.eq('sector_id', sectorId);
+    return query;
+  }
+
+  @override
+  Future<int> countReportsResolvedBetween({
+    required String startIso,
+    required String endIso,
+    String? sectorId,
+  }) async {
+    var query = _client
+        .from('reports')
+        .count(supabase.CountOption.exact)
+        .eq('status', 'RESOLVED')
+        .gte('resolved_at', startIso)
+        .lt('resolved_at', endIso);
+    if (sectorId != null) query = query.eq('sector_id', sectorId);
+    return query;
   }
 
   @override

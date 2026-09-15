@@ -48,6 +48,26 @@ class _FakeCommunityDatabase implements GotaCommunityDatabase {
   }
 
   @override
+  Future<int> countReportsCreatedBetween({
+    required String startIso,
+    required String endIso,
+    String? sectorId,
+  }) async {
+    if (error != null) throw error!;
+    return 0;
+  }
+
+  @override
+  Future<int> countReportsResolvedBetween({
+    required String startIso,
+    required String endIso,
+    String? sectorId,
+  }) async {
+    if (error != null) throw error!;
+    return 0;
+  }
+
+  @override
   Future<List<Map<String, dynamic>>> rpcGetMapReports({
     String? status,
     String? sectorId,

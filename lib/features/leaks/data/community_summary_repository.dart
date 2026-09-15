@@ -1,0 +1,74 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+
+import '../../../core/errors/app_exception.dart';
+import '../../../core/network/gota_community_database.dart';
+import '../../../core/network/network_providers.dart';
+import '../domain/community_summary.dart';
+
+/// Repositorio del resumen diario "Hoy en tu comunidad" (S10-C).
+///
+/// No decide reglas: calcula la ventana de hoy en Caracas, pide los dos
+/// conteos al backend y los mapea a [CommunitySummary]. Solo agregados,
+/// sin identidades ni `created_by` (privacidad REQ-100).
+abstract class CommunitySummaryRepository {
+  /// Resumen de hoy en el ámbito dado (`sectorId == null` = cobertura
+  /// global del piloto). [nowUtc] permite fijar el reloj en pruebas.
+  Future<CommunitySummary> todaySummary({String? sectorId, DateTime? nowUtc});
+}
+
+class SupabaseCommunitySummaryRepository
+    implements CommunitySummaryRepository {
+  SupabaseCommunitySummaryRepository(this._database);
+
+  final GotaCommunityDatabase _database;
+
+  @override
+  Future<CommunitySummary> todaySummary({
+    String? sectorId,
+    DateTime? nowUtc,
+  }) async {
+    final bounds = caracasDayBounds(nowUtc ?? DateTime.now().toUtc());
+    final startIso = bounds.startUtc.toIso8601String();
+    final endIso = bounds.endUtc.toIso8601String();
+    try {
+      final results = await Future.wait([
+        _database.countReportsCreatedBetween(
+          startIso: startIso,
+          endIso: endIso,
+          sectorId: sectorId,
+        ),
+        _database.countReportsResolvedBetween(
+          startIso: startIso,
+          endIso: endIso,
+          sectorId: sectorId,
+        ),
+      ]);
+      return CommunitySummary(
+        reportedToday: results[0],
+        resolvedToday: results[1],
+      );
+    } on TimeoutException {
+      throw const NetworkException();
+    } on SocketException {
+      throw const NetworkException();
+    } on http.ClientException {
+      throw const NetworkException();
+    } on supabase.PostgrestException {
+      throw const QueryException();
+    } on supabase.AuthException {
+      throw const QueryException();
+    }
+  }
+}
+
+final communitySummaryRepositoryProvider =
+    Provider<CommunitySummaryRepository>(
+      (ref) => SupabaseCommunitySummaryRepository(
+        ref.watch(gotaCommunityDatabaseProvider),
+      ),
+    );

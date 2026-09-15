@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/app_theme.dart';
+import '../../features/home/presentation/community_summary_providers.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/leaks/presentation/leak_community_providers.dart';
 import '../../features/leaks/presentation/leak_report_controller.dart';
@@ -50,10 +51,11 @@ class _AppShellState extends State<AppShell> {
     );
     if (!mounted) return;
     if (created == true) {
-      ProviderScope.containerOf(
-        context,
-        listen: false,
-      ).invalidate(recentLeaksProvider);
+      final container = ProviderScope.containerOf(context, listen: false);
+      container.invalidate(recentLeaksProvider);
+      // S10-C: la tarjeta "Hoy en tu comunidad" también depende del
+      // reporte recién creado.
+      container.invalidate(communitySummaryProvider);
     }
     resetLeakReportDraft();
   }

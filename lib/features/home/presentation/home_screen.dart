@@ -7,11 +7,14 @@ import '../../leaks/presentation/leak_community_providers.dart';
 import '../../leaks/presentation/leak_report_controller.dart';
 import '../../leaks/presentation/leak_report_screen.dart';
 import '../../leaks/presentation/recent_leaks_list.dart';
+import '../../location/presentation/location_providers.dart';
 import '../../map/presentation/map_screen.dart';
+import '../../notifications/presentation/notification_providers.dart';
 import '../../water/presentation/water_register_screen.dart';
+import 'community_summary_providers.dart';
 
-/// Pantalla principal: estado de agua, acciones principales y secciones
-/// comunitarias (por ahora con estados vacíos honestos).
+/// Pantalla principal: estado de agua, acciones principales, resumen diario
+/// de la comunidad y fugas recientes.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -28,8 +31,11 @@ class HomeScreen extends StatelessWidget {
     // S10-B: el nuevo reporte solo existe si el flujo devolvió true
     // (ReportCreated). Sin invalidación, Home (IndexedStack) conserva la
     // lista anterior de recentLeaksProvider.
+    // S10-C: la tarjeta "Hoy en tu comunidad" también depende del reporte
+    // recién creado y se invalida en el mismo punto.
     if (created == true) {
       container.invalidate(recentLeaksProvider);
+      container.invalidate(communitySummaryProvider);
     }
   }
 
@@ -260,29 +266,163 @@ class _ActionCard extends StatelessWidget {
   }
 }
 
-class _CommunityStatsCard extends StatelessWidget {
+/// Clave estable del reintento de la tarjeta (pruebas de UI).
+const communitySummaryRetryKey = Key('community-summary-retry');
+
+/// Tarjeta "Hoy en tu comunidad" (S10-C): resumen diario real de fugas
+/// reportadas y resueltas hoy en el ámbito efectivo (sector de interés o
+/// cobertura global). Solo agregados, sin identidades.
+class _CommunityStatsCard extends ConsumerWidget {
   const _CommunityStatsCard();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summaryAsync = ref.watch(communitySummaryProvider);
+
     return Card(
       child: Padding(
         padding: EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Hoy en tu comunidad',
-              style: Theme.of(context).textTheme.titleMedium,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Hoy en tu comunidad',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const _ScopeLabel(),
+              ],
             ),
             SizedBox(height: AppSpacing.md),
-            const Text(
-              'Sin datos todavía',
-              style: TextStyle(color: AppColors.textMuted),
+            summaryAsync.when(
+              loading: () => const Row(
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  SizedBox(width: 12),
+                  Text(
+                    'Cargando actividad…',
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                  ),
+                ],
+              ),
+              error: (_, _) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'No pudimos cargar la actividad de hoy.',
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    key: communitySummaryRetryKey,
+                    onPressed: () =>
+                        ref.invalidate(communitySummaryProvider),
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+              data: (summary) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _Counter(
+                          value: summary.reportedToday,
+                          label: 'reportadas hoy',
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      Expanded(
+                        child: _Counter(
+                          value: summary.resolvedToday,
+                          label: 'resueltas hoy',
+                          color: AppColors.success,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (summary.isEmpty) ...[
+                    SizedBox(height: AppSpacing.sm),
+                    const Text(
+                      'Sin datos todavía',
+                      style: TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Etiqueta del ámbito efectivo: nombre del sector de interés cuando hay
+/// uno, cobertura del piloto cuando no.
+class _ScopeLabel extends ConsumerWidget {
+  const _ScopeLabel();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final prefsAsync = ref.watch(notificationPreferencesProvider);
+    final sectorId = prefsAsync.value?.preferredSectorId;
+    if (sectorId == null) {
+      return Text(
+        'Cobertura del piloto',
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: AppColors.textMuted,
+        ),
+      );
+    }
+    final nameAsync = ref.watch(sectorNameProvider(sectorId));
+    return Text(
+      nameAsync.value ?? 'Tu sector',
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: AppColors.textMuted,
+      ),
+    );
+  }
+}
+
+class _Counter extends StatelessWidget {
+  const _Counter({
+    required this.value,
+    required this.label,
+    required this.color,
+  });
+
+  final int value;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$value',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+        ),
+      ],
     );
   }
 }
