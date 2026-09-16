@@ -76,14 +76,6 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _index, children: _tabs),
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Reportar',
-        backgroundColor: AppColors.accent,
-        foregroundColor: Colors.white,
-        onPressed: _openReportFlow,
-        child: const Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: _onDestinationSelected,
