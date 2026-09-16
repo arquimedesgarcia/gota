@@ -10,6 +10,7 @@ import '../../../shared/widgets/loading_view.dart';
 import '../../location/presentation/location_providers.dart';
 import '../domain/create_leak_report_outcome.dart';
 import '../domain/location_source.dart';
+import 'location_map_picker.dart';
 import 'leak_detail_screen.dart';
 import 'leak_report_controller.dart';
 import 'leak_report_microcopy.dart';
@@ -202,8 +203,7 @@ class LocationStepView extends ConsumerWidget {
                   child: Padding(
                     padding: EdgeInsets.all(16),
                     child: Text(
-                      'Sin ubicación todavía. Elige GPS o manual para '
-                      'continuar.',
+                      'Sin ubicación todavía. Elige GPS o manual para continuar.',
                       style: TextStyle(
                         fontSize: 13,
                         color: AppColors.textMuted,
@@ -211,6 +211,88 @@ class LocationStepView extends ConsumerWidget {
                     ),
                   ),
                 ),
+              if (location != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: SizedBox(
+                    height: 220,
+                    child: ref.watch(locationMapBuilderProvider)(
+                      latitude: location.latitude,
+                      longitude: location.longitude,
+                      onMapTapped: (point) => ref
+                          .read(leakReportProvider.notifier)
+                          .setAdjustedLocation(
+                            latitude: point.latitude,
+                            longitude: point.longitude,
+                          ),
+                    ),
+                  ),
+                ),
+              if (location != null && location.accuracyMeters != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  location.accuracyMeters! <= 25
+                      ? 'Precisión aproximada: buena (${location.accuracyMeters!.round()} m)'
+                      : 'Precisión aproximada: ${location.accuracyMeters!.round()} m. Puedes continuar y confirmar el punto.',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+              ],
+              if (state.suggestionLoading) ...[
+                const SizedBox(height: 12),
+                const LinearProgressIndicator(),
+                const SizedBox(height: 8),
+                const Text(
+                  'Buscando una ubicación aproximada…',
+                  style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                ),
+              ],
+              if (state.locationSuggestion != null) ...[
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Ubicación aproximada',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          state.locationSuggestion!.displayText ??
+                              'No hay una descripción disponible.',
+                        ),
+                        if (state.locationSuggestion!.municipality != null ||
+                            state.locationSuggestion!.state != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            [
+                              state.locationSuggestion!.municipality,
+                              state.locationSuggestion!.state,
+                            ].whereType<String>().join(' · '),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textMuted,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Es una referencia aproximada. Municipio y sector se confirman por separado.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

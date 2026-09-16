@@ -9,5 +9,6 @@ abstract class LocationService {
   ///
   /// Lanza [LocationPermissionDeniedException], [LocationServiceOffException]
   /// o [LocationUnavailableException] según el motivo del fallo.
-  Future<({double latitude, double longitude})> getCurrentPosition();
+  Future<({double latitude, double longitude, double? accuracyMeters})>
+  getCurrentPosition();
 }

@@ -6,11 +6,13 @@ class SelectedLocation {
     required this.latitude,
     required this.longitude,
     required this.source,
+    this.accuracyMeters,
   });
 
   final double latitude;
   final double longitude;
   final LocationSource source;
+  final double? accuracyMeters;
 
   bool get isGps => source == LocationSource.gps;
 }

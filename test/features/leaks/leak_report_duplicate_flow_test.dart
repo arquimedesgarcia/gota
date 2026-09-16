@@ -24,8 +24,9 @@ import 'package:gota/shared/models/sector.dart';
 
 class _FakeLocationService implements LocationService {
   @override
-  Future<({double latitude, double longitude})> getCurrentPosition() async =>
-      (latitude: 10.99, longitude: -63.87);
+  Future<({double latitude, double longitude, double? accuracyMeters})>
+  getCurrentPosition() async =>
+      (latitude: 10.99, longitude: -63.87, accuracyMeters: 12.0);
 }
 
 class _FakeMunicipalityRepository implements MunicipalityRepository {

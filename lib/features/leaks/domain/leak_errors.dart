@@ -38,6 +38,13 @@ class LocationUnavailableException extends LeakFlowException {
   ]);
 }
 
+class ReverseGeocodingException extends LeakFlowException {
+  const ReverseGeocodingException([
+    super.userMessage =
+        'No pudimos obtener una sugerencia de ubicación. Puedes continuar.',
+  ]);
+}
+
 class PhotoValidationException extends LeakFlowException {
   const PhotoValidationException(super.userMessage);
 }

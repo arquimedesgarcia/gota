@@ -10,7 +10,9 @@ import '../data/leak_report_repository.dart';
 import '../data/location_service.dart';
 import '../data/photo_service.dart';
 import '../data/photo_limits.dart';
+import '../data/reverse_geocoding_service.dart';
 import '../domain/location_source.dart';
+import '../domain/location_suggestion.dart';
 
 /// Etapas del flujo Reportar fuga (UX_SPEC §4):
 /// Ubicación → Fotos → Datos → Revisar → Enviado.
@@ -26,6 +28,8 @@ class LeakReportState {
     this.submitState = ReportSubmitState.idle,
     this.message,
     this.outcome,
+    this.locationSuggestion,
+    this.suggestionLoading = false,
   });
 
   final ReportStep currentStep;
@@ -35,6 +39,8 @@ class LeakReportState {
   /// Mensaje visible (error inmediato duplicado detectado, confirmación).
   final String? message;
   final CreateLeakReportOutcome? outcome;
+  final LocationSuggestion? locationSuggestion;
+  final bool suggestionLoading;
 
   bool get canSubmit =>
       draft.location != null &&
@@ -49,12 +55,19 @@ class LeakReportState {
     String? message,
     bool clearMessage = false,
     CreateLeakReportOutcome? outcome,
+    LocationSuggestion? locationSuggestion,
+    bool clearLocationSuggestion = false,
+    bool? suggestionLoading,
   }) => LeakReportState(
     currentStep: currentStep ?? this.currentStep,
     draft: draft ?? this.draft,
     submitState: submitState ?? this.submitState,
     message: clearMessage ? null : (message ?? this.message),
     outcome: outcome ?? this.outcome,
+    locationSuggestion: clearLocationSuggestion
+        ? null
+        : (locationSuggestion ?? this.locationSuggestion),
+    suggestionLoading: suggestionLoading ?? this.suggestionLoading,
   );
 }
 
@@ -65,6 +78,9 @@ class LeakReportController extends Notifier<LeakReportState> {
   static const photoMaxCount = kReportPhotoMaxCount;
 
   LocationService get _locationService => ref.watch(locationServiceProvider);
+  ReverseGeocodingService get _reverseGeocoder =>
+      ref.watch(reverseGeocodingServiceProvider);
+  int _locationRequestId = 0;
 
   @override
   LeakReportState build() {
@@ -77,6 +93,7 @@ class LeakReportController extends Notifier<LeakReportState> {
   // ---------- Ubicación ----------
 
   Future<void> requestGps() async {
+    final requestId = ++_locationRequestId;
     try {
       final position = await _locationService.getCurrentPosition();
       state = state.copyWith(
@@ -84,13 +101,49 @@ class LeakReportController extends Notifier<LeakReportState> {
           location: SelectedLocation(
             latitude: position.latitude,
             longitude: position.longitude,
+            accuracyMeters: position.accuracyMeters,
             source: LocationSource.gps,
           ),
         ),
         clearMessage: true,
+        clearLocationSuggestion: true,
+        suggestionLoading: true,
+      );
+      await _loadSuggestion(
+        requestId: requestId,
+        latitude: position.latitude,
+        longitude: position.longitude,
       );
     } on LeakFlowException catch (e) {
-      state = state.copyWith(message: e.userMessage);
+      state = state.copyWith(
+        message: e.userMessage,
+        clearLocationSuggestion: true,
+        suggestionLoading: false,
+      );
+    }
+  }
+
+  Future<void> _loadSuggestion({
+    required int requestId,
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      final suggestion = await _reverseGeocoder.reverse(
+        latitude: latitude,
+        longitude: longitude,
+      );
+      if (requestId != _locationRequestId) return;
+      state = state.copyWith(
+        locationSuggestion: suggestion,
+        suggestionLoading: false,
+      );
+    } on ReverseGeocodingException catch (e) {
+      if (requestId != _locationRequestId) return;
+      state = state.copyWith(
+        message: e.userMessage,
+        suggestionLoading: false,
+      );
     }
   }
 
@@ -98,6 +151,7 @@ class LeakReportController extends Notifier<LeakReportState> {
     required double latitude,
     required double longitude,
   }) {
+    ++_locationRequestId;
     state = state.copyWith(
       draft: state.draft.copyWith(
         location: SelectedLocation(
@@ -107,6 +161,32 @@ class LeakReportController extends Notifier<LeakReportState> {
         ),
       ),
       clearMessage: true,
+      clearLocationSuggestion: true,
+      suggestionLoading: false,
+    );
+  }
+
+  Future<void> setAdjustedLocation({
+    required double latitude,
+    required double longitude,
+  }) async {
+    final requestId = ++_locationRequestId;
+    state = state.copyWith(
+      draft: state.draft.copyWith(
+        location: SelectedLocation(
+          latitude: latitude,
+          longitude: longitude,
+          source: LocationSource.manual,
+        ),
+      ),
+      clearMessage: true,
+      clearLocationSuggestion: true,
+      suggestionLoading: true,
+    );
+    await _loadSuggestion(
+      requestId: requestId,
+      latitude: latitude,
+      longitude: longitude,
     );
   }
 

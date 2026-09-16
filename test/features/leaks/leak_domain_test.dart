@@ -19,9 +19,10 @@ class _FakeLocationService implements LocationService {
   final double lng;
 
   @override
-  Future<({double latitude, double longitude})> getCurrentPosition() async {
+  Future<({double latitude, double longitude, double? accuracyMeters})>
+  getCurrentPosition() async {
     if (throw_ != null) throw throw_!;
-    return (latitude: lat, longitude: lng);
+    return (latitude: lat, longitude: lng, accuracyMeters: null);
   }
 }
 

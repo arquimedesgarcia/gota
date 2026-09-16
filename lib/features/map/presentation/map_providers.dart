@@ -206,7 +206,7 @@ class MapLocationAction {
       _ref
           .read(mapFilterProvider.notifier)
           .setUserLocation(pos.latitude, pos.longitude);
-      return pos;
+      return (latitude: pos.latitude, longitude: pos.longitude);
     } on LeakFlowException catch (error) {
       lastError = error.userMessage;
       return null;

@@ -6,7 +6,10 @@ import 'package:gota/app/theme/app_theme.dart';
 import 'package:gota/features/leaks/data/geolocator_location_service.dart'
     show locationServiceProvider;
 import 'package:gota/features/leaks/data/location_service.dart';
+import 'package:gota/features/leaks/data/reverse_geocoding_service.dart';
 import 'package:gota/features/leaks/domain/leak_errors.dart';
+import 'package:gota/features/leaks/domain/location_suggestion.dart';
+import 'package:gota/features/leaks/presentation/location_map_picker.dart';
 import 'package:gota/features/leaks/presentation/leak_report_screen.dart';
 import 'package:gota/features/location/data/municipality_repository.dart';
 import 'package:gota/features/location/data/sector_repository.dart';
@@ -19,9 +22,27 @@ class _FakeLocationService implements LocationService {
   final LeakFlowException? error;
 
   @override
-  Future<({double latitude, double longitude})> getCurrentPosition() async {
+  Future<({double latitude, double longitude, double? accuracyMeters})>
+  getCurrentPosition() async {
     if (error != null) throw error!;
-    return (latitude: 10.99, longitude: -63.87);
+    return (latitude: 10.99, longitude: -63.87, accuracyMeters: 12.0);
+  }
+}
+
+class _FakeReverseGeocoder implements ReverseGeocodingService {
+  @override
+  Future<LocationSuggestion?> reverse({
+    required double latitude,
+    required double longitude,
+  }) async {
+    return LocationSuggestion(
+      latitude: latitude,
+      longitude: longitude,
+      displayText: 'Cerca de La Asunción',
+      municipality: 'Municipio Arismendi',
+      state: 'Nueva Esparta',
+      provider: 'test',
+    );
   }
 }
 
@@ -57,6 +78,11 @@ ProviderScope _app({LeakFlowException? gpsError}) => ProviderScope(
   overrides: [
     locationServiceProvider.overrideWithValue(
       _FakeLocationService(error: gpsError),
+    ),
+    reverseGeocodingServiceProvider.overrideWithValue(_FakeReverseGeocoder()),
+    locationMapBuilderProvider.overrideWithValue(
+      ({required latitude, required longitude, required onMapTapped}) =>
+          const SizedBox(key: Key('fake-location-map')),
     ),
     municipalityRepositoryProvider.overrideWithValue(
       _FakeMunicipalityRepository(),

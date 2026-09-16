@@ -9,7 +9,8 @@ class GeolocatorLocationService implements LocationService {
   const GeolocatorLocationService();
 
   @override
-  Future<({double latitude, double longitude})> getCurrentPosition() async {
+  Future<({double latitude, double longitude, double? accuracyMeters})>
+  getCurrentPosition() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       throw const LocationServiceOffException();
@@ -33,7 +34,11 @@ class GeolocatorLocationService implements LocationService {
           timeLimit: Duration(seconds: 12),
         ),
       );
-      return (latitude: position.latitude, longitude: position.longitude);
+      return (
+        latitude: position.latitude,
+        longitude: position.longitude,
+        accuracyMeters: position.accuracy,
+      );
     } on Exception {
       throw const LocationUnavailableException();
     }
