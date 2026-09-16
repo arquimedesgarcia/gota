@@ -75,6 +75,11 @@ class SupabaseGotaCommunityDatabase implements GotaCommunityDatabase {
     return rows;
   }
 
+  /// Columna mínima para los conteos (S10-C): petición explícita sin
+  /// `select=*`, porque `created_by` está revocado para `anon` y un select
+  /// implícito responde HTTP 401 (PG 42501).
+  static const _countColumns = 'id';
+
   @override
   Future<int> countReportsCreatedBetween({
     required String startIso,
@@ -83,11 +88,12 @@ class SupabaseGotaCommunityDatabase implements GotaCommunityDatabase {
   }) async {
     var query = _client
         .from('reports')
-        .count(supabase.CountOption.exact)
+        .select(_countColumns)
         .gte('created_at', startIso)
         .lt('created_at', endIso);
     if (sectorId != null) query = query.eq('sector_id', sectorId);
-    return query;
+    final res = await query.count(supabase.CountOption.exact);
+    return res.count;
   }
 
   @override
@@ -98,12 +104,13 @@ class SupabaseGotaCommunityDatabase implements GotaCommunityDatabase {
   }) async {
     var query = _client
         .from('reports')
-        .count(supabase.CountOption.exact)
+        .select(_countColumns)
         .eq('status', 'RESOLVED')
         .gte('resolved_at', startIso)
         .lt('resolved_at', endIso);
     if (sectorId != null) query = query.eq('sector_id', sectorId);
-    return query;
+    final res = await query.count(supabase.CountOption.exact);
+    return res.count;
   }
 
   @override
