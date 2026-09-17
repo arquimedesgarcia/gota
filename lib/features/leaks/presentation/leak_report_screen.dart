@@ -229,7 +229,7 @@ class LocationStepView extends ConsumerWidget {
                   ),
                 ),
               if (location != null && location.accuracyMeters != null) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Text(
                   location.accuracyMeters! <= 25
                       ? 'Precisión aproximada: buena (${location.accuracyMeters!.round()} m)'
@@ -673,6 +673,26 @@ class _MunicipalityName extends ConsumerWidget {
   }
 }
 
+class _SectorName extends ConsumerWidget {
+  const _SectorName({required this.sectorId});
+
+  final String? sectorId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (sectorId == null) return const Text('Sin sector');
+    final sectorNameState = ref.watch(sectorNameProvider(sectorId!));
+    return sectorNameState.maybeWhen(
+      data: (name) => Text(
+        name ?? 'Sector',
+        style: const TextStyle(color: AppColors.textMuted),
+      ),
+      orElse: () =>
+          const Text('Sector', style: TextStyle(color: AppColors.textMuted)),
+    );
+  }
+}
+
 class _SectorsDropdown extends ConsumerWidget {
   const _SectorsDropdown({
     required this.municipalityId,
@@ -765,8 +785,25 @@ class ReviewStepView extends ConsumerWidget {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 4),
-                      // AUD-S2-12: el nombre sale del provider único.
-                      _MunicipalityName(municipalityId: draft.municipalityId),
+                      Row(
+                        children: [
+                          Expanded(
+                            child:
+                                _MunicipalityName(
+                                  municipalityId: draft.municipalityId,
+                                ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Text(
+                            '·',
+                            style: TextStyle(color: AppColors.textMuted),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: _SectorName(sectorId: draft.sectorId),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         'Descripción',

@@ -284,13 +284,19 @@ class LeakReportController extends Notifier<LeakReportState> {
 
   // ---------- Navegación del flujo ----------
 
-  void goTo(ReportStep step) => state = state.copyWith(currentStep: step);
+  void goTo(ReportStep step) => state = state.copyWith(
+    currentStep: step,
+    clearMessage: state.submitState == ReportSubmitState.idle,
+  );
 
   void goToNext() {
     final order = ReportStep.values;
     final index = order.indexOf(state.currentStep);
     if (index < order.length - 1) {
-      state = state.copyWith(currentStep: order[index + 1]);
+      state = state.copyWith(
+        currentStep: order[index + 1],
+        clearMessage: state.submitState == ReportSubmitState.idle,
+      );
     }
   }
 
