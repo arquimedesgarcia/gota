@@ -41,7 +41,14 @@ class MapFilterNotifier extends Notifier<MapFilterState> {
 
   /// Establece el bounding box del viewport visible en el mapa (Sprint 05).
   /// Se invoca desde GotaMapView cuando MapLibre dispara onCameraIdle.
+  /// R4: Ignore updates if bounds haven't changed significantly (debounce zoom loop).
   void setBounds(double minLat, double minLng, double maxLat, double maxLng) {
+    final boundsChanged = state.minLat != minLat ||
+        state.minLng != minLng ||
+        state.maxLat != maxLat ||
+        state.maxLng != maxLng;
+    if (!boundsChanged) return;
+
     state = state.copyWith(
       minLat: minLat,
       minLng: minLng,

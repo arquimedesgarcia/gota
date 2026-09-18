@@ -9,8 +9,6 @@ import 'water_register_controller.dart';
 import 'water_register_step_type.dart';
 import 'water_register_step_municipality.dart';
 import 'water_register_step_sector.dart';
-import 'water_register_step_time.dart';
-import 'water_register_step_comment.dart';
 
 /// Pantalla del flujo completo de registro de evento de agua
 /// (municipio → sector → hora → comentario → revisar).
@@ -73,7 +71,7 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
               ? const LoadingView(message: 'Registrando evento…')
               : Stepper(
                   currentStep: _currentStep,
-                  onStepContinue: _currentStep < 4
+                  onStepContinue: _currentStep < 3
                       ? () => setState(() => _currentStep++)
                       : null,
                   onStepCancel: _currentStep > 0
@@ -101,12 +99,7 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
                       isActive: _currentStep >= 2,
                     ),
                     Step(
-                      title: const Text(WaterCopy.stepTime),
-                      content: const WaterRegisterStepTime(),
-                      isActive: _currentStep >= 3,
-                    ),
-                    Step(
-                      title: const Text(WaterCopy.stepComment),
+                      title: const Text('Resumen'),
                       content: Column(
                         children: [
                           if (state.errorMessage != null) ...[
@@ -115,23 +108,172 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
                             ),
                             const SizedBox(height: 12),
                           ],
-                          const WaterRegisterStepComment(),
+                          _WaterRegisterReview(),
                         ],
                       ),
-                      isActive: _currentStep >= 4,
+                      isActive: _currentStep >= 3,
                     ),
                   ],
                 ),
         ),
         floatingActionButton:
             state.submitStatus != WaterRegisterSubmitStatus.submitting &&
-                _currentStep == 4
+                _currentStep == 3
             ? FloatingActionButton.extended(
                 onPressed: _submit,
                 icon: const Icon(Icons.check),
                 label: const Text(WaterCopy.confirm),
               )
             : null,
+      ),
+    );
+  }
+}
+
+/// Resumen del evento con opción de editar la hora.
+class _WaterRegisterReview extends ConsumerWidget {
+  const _WaterRegisterReview();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(waterRegisterControllerProvider);
+    final now = DateTime.now();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Resumen del evento',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 16),
+        _ReviewField(
+          label: 'Municipio',
+          value: state.municipalityName ?? '—',
+        ),
+        const SizedBox(height: 12),
+        _ReviewField(
+          label: 'Sector',
+          value: state.sectorName ?? '—',
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Hora del evento',
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                    const SizedBox(height: 4),
+                    if (state.eventTime != null)
+                      Text(
+                        _formatEventTime(state.eventTime!, now: now),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                  ],
+                ),
+              ),
+              TextButton(
+                onPressed: () => _openTimePicker(context, ref),
+                child: const Text('Editar'),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (state.comment.isNotEmpty) ...[
+          _ReviewField(
+            label: 'Comentario',
+            value: state.comment,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _openTimePicker(BuildContext context, WidgetRef ref) async {
+    final state = ref.read(waterRegisterControllerProvider);
+    final initial = state.eventTime ?? DateTime.now();
+
+    final selectedDate = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+
+    if (!context.mounted || selectedDate == null) return;
+
+    final selectedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(initial),
+    );
+
+    if (!context.mounted || selectedTime == null) return;
+
+    final combined = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      selectedTime.hour,
+      selectedTime.minute,
+    );
+
+    ref
+        .read(waterRegisterControllerProvider.notifier)
+        .selectEventTime(combined);
+  }
+
+  String _formatEventTime(DateTime eventTime, {required DateTime now}) {
+    final diff = now.difference(eventTime);
+    if (diff.inMinutes < 1) return 'Hace unos segundos';
+    if (diff.inMinutes < 60) return 'Hace ${diff.inMinutes}m';
+    if (diff.inHours < 24) return 'Hace ${diff.inHours}h';
+
+    final daysDiff = diff.inDays;
+    if (daysDiff == 1) return 'Ayer';
+    if (daysDiff < 7) return 'Hace $daysDiff días';
+
+    return '${eventTime.day}/${eventTime.month}/${eventTime.year} ${eventTime.hour.toString().padLeft(2, '0')}:${eventTime.minute.toString().padLeft(2, '0')}';
+  }
+}
+
+class _ReviewField extends StatelessWidget {
+  const _ReviewField({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ],
       ),
     );
   }

@@ -7,6 +7,7 @@ import '../../../shared/models/sector.dart';
 import '../data/water_event_repository.dart';
 import '../domain/water_errors.dart';
 import '../domain/water_event_type.dart';
+import 'water_providers.dart';
 
 enum WaterRegisterSubmitStatus { idle, submitting, done, error }
 
@@ -62,7 +63,7 @@ class WaterRegisterState {
 /// obligatorios y traducción de errores a mensajes para el usuario.
 class WaterRegisterController extends Notifier<WaterRegisterState> {
   @override
-  WaterRegisterState build() => const WaterRegisterState();
+  WaterRegisterState build() => WaterRegisterState(eventTime: DateTime.now());
 
   void selectMunicipality(Municipality municipality) => state = state.copyWith(
     municipalityId: municipality.id,
@@ -135,6 +136,8 @@ class WaterRegisterController extends Notifier<WaterRegisterState> {
         submitStatus: WaterRegisterSubmitStatus.done,
         clearError: true,
       );
+      // R2: Refresh water event history after successful registration
+      ref.read(waterHistoryControllerProvider.notifier).refresh();
       return true;
     } on WaterException catch (e) {
       state = state.copyWith(
