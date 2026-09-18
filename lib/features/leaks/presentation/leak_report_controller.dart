@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/app_exception.dart';
+import '../../location/presentation/location_providers.dart';
 import '../domain/create_leak_report_outcome.dart';
 import '../domain/leak_errors.dart';
 import '../domain/leak_report_draft.dart';
@@ -30,6 +31,8 @@ class LeakReportState {
     this.outcome,
     this.locationSuggestion,
     this.suggestionLoading = false,
+    this.suggestedMunicipalityId,
+    this.suggestedSectorId,
   });
 
   final ReportStep currentStep;
@@ -41,6 +44,14 @@ class LeakReportState {
   final CreateLeakReportOutcome? outcome;
   final LocationSuggestion? locationSuggestion;
   final bool suggestionLoading;
+
+  /// ID del municipio sugerido por reverse-geocode (nunca sobreescribe
+  /// una selección manual almacenada en [draft.municipalityId]).
+  final String? suggestedMunicipalityId;
+
+  /// ID del sector sugerido; válido solo cuando el municipio activo
+  /// coincide con [suggestedMunicipalityId].
+  final String? suggestedSectorId;
 
   bool get canSubmit =>
       draft.location != null &&
@@ -58,6 +69,8 @@ class LeakReportState {
     LocationSuggestion? locationSuggestion,
     bool clearLocationSuggestion = false,
     bool? suggestionLoading,
+    String? suggestedMunicipalityId,
+    String? suggestedSectorId,
   }) => LeakReportState(
     currentStep: currentStep ?? this.currentStep,
     draft: draft ?? this.draft,
@@ -68,6 +81,13 @@ class LeakReportState {
         ? null
         : (locationSuggestion ?? this.locationSuggestion),
     suggestionLoading: suggestionLoading ?? this.suggestionLoading,
+    // Limpiar sugerencias derivadas al limpiar la sugerencia de ubicación.
+    suggestedMunicipalityId: clearLocationSuggestion
+        ? null
+        : (suggestedMunicipalityId ?? this.suggestedMunicipalityId),
+    suggestedSectorId: clearLocationSuggestion
+        ? null
+        : (suggestedSectorId ?? this.suggestedSectorId),
   );
 }
 
@@ -138,6 +158,12 @@ class LeakReportController extends Notifier<LeakReportState> {
         locationSuggestion: suggestion,
         suggestionLoading: false,
       );
+      if (suggestion != null) {
+        await _applyMunicipalitySuggestion(
+          requestId: requestId,
+          suggestion: suggestion,
+        );
+      }
     } on ReverseGeocodingException catch (e) {
       if (requestId != _locationRequestId) return;
       state = state.copyWith(
@@ -145,6 +171,71 @@ class LeakReportController extends Notifier<LeakReportState> {
         suggestionLoading: false,
       );
     }
+  }
+
+  /// Calcula sugerencias de municipio y sector a partir de los datos del
+  /// reverse-geocoder y las guarda como [suggestedMunicipalityId] /
+  /// [suggestedSectorId] en el estado.
+  ///
+  /// Nunca modifica [draft.municipalityId] ni [draft.sectorId]: la
+  /// preselección es solo informativa; el usuario confirma vía dropdown.
+  Future<void> _applyMunicipalitySuggestion({
+    required int requestId,
+    required LocationSuggestion suggestion,
+  }) async {
+    final rawMunicipality = suggestion.municipality ?? suggestion.city;
+    if (rawMunicipality == null) return;
+
+    try {
+      final municipalities = await ref.read(municipalitiesProvider.future);
+      if (requestId != _locationRequestId) return;
+
+      final matched = _matchUnique(
+        _normalize(rawMunicipality),
+        municipalities.map((m) => (id: m.id, name: m.name)),
+      );
+      if (matched == null) return;
+
+      state = state.copyWith(suggestedMunicipalityId: matched);
+
+      final localityText =
+          suggestion.locality ?? suggestion.neighborhood ?? suggestion.city;
+      if (localityText == null) return;
+
+      final sectors = await ref.read(sectorsProvider(matched).future);
+      if (requestId != _locationRequestId) return;
+
+      final matchedSector = _matchUnique(
+        _normalize(localityText),
+        sectors.map((s) => (id: s.id, name: s.name)),
+      );
+      if (matchedSector == null) return;
+      state = state.copyWith(suggestedSectorId: matchedSector);
+    } catch (_) {
+      // Best-effort; errores son silenciosos.
+    }
+  }
+
+  static String _normalize(String text) => text
+      .toLowerCase()
+      .replaceFirst(RegExp(r'^municipio\s+'), '')
+      .trim();
+
+  /// Devuelve el id del único elemento cuyo nombre [contains] el [target]
+  /// (o viceversa). Si hay 0 o ≥2 coincidencias devuelve null (ambigüedad).
+  static String? _matchUnique(
+    String target,
+    Iterable<({String id, String name})> items,
+  ) {
+    String? unique;
+    for (final item in items) {
+      final norm = item.name.toLowerCase();
+      if (norm.contains(target) || target.contains(norm)) {
+        if (unique != null) return null; // ambigüedad
+        unique = item.id;
+      }
+    }
+    return unique;
   }
 
   void setManualLocation({

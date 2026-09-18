@@ -17,6 +17,10 @@ void main() {
 
     expect(suggestion.displayText, contains('Casco Histórico'));
     expect(suggestion.municipality, 'Municipio Arismendi');
+    // B1: el campo municipality llega intacto al DTO sin transformación.
+    expect(suggestion.municipality, 'Municipio Arismendi');
+    expect(suggestion.locality, 'Casco Histórico');
+    expect(suggestion.city, 'La Asunción');
     expect(suggestion.provider, 'nominatim');
     expect(suggestion.incomplete, isFalse);
     expect(suggestion.municipalityId, isNull);

@@ -8,7 +8,9 @@ import 'package:gota/features/leaks/data/geolocator_location_service.dart'
 import 'package:gota/features/leaks/data/location_service.dart';
 import 'package:gota/features/leaks/data/reverse_geocoding_service.dart';
 import 'package:gota/features/leaks/domain/leak_errors.dart';
+import 'package:gota/features/leaks/domain/location_source.dart';
 import 'package:gota/features/leaks/domain/location_suggestion.dart';
+import 'package:gota/features/leaks/presentation/leak_report_controller.dart';
 import 'package:gota/features/leaks/presentation/location_map_picker.dart';
 import 'package:gota/features/leaks/presentation/leak_report_screen.dart';
 import 'package:gota/features/location/data/municipality_repository.dart';
@@ -29,12 +31,23 @@ class _FakeLocationService implements LocationService {
   }
 }
 
+typedef _GeocoderBuilder =
+    LocationSuggestion? Function(double lat, double lng);
+
 class _FakeReverseGeocoder implements ReverseGeocodingService {
+  _FakeReverseGeocoder({this._builder, this._fails = false});
+
+  final _GeocoderBuilder? _builder;
+  final bool _fails;
+
   @override
   Future<LocationSuggestion?> reverse({
     required double latitude,
     required double longitude,
   }) async {
+    if (_fails) throw const ReverseGeocodingException();
+    final b = _builder;
+    if (b != null) return b(latitude, longitude);
     return LocationSuggestion(
       latitude: latitude,
       longitude: longitude,
@@ -74,12 +87,17 @@ class _FakeSectorRepository implements SectorRepository {
   Future<Sector?> getById(String id) async => null;
 }
 
-ProviderScope _app({LeakFlowException? gpsError}) => ProviderScope(
+ProviderScope _app({
+  LeakFlowException? gpsError,
+  ReverseGeocodingService? geocoder,
+}) => ProviderScope(
   overrides: [
     locationServiceProvider.overrideWithValue(
       _FakeLocationService(error: gpsError),
     ),
-    reverseGeocodingServiceProvider.overrideWithValue(_FakeReverseGeocoder()),
+    reverseGeocodingServiceProvider.overrideWithValue(
+      geocoder ?? _FakeReverseGeocoder(),
+    ),
     locationMapBuilderProvider.overrideWithValue(
       ({required latitude, required longitude, required onMapTapped}) =>
           const SizedBox(key: Key('fake-location-map')),
@@ -91,6 +109,23 @@ ProviderScope _app({LeakFlowException? gpsError}) => ProviderScope(
   ],
   child: MaterialApp(theme: AppTheme.light, home: const LeakReportScreen()),
 );
+
+/// Crea un ProviderContainer standalone para tests de controller sin widgets.
+ProviderContainer _container({ReverseGeocodingService? geocoder}) {
+  final c = ProviderContainer(
+    overrides: [
+      locationServiceProvider.overrideWithValue(_FakeLocationService()),
+      reverseGeocodingServiceProvider.overrideWithValue(
+        geocoder ?? _FakeReverseGeocoder(),
+      ),
+      municipalityRepositoryProvider.overrideWithValue(
+        _FakeMunicipalityRepository(),
+      ),
+      sectorRepositoryProvider.overrideWithValue(_FakeSectorRepository()),
+    ],
+  );
+  return c;
+}
 
 void main() {
   testWidgets('flujo completo con GPS: ubicación → fotos → datos → revisar', (
@@ -191,5 +226,163 @@ void main() {
 
     // La pantalla de ubicación no asume GPS ya obtenido.
     expect(find.textContaining('Sin ubicación todavía'), findsOneWidget);
+  });
+
+  // ── B1: tests de controller ───────────────────────────────────────────────
+
+  // B1-01: municipality text matches catalog → suggestedMunicipalityId set.
+  test('B1-01: suggestion.municipality coincide con catálogo → suggestedMunicipalityId', () async {
+    final c = _container(
+      geocoder: _FakeReverseGeocoder(
+        builder: (lat, lng) => LocationSuggestion(
+          latitude: lat,
+          longitude: lng,
+          municipality: 'Maneiro',
+          locality: 'La Caranta',
+          provider: 'test',
+        ),
+      ),
+    );
+    addTearDown(c.dispose);
+
+    await c.read(leakReportProvider.notifier).requestGps();
+
+    final state = c.read(leakReportProvider);
+    expect(state.suggestedMunicipalityId, 'm1');
+    expect(state.suggestedSectorId, 's1');
+    // Draft NOT mutated by suggestion.
+    expect(state.draft.municipalityId, isNull);
+    expect(state.draft.sectorId, isNull);
+  });
+
+  // B1-02: no match → suggestedMunicipalityId null, no crash.
+  test('B1-02: sin match → suggestedMunicipalityId null, sin excepción', () async {
+    // Default geocoder returns 'Municipio Arismendi' — no match in fake repo.
+    final c = _container();
+    addTearDown(c.dispose);
+
+    await c.read(leakReportProvider.notifier).requestGps();
+
+    final state = c.read(leakReportProvider);
+    expect(state.suggestedMunicipalityId, isNull);
+    expect(state.suggestedSectorId, isNull);
+    // GPS location still set.
+    expect(state.draft.location?.latitude, 10.99);
+  });
+
+  // B1-03: user called selectMunicipality before DataStep → draft takes
+  // precedence in UI (suggestedMunicipalityId may still be set in state,
+  // but the effective value in the dropdown is draft.municipalityId).
+  test('B1-03: selectMunicipality previo → draft.municipalityId tiene precedencia', () async {
+    final c = _container(
+      geocoder: _FakeReverseGeocoder(
+        builder: (lat, lng) => LocationSuggestion(
+          latitude: lat,
+          longitude: lng,
+          municipality: 'Maneiro',
+          provider: 'test',
+        ),
+      ),
+    );
+    addTearDown(c.dispose);
+
+    c.read(leakReportProvider.notifier).selectMunicipality('other-m');
+    await c.read(leakReportProvider.notifier).requestGps();
+
+    final state = c.read(leakReportProvider);
+    // suggestedMunicipalityId is computed from suggestion (Maneiro → m1),
+    // but draft.municipalityId retains the explicit user choice.
+    expect(state.draft.municipalityId, 'other-m');
+    // The effective dropdown value (draft ?? suggested) = 'other-m'.
+    final effectiveId = state.draft.municipalityId ?? state.suggestedMunicipalityId;
+    expect(effectiveId, 'other-m');
+  });
+
+  // B1-04: locationSuggestion null (geocoder returned null) → no crash.
+  test('B1-04: locationSuggestion null → flujo continúa sin excepción', () async {
+    final c = _container(
+      geocoder: _FakeReverseGeocoder(fails: true),
+    );
+    addTearDown(c.dispose);
+
+    await c.read(leakReportProvider.notifier).requestGps();
+
+    final state = c.read(leakReportProvider);
+    expect(state.locationSuggestion, isNull);
+    expect(state.suggestedMunicipalityId, isNull);
+    expect(state.draft.location?.latitude, 10.99);
+  });
+
+  // B1-05: incomplete suggestion with no municipality → matching skipped.
+  test('B1-05: sugerencia incompleta sin municipality → suggestedMunicipalityId null', () async {
+    final c = _container(
+      geocoder: _FakeReverseGeocoder(
+        builder: (lat, lng) => LocationSuggestion(
+          latitude: lat,
+          longitude: lng,
+          incomplete: true,
+          // municipality is null
+          provider: 'test',
+        ),
+      ),
+    );
+    addTearDown(c.dispose);
+
+    await c.read(leakReportProvider.notifier).requestGps();
+
+    expect(c.read(leakReportProvider).suggestedMunicipalityId, isNull);
+  });
+
+  // B1-06: suggestedSectorId only applies when active municipality equals
+  // suggestedMunicipalityId.
+  test('B1-06: suggestedSectorId ignorado si municipio activo ≠ suggestedMunicipalityId', () async {
+    final c = _container(
+      geocoder: _FakeReverseGeocoder(
+        builder: (lat, lng) => LocationSuggestion(
+          latitude: lat,
+          longitude: lng,
+          municipality: 'Maneiro',
+          locality: 'La Caranta',
+          provider: 'test',
+        ),
+      ),
+    );
+    addTearDown(c.dispose);
+
+    await c.read(leakReportProvider.notifier).requestGps();
+
+    final state = c.read(leakReportProvider);
+    expect(state.suggestedMunicipalityId, 'm1');
+    expect(state.suggestedSectorId, 's1');
+
+    // Effective sector when active municipality is DIFFERENT from suggested:
+    const differentMunicipalityId = 'other-m';
+    final effectiveSectorId = state.draft.sectorId ??
+        (differentMunicipalityId == state.suggestedMunicipalityId
+            ? state.suggestedSectorId
+            : null);
+    expect(effectiveSectorId, isNull);
+  });
+
+  // GPS coordinate preservation (part of spec invariant).
+  test('B1: coordenadas GPS del draft son exactamente las del receptor', () async {
+    final c = _container(
+      geocoder: _FakeReverseGeocoder(
+        builder: (lat, lng) => LocationSuggestion(
+          latitude: lat + 0.5,
+          longitude: lng - 0.5,
+          municipality: 'Maneiro',
+          provider: 'test',
+        ),
+      ),
+    );
+    addTearDown(c.dispose);
+
+    await c.read(leakReportProvider.notifier).requestGps();
+
+    final loc = c.read(leakReportProvider).draft.location!;
+    expect(loc.latitude, 10.99);
+    expect(loc.longitude, -63.87);
+    expect(loc.source, LocationSource.gps);
   });
 }

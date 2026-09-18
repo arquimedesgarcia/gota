@@ -567,7 +567,23 @@ class DataStepView extends ConsumerWidget {
     final state = ref.watch(leakReportProvider);
     final controller = ref.read(leakReportProvider.notifier);
     final municipalitiesState = ref.watch(municipalitiesProvider);
-    final selectedMunicipalityId = state.draft.municipalityId;
+
+    // Valor efectivo = selección explícita del usuario ?? sugerencia GPS.
+    final effectiveMunicipalityId =
+        state.draft.municipalityId ?? state.suggestedMunicipalityId;
+    final isMunicipalitySuggested =
+        state.draft.municipalityId == null &&
+        state.suggestedMunicipalityId != null;
+
+    // Sector sugerido solo aplica si el municipio activo coincide.
+    final effectiveSectorId = state.draft.sectorId ??
+        (effectiveMunicipalityId == state.suggestedMunicipalityId
+            ? state.suggestedSectorId
+            : null);
+    final isSectorSuggested =
+        state.draft.sectorId == null &&
+        state.suggestedSectorId != null &&
+        effectiveMunicipalityId == state.suggestedMunicipalityId;
 
     return Column(
       children: [
@@ -581,6 +597,39 @@ class DataStepView extends ConsumerWidget {
               ],
               Text('¿Dónde?', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 12),
+              // Referencia de ubicación compacta (displayText del geocoder).
+              if (state.locationSuggestion?.displayText != null) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.pin_drop_outlined,
+                          size: 16,
+                          color: AppColors.textMuted,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            state.locationSuggestion!.displayText!,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textMuted,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
               municipalitiesState.when(
                 loading: () =>
                     const LoadingView(message: 'Cargando municipios…'),
@@ -588,29 +637,48 @@ class DataStepView extends ConsumerWidget {
                   message: 'No pudimos cargar los municipios.',
                   onRetry: () => ref.invalidate(municipalitiesProvider),
                 ),
-                data: (municipalities) => DropdownButtonFormField<String>(
-                  initialValue: selectedMunicipalityId,
-                  decoration: const InputDecoration(labelText: 'Municipio'),
-                  items: municipalities
-                      .map(
-                        (m) =>
-                            DropdownMenuItem(value: m.id, child: Text(m.name)),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      ref.invalidate(sectorsProvider(value));
-                      controller.selectMunicipality(value);
-                    }
-                  },
+                data: (municipalities) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DropdownButtonFormField<String>(
+                      key: ValueKey(effectiveMunicipalityId),
+                      initialValue: effectiveMunicipalityId,
+                      decoration: const InputDecoration(labelText: 'Municipio'),
+                      items: municipalities
+                          .map(
+                            (m) => DropdownMenuItem(
+                              value: m.id,
+                              child: Text(m.name),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          ref.invalidate(sectorsProvider(value));
+                          controller.selectMunicipality(value);
+                        }
+                      },
+                    ),
+                    if (isMunicipalitySuggested) ...[
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Sugerido según ubicación GPS',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textMuted,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               const SizedBox(height: 12),
-              if (state.draft.municipalityId != null)
+              if (effectiveMunicipalityId != null)
                 _SectorsDropdown(
-                  municipalityId: state.draft.municipalityId!,
-                  selectedSectorId: state.draft.sectorId,
+                  municipalityId: effectiveMunicipalityId,
+                  selectedSectorId: effectiveSectorId,
                   onSelected: controller.selectSector,
+                  isSuggested: isSectorSuggested,
                 ),
               const SizedBox(height: 12),
               TextField(
@@ -698,11 +766,13 @@ class _SectorsDropdown extends ConsumerWidget {
     required this.municipalityId,
     required this.selectedSectorId,
     required this.onSelected,
+    this.isSuggested = false,
   });
 
   final String municipalityId;
   final String? selectedSectorId;
   final ValueChanged<String> onSelected;
+  final bool isSuggested;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -713,15 +783,28 @@ class _SectorsDropdown extends ConsumerWidget {
         message: 'No pudimos cargar los sectores.',
         onRetry: () => ref.invalidate(sectorsProvider(municipalityId)),
       ),
-      data: (sectors) => DropdownButtonFormField<String>(
-        initialValue: selectedSectorId,
-        decoration: const InputDecoration(labelText: 'Sector'),
-        items: sectors
-            .map((s) => DropdownMenuItem(value: s.id, child: Text(s.name)))
-            .toList(),
-        onChanged: (value) {
-          if (value != null) onSelected(value);
-        },
+      data: (sectors) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DropdownButtonFormField<String>(
+            key: ValueKey(selectedSectorId),
+            initialValue: selectedSectorId,
+            decoration: const InputDecoration(labelText: 'Sector'),
+            items: sectors
+                .map((s) => DropdownMenuItem(value: s.id, child: Text(s.name)))
+                .toList(),
+            onChanged: (value) {
+              if (value != null) onSelected(value);
+            },
+          ),
+          if (isSuggested) ...[
+            const SizedBox(height: 4),
+            const Text(
+              'Sugerido según ubicación GPS',
+              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+            ),
+          ],
+        ],
       ),
     );
   }
