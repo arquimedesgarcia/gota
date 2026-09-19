@@ -1,0 +1,105 @@
+09-18 02:02:15.622  1228  1320 I SurfaceFlinger: Capture layer list: 	 Background for 798a591 SurfaceView[com.gota.gota/com.gota.gota.MainActivity]@0#135932(preserveDisplayColors:0)
+09-18 02:02:15.622  1228  1320 I SurfaceFlinger: Capture layer list: 	 798a591 SurfaceView[com.gota.gota/com.gota.gota.MainActivity]@0(BLAST)#135931(preserveDisplayColors:0)
+09-18 02:02:15.622  1228  1320 I SurfaceFlinger: Capture layer list: 	 com.gota.gota/com.gota.gota.MainActivity$_13149#135925(preserveDisplayColors:0)
+09-18 02:02:16.112 29548 29743 D WM-GreedyScheduler: Ignoring {WorkSpec: cf2c3f3c-1971-4511-9217-ccf63a4f86bf}. Requires device idle.
+09-18 02:02:16.113 29548 29743 D WM-GreedyScheduler: Ignoring {WorkSpec: 62c8b8f1-a262-4b2c-8bd7-aebee093fa9d}. Requires device idle.
+09-18 02:02:16.113 29548 29743 D WM-GreedyScheduler: Ignoring {WorkSpec: 3539a709-0ced-454e-b385-35d4032d9d2f}. Requires device idle.
+09-18 02:02:16.113 29548 29743 D WM-GreedyScheduler: Ignoring {WorkSpec: 8cbe4570-6f56-4c5c-8e31-34199465a460}. Requires device idle.
+09-18 02:02:16.191 29548 29744 D WM-GreedyScheduler: Ignoring {WorkSpec: cf2c3f3c-1971-4511-9217-ccf63a4f86bf}. Requires device idle.
+09-18 02:02:16.192 29548 29744 D WM-GreedyScheduler: Ignoring {WorkSpec: 62c8b8f1-a262-4b2c-8bd7-aebee093fa9d}. Requires device idle.
+09-18 02:02:16.192 29548 29744 D WM-GreedyScheduler: Ignoring {WorkSpec: 3539a709-0ced-454e-b385-35d4032d9d2f}. Requires device idle.
+09-18 02:02:16.192 29548 29744 D WM-GreedyScheduler: Ignoring {WorkSpec: 8cbe4570-6f56-4c5c-8e31-34199465a460}. Requires device idle.
+09-18 02:02:16.196 29548 29744 D WM-GreedyScheduler: Ignoring {WorkSpec: cf2c3f3c-1971-4511-9217-ccf63a4f86bf}. Requires device idle.
+09-18 02:02:16.196 29548 29744 D WM-GreedyScheduler: Ignoring {WorkSpec: 62c8b8f1-a262-4b2c-8bd7-aebee093fa9d}. Requires device idle.
+09-18 02:02:16.196 29548 29744 D WM-GreedyScheduler: Ignoring {WorkSpec: 3539a709-0ced-454e-b385-35d4032d9d2f}. Requires device idle.
+09-18 02:02:16.196 29548 29744 D WM-GreedyScheduler: Ignoring {WorkSpec: 8cbe4570-6f56-4c5c-8e31-34199465a460}. Requires device idle.
+09-18 02:02:16.507  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:16.537  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:16.709  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:16.737  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:16.781  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:16.804  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:16.826  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:17.756 29548 29743 D WM-GreedyScheduler: Ignoring {WorkSpec: cf2c3f3c-1971-4511-9217-ccf63a4f86bf}. Requires device idle.
+09-18 02:02:17.756 29548 29743 D WM-GreedyScheduler: Ignoring {WorkSpec: 62c8b8f1-a262-4b2c-8bd7-aebee093fa9d}. Requires device idle.
+09-18 02:02:17.756 29548 29743 D WM-GreedyScheduler: Ignoring {WorkSpec: 3539a709-0ced-454e-b385-35d4032d9d2f}. Requires device idle.
+09-18 02:02:17.756 29548 29743 D WM-GreedyScheduler: Ignoring {WorkSpec: 8cbe4570-6f56-4c5c-8e31-34199465a460}. Requires device idle.
+09-18 02:02:17.892 27716 29376 D FreecessHandler: skipping freeze com.gota.gota(10254) result : 12
+09-18 02:02:19.298 27716 29536 D SGM:GameManager: identifyForegroundApp. com.gota.gota, mCurrentUserId: 0, callerUserId: 0
+09-18 02:02:20.323  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:20.346  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:23.904 27716 29376 D FreecessHandler: skipping freeze com.gota.gota(10254) result : 12
+09-18 02:02:25.019  1228  1320 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.035  1228  1228 I SurfaceFlinger: [com.gota.gota/com.gota.gota.MainActivity$_13149#135925] setFrameRateCategory: HighHint
+09-18 02:02:25.062  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.084  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.107  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.151  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.174  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.196  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.219  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.264  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.672  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.699  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.722  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.744  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.766  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.789  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.811  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.834  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.856  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:25.902  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.052  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.074  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.298  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.326  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.348  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.371  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.393  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.415  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.438  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.483  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.533  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.572  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.750  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.779  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.808  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.830  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.852  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.896  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.919  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.941  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.964  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:26.986  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:27.008  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:27.031  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:27.053  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:27.216 27716 28627 D SGM:GameManager: identifyForegroundApp. com.gota.gota, mCurrentUserId: 0, callerUserId: 0
+09-18 02:02:29.914 27716 29376 D FreecessHandler: skipping freeze com.gota.gota(10254) result : 12
+09-18 02:02:30.029  1228  1320 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:30.036  1228  1228 I SurfaceFlinger: [com.gota.gota/com.gota.gota.MainActivity$_13149#135925] setFrameRateCategory: NoPreference
+09-18 02:02:32.116  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:32.138  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:35.137  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:35.159  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:35.922 27716 29376 D FreecessHandler: skipping freeze com.gota.gota(10254) result : 12
+09-18 02:02:36.415  1228  1320 I SurfaceFlinger: Capture layer list: 	 Background for 798a591 SurfaceView[com.gota.gota/com.gota.gota.MainActivity]@0#135932(preserveDisplayColors:0)
+09-18 02:02:36.415  1228  1320 I SurfaceFlinger: Capture layer list: 	 798a591 SurfaceView[com.gota.gota/com.gota.gota.MainActivity]@0(BLAST)#135931(preserveDisplayColors:0)
+09-18 02:02:36.415  1228  1320 I SurfaceFlinger: Capture layer list: 	 com.gota.gota/com.gota.gota.MainActivity$_13149#135925(preserveDisplayColors:0)
+09-18 02:02:36.648  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:36.681  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:36.848  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:36.853 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: cf2c3f3c-1971-4511-9217-ccf63a4f86bf}. Requires device idle.
+09-18 02:02:36.853 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 62c8b8f1-a262-4b2c-8bd7-aebee093fa9d}. Requires device idle.
+09-18 02:02:36.853 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 3539a709-0ced-454e-b385-35d4032d9d2f}. Requires device idle.
+09-18 02:02:36.853 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 8cbe4570-6f56-4c5c-8e31-34199465a460}. Requires device idle.
+09-18 02:02:36.881  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:02:36.900 29548 29744 D WM-GreedyScheduler: Ignoring {WorkSpec: cf2c3f3c-1971-4511-9217-ccf63a4f86bf}. Requires device idle.
+09-18 02:02:36.900 29548 29744 D WM-GreedyScheduler: Ignoring {WorkSpec: 62c8b8f1-a262-4b2c-8bd7-aebee093fa9d}. Requires device idle.
+09-18 02:02:36.900 29548 29744 D WM-GreedyScheduler: Ignoring {WorkSpec: 3539a709-0ced-454e-b385-35d4032d9d2f}. Requires device idle.
+09-18 02:02:36.900 29548 29744 D WM-GreedyScheduler: Ignoring {WorkSpec: 8cbe4570-6f56-4c5c-8e31-34199465a460}. Requires device idle.
+09-18 02:02:36.907 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: cf2c3f3c-1971-4511-9217-ccf63a4f86bf}. Requires device idle.
+09-18 02:02:36.907 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 62c8b8f1-a262-4b2c-8bd7-aebee093fa9d}. Requires device idle.
+09-18 02:02:36.907 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 3539a709-0ced-454e-b385-35d4032d9d2f}. Requires device idle.
+09-18 02:02:36.907 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 8cbe4570-6f56-4c5c-8e31-34199465a460}. Requires device idle.
+09-18 02:02:36.914  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()

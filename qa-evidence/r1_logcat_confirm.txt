@@ -1,0 +1,20 @@
+09-18 02:04:39.706  1228  1228 I BufferQueueProducer: [com.gota.gota/com.gota.gota.MainActivity$_13149#135925](this:0xb400007c9649beb0,id:-1,api:0,p:-1,c:1228) queueBuffer: fps=0.01 dur=158768.26 max=158768.26 min=158768.26
+09-18 02:04:39.723  1228  1228 I BufferQueueProducer: [798a591 SurfaceView[com.gota.gota/com.gota.gota.MainActivity]@0(BLAST)#135931](this:0xb400007c965bf6b0,id:-1,api:0,p:-1,c:1228) queueBuffer: fps=2.99 dur=12031.80 max=11419.25 min=15.18
+09-18 02:04:40.740  1228  1228 I BufferQueueProducer: [798a591 SurfaceView[com.gota.gota/com.gota.gota.MainActivity]@0(BLAST)#135931](this:0xb400007c965bf6b0,id:-1,api:0,p:-1,c:1228) queueBuffer: fps=0.98 dur=1017.13 max=1017.13 min=1017.13
+09-18 02:04:40.785  1228  1228 I BufferQueueProducer: [com.gota.gota/com.gota.gota.MainActivity$_13149#135925](this:0xb400007c9649beb0,id:-1,api:0,p:-1,c:1228) queueBuffer: fps=0.93 dur=1079.06 max=1079.06 min=1079.06
+09-18 02:04:42.528 27716 29376 D FreecessHandler: skipping freeze com.gota.gota(10254) result : 12
+09-18 02:04:43.814 27716 28173 D NetdEventListenerService: DNS Requested by 195, 10076(com.facebook.services), SUCCESS, 284ms
+09-18 02:04:43.978  1228  1320 W SurfaceFlinger: Ignoring duplicate VSYNC event from HWC for display 4627039422300187648 (t=369678433555000)
+09-18 02:04:47.344  1220  1252 D HeatmapThread: Updated plugType via uevent: 2
+09-18 02:04:47.360 27716 28627 D BatteryService: Sending ACTION_BATTERY_CHANGED: level:51, status:2, health:2, remain:4608, ac:false, usb:true, wireless:false, pogo:false, misc:0x10010000, charge_type:2, charger_type:0, voltage:3998, temperature:377, online:4, charging_status:0, cycle_count:0, current_avg:1431, ps:false, hvc:false, current_event:0x8000, mcc:0, mcv:0, cc:2036000, present:true, scale:100, technology:Li-ion, protection:0
+09-18 02:04:47.375 28383 28383 I NotificationManager: com.android.systemui: notify(2114586824, charging_state, Notification(channel=CHR shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=ONGOING_EVENT|ONLY_ALERT_ONCE color=0x00000000 category=sys groupKey=CHARGING vis=PUBLIC semFlags=0x0 semPriority=0 semMissedCount=0 semScenarioType=0)) as user
+09-18 02:04:47.403 28383 28383 I AODBatteryManager: saveBatteryData : AOD BatteryData [mBatteryLevel=51, mBatteryStatus=CHARGING, mBatteryPlugType=USB, mBatteryPlugged=true, mRemainingChargeTime=4608000, mBatteryChargingType=9, mBatteryChargerType=NORMAL, mBatteryOnline=USB, mBatterySwellingMode=NONE, mBatteryProtectMode=false, mBatteryProtectModeType=0, mSleepChargingEvent=null, mSleepChargingEventFinishTime=null, mBatteryHealth=2, mIsDirectPowerMode=false, mIsUsbRestriction=false]
+09-18 02:04:47.410 28383 28383 I NotificationManager: com.android.systemui: notify(2114586824, charging_state, Notification(channel=CHR shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=ONGOING_EVENT|ONLY_ALERT_ONCE color=0x00000000 category=sys groupKey=CHARGING vis=PUBLIC semFlags=0x0 semPriority=0 semMissedCount=0 semScenarioType=0)) as user
+09-18 02:04:48.540 27716 29376 D FreecessHandler: skipping freeze com.gota.gota(10254) result : 12
+09-18 02:04:49.081  1228  1320 W SurfaceFlinger: Ignoring duplicate VSYNC event from HWC for display 4627039422300187648 (t=369683537591000)
+09-18 02:04:52.780  1178  1246 I SensorsGrip: [grip_sensor] readEvents: GripSensor: grip 1ch data = RELEASE
+09-18 02:04:52.780  1178  1246 I SensorsGrip: [grip_sensor] readEvents: GripSensor: grip 1ch unknown UNKNOWN MODE
+09-18 02:04:52.804  1178  1178 E SensorsGrip: [grip_sensor] enable: mEnabled : 1, first_grip_event : 1
+09-18 02:04:52.831  1178  1178 E SensorsGrip: [grip_sensor] enable: mEnabled : 0, first_grip_event : 1
+09-18 02:04:54.552 27716 29376 D FreecessHandler: skipping freeze com.gota.gota(10254) result : 12
+09-18 02:04:54.837 27716 27942 D PowerManagerService: [api] userActivityFromNative : touch displayId=0 eventTime=369689295

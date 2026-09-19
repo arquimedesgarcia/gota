@@ -64,3 +64,5 @@ supabase/.temp/
 
 # Agent / worktree local
 .claude/
+.gradle/
+.local-supabase-pilot.env

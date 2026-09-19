@@ -1,0 +1,8 @@
+09-18 02:00:53.554 20974 20998 W System.err: java.lang.UnsatisfiedLinkError: dlopen failed: library "libmOCR.camera.samsung.so" not found
+09-18 02:01:02.373 11199 11199 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color,raw:input keyevent KEYCODE_ZOOM_IN'
+09-18 02:01:03.079 11199 11199 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color,raw:input keyevent KEYCODE_ZOOM_IN'
+09-18 02:01:03.741 11199 11199 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color,raw:input keyevent KEYCODE_ZOOM_OUT'
+09-18 02:01:04.406 11199 11199 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color,raw:input keyevent KEYCODE_ZOOM_OUT'
+09-18 02:01:07.838 27716 28454 D SLocation: ARDistanceLibManager - command callback received - CURRENT_LOCATION_REQUEST_DISTANCE ERROR CODE : ERROR_NONE
+09-18 02:01:07.838 27716 28454 D SLocation: CommonCoreManager - handleCommandCallback - FUNC_TYPE : SET_LOCATION  ERROR_CODE : ERROR_NONE
+09-18 02:01:14.494 11199 11199 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color,raw:screencap -p /sdcard/r4_02_after_zoom.png'

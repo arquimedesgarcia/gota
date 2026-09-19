@@ -18,6 +18,7 @@
 | 06 | Notifications (webhook → notify-push → FCM v1) | ✅ VERIFICADO (prueba funcional OK) | [sprint06_webhook_5e34092.md](2026-09-12_sprint06_webhook_5e34092.md) |
 | 07 | Security & Abuse Hardening (rate limits, RLS preferencias, helper SECURITY DEFINER) | 🔴 BLOCKED (DEF-01 crítico) | [2026-09-13_sprint07_security_abuse.md](2026-09-13_sprint07_security_abuse.md) |
 | 08 | Stabilization (regresión, rate limiting, concurrencia, UX de errores, higiene E2E, release Android) | ✅ CERRADO (re-auditoría final 2026-09-14) | [2026-09-14_sprint08_final_closure.md](2026-09-14_sprint08_final_closure.md) |
+| — | **Beta/Piloto E2E (RC readiness)** @ `679eb23` | ✅ READY CON 1 CONDICIÓN (H1: `notify-push` no desplegada en cloud piloto; UX en dispositivo NOT RUN) | [2026-09-19_beta-pilot-e2e.md](2026-09-19_beta-pilot-e2e.md) |
 
 ## Estado global
 

@@ -1,0 +1,1146 @@
+--------- beginning of main
+09-18 02:01:30.703 11199 11199 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color,raw:input swipe 400 800 600 600 100'
+09-18 02:01:30.726 28563 29375 I TUIThread: epol_call: EPOLL_SKIP
+09-18 02:01:30.767 27716 29536 D InputDispatcher: Inject motion (21149/2000): action=0x0, time=369485228000000, f=0x0, d=0 dsdx=1.000000 dtdx=0.000000
+09-18 02:01:30.769 27716 27942 I InputDispatcher: Delivering touch to (28383): action: 0x4, f=0x0, d=0, '1e666cb', t=1 
+09-18 02:01:30.770 27716 27942 I InputDispatcher: Delivering touch to (13149): action: 0x0, f=0x0, d=0, 'e5c047b', t=1 
+--------- beginning of system
+09-18 02:01:30.771 27716 27942 D PowerManagerService: [api] userActivityFromNative : touch displayId=0 eventTime=369485228
+09-18 02:01:30.772 13149 13149 I VRI[MainActivity]@b9d1501: ViewPostIme pointer 0
+09-18 02:01:30.772 27716 27743 I GestureDetector: obtain mCurrentDownEvent. id: -128597063 caller: com.android.server.wm.SystemGesturesPointerEventListener.onPointerEvent:17 com.android.server.wm.PointerEventDispatcher.onInputEvent:51 android.view.InputEventReceiver.dispatchInputEvent:369 
+09-18 02:01:30.772 27716 27743 I GestureDetector: obtain mCurrentDownEvent. id: -128597063 caller: com.android.server.wm.SystemPerformancePointerEventListener.onPointerEvent:13 com.android.server.wm.PointerEventDispatcher.onInputEvent:51 android.view.InputEventReceiver.dispatchInputEvent:369 
+09-18 02:01:30.772 13149 13149 I VRI[MainActivity]@b9d1501: call setFrameRateCategory for touch hint category=high hint, reason=touch, vri=VRI[MainActivity]@b9d1501
+09-18 02:01:30.774 27716 27942 D PowerManagerService: UserActivityStateListenerState: 1
+09-18 02:01:30.774  1171  1393 I hwcomposer: [DRMDEV] (0:115) failed to waitNextVsync: -1  
+09-18 02:01:30.774  1228  1453 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:30.774  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:30.775  1228  1228 I SurfaceFlinger: [com.gota.gota/com.gota.gota.MainActivity$_13149#135925] setFrameRateCategory: HighHint
+09-18 02:01:30.776 27716 27743 I GestureDetector: obtain mCurrentMotionEventRaw. action: 2 id: -485178018
+09-18 02:01:30.776 27716 27743 I GestureDetector: obtain mCurrentMotionEventRaw. action: 2 id: -485178018
+09-18 02:01:30.777  1171  1393 I hwcomposer: [DRMDEV] (0:115) failed to waitNextVsync: -1  
+09-18 02:01:30.778 13149 13149 I GestureDetector: obtain mCurrentDownEvent. id: -681854931 caller: ug0.a:44 p1.a:73 k10.onTouch:5 
+09-18 02:01:30.779 13149 13149 I GestureDetector: obtain mCurrentDownEvent. id: -681854931 caller: rg0.a:3 p1.a:73 k10.onTouch:5 
+09-18 02:01:30.780 13149 13149 I GestureDetector: obtain mCurrentDownEvent. id: -681854931 caller: ug0.a:44 p1.a:73 org.maplibre.android.maps.i.onTouchEvent:47 
+09-18 02:01:30.780 13149 13149 I GestureDetector: obtain mCurrentDownEvent. id: -681854931 caller: rg0.a:3 p1.a:73 org.maplibre.android.maps.i.onTouchEvent:47 
+09-18 02:01:30.781  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.781  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 0
+09-18 02:01:30.784 13149 13149 I GestureDetector: obtain mCurrentMotionEventRaw. action: 2 id: -929541487
+09-18 02:01:30.792  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:30.793  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:30.793  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.793  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:30.800 13149 13149 I GestureDetector: obtain mCurrentMotionEventRaw. action: 2 id: -929541487
+09-18 02:01:30.800 13149 13149 I GestureDetector: obtain mCurrentMotionEventRaw. action: 2 id: -929541487
+09-18 02:01:30.801 13149 13149 I GestureDetector: obtain mCurrentMotionEventRaw. action: 2 id: -929541487
+09-18 02:01:30.804  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.804  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:30.809  1228  1228 I BufferQueueProducer: [d82922e SurfaceView[]@0(BLAST)#135954](this:0xb400007c964c46b0,id:-1,api:0,p:-1,c:1228) queueBuffer: fps=0.37 dur=74981.70 max=74532.63 min=14.86
+09-18 02:01:30.811  1171  1195 I hwcomposer: [HWCDisplay] (0 updateFps():4131), (type:1, mode:2) fps:0.200521,dur:4987.00,max:4987.00,min:4987.00  
+09-18 02:01:30.815  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.815  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:30.818  1228  1228 I BufferQueueProducer: [VDS-flutter-vd#0 SINK](this:0xb400007c967f66c0,id:-1,api:1,p:1228,c:1228) queueBuffer: fps=0.03 dur=61935.77 max=61925.74 min=10.03
+09-18 02:01:30.827  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.827  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:30.837  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.838  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:30.842  1228  1228 I BufferQueueProducer: [798a591 SurfaceView[com.gota.gota/com.gota.gota.MainActivity]@0(BLAST)#135931](this:0xb400007c965bf6b0,id:-1,api:0,p:-1,c:1228) queueBuffer: fps=0.69 dur=52350.23 max=51745.33 min=15.53
+09-18 02:01:30.849  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.849  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:30.860  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.860  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:30.871  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.871  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:30.870 27716 29536 D InputDispatcher: Inject motion (21149/2000): action=0x1, time=369485331000000, f=0x0, d=0 dsdx=1.000000 dtdx=0.000000
+09-18 02:01:30.873 27716 27942 I InputDispatcher: Delivering touch to (13149): action: 0x1, f=0x0, d=0, 'e5c047b', t=1 
+09-18 02:01:30.874 13149 13149 I VRI[MainActivity]@b9d1501: ViewPostIme pointer 1
+09-18 02:01:30.874 27716 10111 D BSOHChargingDataCollector:  BSOH Sys-servce ... 
+09-18 02:01:30.874 27716 10111 D BSOHChargingDataCollector: performBatteryWork++
+09-18 02:01:30.874 27716 10111 D BSOHChargingDataCollector: performBatteryWork battery com.android.server.bsoh.device.PrimeBattery@1c6cbbb
+09-18 02:01:30.874 27716 10111 D BSOHChargingDataCollector: primeBatt readVoltage from sysFsBattVolt,  path : /sys/class/power_supply/battery/batt_voltage_now
+09-18 02:01:30.881 27716 27716 I SemDvfsHyPerManager: acquire hyper - GESTURE_DETECTED/27716@26, type = -999
+09-18 02:01:30.882 27716 27716 I SemDvfsHyPerManager: acquire hyper - SMOOTH_SCROLL/27716@23, type = -999
+09-18 02:01:30.882 27530 27540 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 384823179 [27716 / 26]  HINT : GESTURE_DETECTED   list : [TIMEOUT / 1171] 
+09-18 02:01:30.882  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.882  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:30.882 27716 27716 I SemDvfsHyPerManager: acquire hyper - GESTURE_DETECTED/27716@26, type = -999
+09-18 02:01:30.884 27530 27540 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 384739953 [27716 / 23]  HINT : SMOOTH_SCROLL   list : 
+09-18 02:01:30.886 27530 27540 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 384823179 [27716 / 26]  HINT : GESTURE_DETECTED   list : [TIMEOUT / 1171] 
+09-18 02:01:30.886 27530 27540 I HYPER-HAL: [RequestManager.cpp]releaseLocked(): Released ID : 384739953
+09-18 02:01:30.887 27716 10111 D BSOHChargingDataCollector: 0 	 BattData addData data : BattData { voltage:3.984, current:1.267, soc:0.49, temperature:37.5, status:2, timestamp:1789711290886, voltage_chg:null}
+09-18 02:01:30.887 27716 10111 D BSOHChargingDataCollector: performBatteryWork--
+09-18 02:01:30.893  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.893  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:30.905  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.905  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:30.916  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.916  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:30.927  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.927  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:30.938  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.938  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:30.949  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.949  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:30.961  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.961  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:30.972  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.972  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:30.983  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.983  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:30.994  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:30.994  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.005  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.005  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:31.016  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.016  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 91
+09-18 02:01:31.028  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.028  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.039  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.039  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.050  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.050  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.061  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.061  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.072  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.072  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.084  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.084  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.095  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.095  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.106  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.106  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.117  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.117  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.129  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.129  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.140  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.140  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:31.146 13149 13149 I SV[226660910 ]: onWindowVisibilityChanged(8) false s00{d82922e V.E...... ........ 0,0-1080,1563} of VRI[]@4de2de
+09-18 02:01:31.146 13149 13149 I SurfaceView: 226660910 Changes: creating=false format=false size=false visible=true alpha=false hint=false left=false top=false z=false attached=true lifecycleStrategy=false
+09-18 02:01:31.146 13149 13149 I SurfaceView: 226660910 Cur surface: Surface(name=null mNativeObject=-5476376644686176000)/@0xb6d6fb6
+09-18 02:01:31.146 13149 13149 I SurfaceView: 226660910 surfaceDestroyed
+09-18 02:01:31.146 13149 13149 I SV[226660910 ]: surfaceDestroyed callback.size 1 #2 s00{d82922e V.E...... ........ 0,0-1080,1563}
+09-18 02:01:31.151  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.151  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 91
+09-18 02:01:31.159 13149 13149 I SV[226660910 ]: updateSurface: mVisible = false mSurface.isValid() = true
+09-18 02:01:31.159 13149 13149 I SV[226660910 ]: releaseSurfaces: viewRoot = VRI[]@4de2de
+09-18 02:01:31.159 13149 13149 V SurfaceView: Layout: x=0 y=0 w=1080 h=1563, frame=Rect(0, 0 - 1080, 1563)
+09-18 02:01:31.162  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.162  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.167 13149 13149 I SurfaceView: 226660910 Detaching SV
+09-18 02:01:31.167 13149 13149 I SurfaceView: 226660910 Changes: creating=false format=false size=false visible=false alpha=false hint=false left=false top=false z=false attached=false lifecycleStrategy=false
+09-18 02:01:31.167 13149 13149 I SV[226660910 ]: onDetachedFromWindow: tryReleaseSurfaces()
+09-18 02:01:31.167 13149 13149 I SV[226660910 ]: releaseSurfaces: viewRoot = VRI[]@4de2de
+09-18 02:01:31.168 13149 20894 D libMEOW : meow delete tls: 0xb4000074cc300fc0
+09-18 02:01:31.173  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.173  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.176 13149 13149 I WindowManager: WindowManagerGlobal#removeView, ty=2030, view=com.android.internal.policy.DecorView{e1f219 V.E...... R.....ID 0,0-1080,1563}[], caller=android.view.WindowManagerGlobal.removeView:654 android.view.WindowManagerImpl.removeViewImmediate:254 android.app.Dialog.dismissDialog:854 
+09-18 02:01:31.176 13149 13149 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): null
+09-18 02:01:31.177 13149 13162 D SurfaceView: 153566693 windowPositionLost, frameNr = 0
+09-18 02:01:31.177 27716 29536 D CoreBackPreview: Window{2d37545 u0 com.gota.gota}: Setting back callback null
+09-18 02:01:31.180 13149 13149 I VRI[]@4de2de: dispatchDetachedFromWindow
+09-18 02:01:31.180 13149 13149 I BLASTBufferQueue: [VRI[]@4de2de#8](f:0,a:1,s:0) destructor()
+09-18 02:01:31.180 13149 13149 D BufferQueueConsumer: [VRI[]@4de2de#8(BLAST Consumer)8](id:335d0000000a,api:0,p:-1,c:13149) disconnect
+09-18 02:01:31.182 27716 29536 D InputTransport: Input channel destroyed: '2d37545', fd=374
+09-18 02:01:31.182 27716 29536 V WindowManager: Remove Window{2d37545 u0 com.gota.gota}: mSurfaceControl=Surface(name=$_13149#135951)/@0xe145530 mAnimatingExit=false mRemoveOnExit=false mHasSurface=true surfaceShowing=true animating=false app-animation=false callers=com.android.server.wm.Session.remove:15 android.view.IWindowSession$Stub.onTransact:813 com.android.server.wm.Session.onTransact:1 android.os.Binder.execTransactInternal:1509 android.os.Binder.execTransact:1454 <bottom of call stack> 
+09-18 02:01:31.183 27716 29536 W PhoneWindowManager: lockNow pending, ignore updating lockscreen timeout
+09-18 02:01:31.183 27716 29536 W PhoneWindowManager: lockNow pending, ignore updating lockscreen timeout
+09-18 02:01:31.184  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.184 13149 13149 D InputTransport: Input channel destroyed: '2d37545', fd=184
+09-18 02:01:31.184  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.185 13149 13149 D VRI[]@4de2de: Pending transaction will not be applied in sync with a draw due to shutting down VRI
+09-18 02:01:31.185 13149 13149 I VRI[]@4de2de: mWNT: t=0xb40000769bbb2a00 mBlastBufferQueue=0xnull fn= 0 HdrRenderState mRenderHdrSdrRatio=1.0 caller= android.view.ViewRootImpl.handleSyncRequestWhenNoAsyncDraw:6812 android.view.ViewRootImpl.doDie:12443 android.view.ViewRootImpl.die:12381 
+09-18 02:01:31.187 27716 29607 V VirtualDisplayAdapter: Release VirtualDisplay flutter-vd#0
+09-18 02:01:31.187 27716 27745 D WifiDisplayAdapter: SEM_PRESENTATION_STOP displayID : 2091, PackageName : com.gota.gota
+09-18 02:01:31.187  1228  1320 D SurfaceFlinger: Destroying virtual display: flutter-vd#0
+09-18 02:01:31.187  1228  1320 I SurfaceFlinger: destroyVirtualDisplay:name(flutter-vd#0) token(0xb400007c961a1370) 
+09-18 02:01:31.188 27716 29607 D DisplayManagerService: Virtual Display: Display Device released
+09-18 02:01:31.188 27716 29607 I DisplayDeviceRepository: Display device removed: DisplayDeviceInfo{"flutter-vd#0": uniqueId="virtual:com.gota.gota,10254,flutter-vd#0,2083", 1080 x 1563, modeId 2229, renderFrameRate 60.0, hasArrSupport false, frameRateCategoryRate null, supportedRefreshRates [], defaultModeId 2229, userPreferredModeId -1, supportedModes [{id=2229, parentModeId=-1, flags=, width=1080, height=1563, fps=60.0, vsync=60.0, alternativeRefreshRates=[], supportedHdrTypes=[]}], colorMode 0, supportedColorModes [0], hdrCapabilities null, isForceSdr false, allmSupported false, gameContentTypeSupported false, density 450, 450.0 x 450.0 dpi, appVsyncOff 0, presDeadline 16666666, touch NONE, rotation 0, type VIRTUAL, deviceProductInfo null, state ON, committedState UNKNOWN, owner com.gota.gota (uid 10254), frameRateOverride , brightnessMinimum 0.0, brightnessMaximum 1.0, brightnessDefault 0.0, brightnessDim -1.0, hdrSdrRatio NaN, FLAG_PRIVATE, FLAG_NEVER_BLANK, FLAG_OWN_CONTENT_ONLY, installOrientation 0, displayShape DisplayShape{ spec=-2030616033 displayWidth=1080 displayHeight=1563 physicalPixelDisplaySizeRatio=1.0 rotation=0 offsetX=0 offsetY=0 scale=1.0}}
+09-18 02:01:31.188 27716 29607 D LogicalDisplayMapper: Removing display #2091 from group #0
+09-18 02:01:31.188 27716 29607 I DisplayManagerService: Logical display removed: 2091
+09-18 02:01:31.189 13149 13149 D BufferQueueConsumer: [ImageReader-1080x1563f22m7-13149-1](id:335d00000009,api:1,p:1228,c:13149) disconnect
+09-18 02:01:31.191 27716 27743 V WindowManager: Display removed displayId=2091
+09-18 02:01:31.191 27716 27743 D WindowManager: onDisplayRemoved, displayId=2091
+09-18 02:01:31.192 27716 27743 D WindowManager: Transition is created, t=TransitionRecord{3a86365 id=-1 type=CLOSE flags=0x20000 parallelCollectType=NONE recentsDisplayId=-1}, caller=com.android.server.wm.Transition.<init>:203 com.android.server.wm.RootWindowContainer.onDisplayRemoved:74 android.hardware.display.DisplayManagerGlobal$DisplayListenerDelegate.handleDisplayEventInner:2255 android.hardware.display.DisplayManagerGlobal$DisplayListenerDelegate.lambda$sendDisplayEvent$0:2181 android.hardware.display.DisplayManagerGlobal$DisplayListenerDelegate.$r8$lambda$U7s70EKugVQNzFVIVvJsNmT_WdQ:0 
+09-18 02:01:31.192  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{Bounds for - @0#135952} 1 children}] reparent to OffscreenRoot
+09-18 02:01:31.192 27716 27743 D BLASTSyncEngine: SyncGroup is created, id=7525, name=Transition-CLOSE, caller=com.android.server.wm.BLASTSyncEngine.prepareSyncSet:60 com.android.server.wm.TransitionController.moveToCollecting:67 com.android.server.wm.TransitionController.startCollectOrQueue:106 com.android.server.wm.RootWindowContainer.onDisplayRemoved:105 android.hardware.display.DisplayManagerGlobal$DisplayListenerDelegate.handleDisplayEventInner:2255 android.hardware.display.DisplayManagerGlobal$DisplayListenerDelegate.lambda$sendDisplayEvent$0:2181 android.hardware.display.DisplayManagerGlobal$DisplayListenerDelegate.$r8$lambda$U7s70EKugVQNzFVIVvJsNmT_WdQ:0 
+09-18 02:01:31.192  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{Bounds for - @0#135952} 1 children}] RelativeParent to null
+09-18 02:01:31.192  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{d82922e SurfaceView[]@0#135953 z=-2} 2 children}] reparent to OffscreenRoot
+09-18 02:01:31.192  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{d82922e SurfaceView[]@0#135953 z=-2} 2 children}] RelativeParent to null
+09-18 02:01:31.192  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{d82922e SurfaceView[]@0(BLAST)#135954} no children}] reparent to OffscreenRoot
+09-18 02:01:31.192  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{d82922e SurfaceView[]@0(BLAST)#135954} no children}] RelativeParent to null
+09-18 02:01:31.192  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{Background for d82922e SurfaceView[]@0#135955 z=-2147483648} no children}] reparent to OffscreenRoot
+09-18 02:01:31.192  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{Background for d82922e SurfaceView[]@0#135955 z=-2147483648} no children}] RelativeParent to null
+09-18 02:01:31.192  1228  1228 W SurfaceFlinger: releaseVirtualDisplaySnapshot: Virtual display snapshot was not removed
+09-18 02:01:31.192  1228  1228 D SurfaceFlinger: processDisplayRemoved: Optimizing thread scheduling: optimizeForPerformance
+09-18 02:01:31.192 27716 27743 W BLASTSyncEngine: setSyncMethod, id=7525, method=0, caller=com.android.server.wm.TransitionController.moveToCollecting:80 com.android.server.wm.TransitionController.startCollectOrQueue:106 com.android.server.wm.RootWindowContainer.onDisplayRemoved:105 
+09-18 02:01:31.192  1228  1228 D SurfaceFlinger: processDisplayRemoved: display size = 1
+09-18 02:01:31.192  1228  1228 I PowerHalWrapper: mEnableMultiDisplayMode enable=0 fps=60
+09-18 02:01:31.192  1228  1228 I mtkpower_client: PowerHal_Wrap_EnableMultiDisplayMode, enable:0 fps:60 CurMultiDisplayMode:40
+09-18 02:01:31.193 27716 27716 I WALLPAPER_SVC:WallpaperManagerService: onDisplayRemovedInternal: displayId = 2091 
+09-18 02:01:31.193 27716 27743 V WindowManager: Start collecting in Transition: TransitionRecord{3a86365 id=7525 type=CLOSE flags=0x20000 parallelCollectType=NONE recentsDisplayId=-1}, caller=com.android.server.wm.TransitionController.startCollectOrQueue:106 com.android.server.wm.RootWindowContainer.onDisplayRemoved:105 android.hardware.display.DisplayManagerGlobal$DisplayListenerDelegate.handleDisplayEventInner:2255 android.hardware.display.DisplayManagerGlobal$DisplayListenerDelegate.lambda$sendDisplayEvent$0:2181 android.hardware.display.DisplayManagerGlobal$DisplayListenerDelegate.$r8$lambda$U7s70EKugVQNzFVIVvJsNmT_WdQ:0 
+09-18 02:01:31.194  1228  1228 I SurfaceFlinger: onHandleDestroyed: layerId=135953, name=d82922e SurfaceView[]@0#135953
+09-18 02:01:31.194  1228  1228 I SurfaceFlinger: id=135953 Removed d82922e SurfaceView[]@0#135953 (159)
+09-18 02:01:31.194 27716 27743 V WindowManager: Collecting in transition 7525: Display{#2091 state=ON size=1080x1563 ROTATION_0}, caller=com.android.server.wm.Transition.collectExistenceChange:40 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda25.onCollectStarted:12 com.android.server.wm.TransitionController.startCollectOrQueue:109 com.android.server.wm.RootWindowContainer.onDisplayRemoved:105 android.hardware.display.DisplayManagerGlobal$DisplayListenerDelegate.handleDisplayEventInner:2255 
+09-18 02:01:31.194  1228  1228 I SurfaceFlinger: onHandleDestroyed: layerId=135955, name=Background for d82922e SurfaceView[]@0#135955
+09-18 02:01:31.194  1228  1228 I SurfaceFlinger: id=135955 Removed Background for d82922e SurfaceView[]@0#135955 (159)
+09-18 02:01:31.194  1228  1228 I SurfaceFlinger: onHandleDestroyed: layerId=135952, name=Bounds for - @0#135952
+09-18 02:01:31.194  1228  1228 I SurfaceFlinger: id=135952 Removed Bounds for - @0#135952 (159)
+09-18 02:01:31.194 27716 27743 V WindowManager: Requesting StartTransition: TransitionRecord{3a86365 id=7525 type=CLOSE flags=0x20000 parallelCollectType=NONE recentsDisplayId=-1 c=[
+09-18 02:01:31.194 27716 27743 V WindowManager:    ChangeInfo{fa19ceb container=Display{#2091 state=ON size=1080x1563 ROTATION_0} flags=0x0}
+09-18 02:01:31.194 27716 27743 V WindowManager: ]
+09-18 02:01:31.194 27716 27743 V WindowManager: }, caller=com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda25.onCollectStarted:41 com.android.server.wm.TransitionController.startCollectOrQueue:109 com.android.server.wm.RootWindowContainer.onDisplayRemoved:105 android.hardware.display.DisplayManagerGlobal$DisplayListenerDelegate.handleDisplayEventInner:2255 android.hardware.display.DisplayManagerGlobal$DisplayListenerDelegate.lambda$sendDisplayEvent$0:2181 
+09-18 02:01:31.194  1171  1195 I hwcomposer: [HWCDisplay] (0 setColorTransform():553), hint:0 ok:1 Transform Ioctl 1  
+09-18 02:01:31.195  1171  1195 I hwcomposer: [HWCDisplay] (0 setColorTransformForJob():2415), ccorr_state=0->0 hint=0 force_disable_color=0 linear=0  
+09-18 02:01:31.195  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.195  1228  1453 I SurfaceFlinger: Current= 60, Period= 60, Distance= 91
+09-18 02:01:31.195 28383 28383 D DisplayLifecycle: removeDisplay id = 2091
+09-18 02:01:31.196  1228  1228 D BufferQueueConsumer: [VDS: flutter-vd#0](id:4cc0000087f,api:1,p:1228,c:1228) disconnect
+09-18 02:01:31.197 27716 27745 D DisplayManagerService: Delivering display group event: groupId=0, event=2
+09-18 02:01:31.197 27716 27745 D PowerManagerService: onDisplayGroupChanged: groupId=0
+09-18 02:01:31.197 27716 27745 D InputManager-JNI: setInteractive(true), non-interactive displays={}
+09-18 02:01:31.197 13149 20768 I BLASTBufferQueue: [d82922e SurfaceView[]@0#9](f:0,a:1,s:0) destructor()
+09-18 02:01:31.197 13149 20768 D BufferQueueConsumer: [d82922e SurfaceView[]@0#9(BLAST Consumer)9](id:335d0000000b,api:0,p:-1,c:13149) disconnect
+09-18 02:01:31.197  1171  1384 I hwcomposer: [DRMDEV] create blob id of color transform[success] mode=0 f=0 mat=2048    0    0    0   0 2048    0    0   0    0 2048    0   0    0    0 2048  
+09-18 02:01:31.198 28383 28493 V WindowManagerShell: Transition requested (#7525): android.os.BinderProxy@9cda0dc TransitionRequestInfo { type = CLOSE, triggerTask = null, pipChange = null, remoteTransitionInfo = null, displayChange = DisplayChange { displayId = 2091, startAbsBounds = null, endAbsBounds = null, startRotation = -1, endRotation = -1, physicalDisplayChanged = false, disconnectReparentDisplay = 0 }, requestedLocation = null, userChange = null, windowingLayerChange = null, flags = 131072, debugId = 7525 }
+09-18 02:01:31.199 13149 18957 I libbinder.BpBinder: onLastStrongRef automatically unlinking death recipients for descriptor: '(not cached)'
+09-18 02:01:31.199 13834 13834 I HoneySpace.DisplayHelper: onDisplayRemoved, displayId: 2091
+09-18 02:01:31.199 28383 28493 D ShellDesktopMode: handleRequest: TransitionRequestInfo {type=2, tid=null, f=131072, d=DisplayChange { displayId = 2091, startAbsBounds = null, endAbsBounds = null, startRotation = -1, endRotation = -1, physicalDisplayChanged = false, disconnectReparentDisplay = 0 }, debugId=7525}
+09-18 02:01:31.199 28383 28493 D ShellDesktopMode: DesktopTasksController: addOnDisplayDisconnectChanges: disconnectedDisplayId=2091, destinationDisplayId=0
+09-18 02:01:31.199 27716 27746 W PhoneWindowManager: lockNow pending, ignore updating lockscreen timeout
+09-18 02:01:31.199 28383 28493 V ShellDesktopMode: DesktopDisplayEventHandler: requestPreserveDisplay displayId=2091
+09-18 02:01:31.199 27716 28150 D WifiConnectivityMonitor.NetworkStatsAnalyzer: Backhaul result - RSSI:-48, CE:11, PE:10, TI:15, PTI:14, TW:7, PTW:7, Tx:19, Rx:20, TxS:8, RxS:4, RESULT:true, IC:0, ICT:5, WC:0, WCT:5, R:0, RC:0, IE:0, EC:0
+09-18 02:01:31.200  1228  1322 I SurfaceFlinger: onHandleDestroyed: layerId=135954, name=d82922e SurfaceView[]@0(BLAST)#135954
+09-18 02:01:31.200  1228  1322 I SurfaceFlinger: id=135954 Removed d82922e SurfaceView[]@0(BLAST)#135954 (159)
+09-18 02:01:31.200 27716 27745 E ModeChangeObserver: Removed display not found
+09-18 02:01:31.200 13834 13834 I HoneySpace.DisplayHelper: onDisplayRemoved, displayId: 2091
+09-18 02:01:31.200 27716 27746 W PhoneWindowManager: lockNow pending, ignore updating lockscreen timeout
+09-18 02:01:31.201 28383 28493 V ShellDesktopMode: DesktopTasksController: removeHomeTask in displayId=2091
+09-18 02:01:31.201 28383 28383 I AODTileStateController: onDisplayRemoved: 2091
+09-18 02:01:31.201 28383 28493 D ShellDesktopMode: DesktopTasksController: handleProjectedModeDisconnect: moving tasks to non-desktop display
+09-18 02:01:31.201 28383 28383 I AODTileStateController: requestListeningState: 
+09-18 02:01:31.201 28383 28493 V WindowManagerShell: Transition (#7525): request handled by DesktopTasksController
+09-18 02:01:31.201 27716 29536 D StatusBarManagerService: isSecCustomTile : componentName =ComponentInfo{com.samsung.android.app.aodservice/com.samsung.android.app.aodservice.settings.AODTileService}
+09-18 02:01:31.202 13834 16302 I HoneySpace.DesktopTaskDividerManagerImpl: fold: false, noExternal: true
+09-18 02:01:31.202 13834 16302 I HoneySpace.DesktopTaskDividerManagerImpl: _isTaskSplittable, true
+09-18 02:01:31.202 28383 28383 D NavigationBarControllerImpl: onDisplayRemoveSystemDecorations id=2091
+09-18 02:01:31.203 28383 28383 D vol.VolumeDialogControl: onDisplayRemoved
+09-18 02:01:31.204 27716 29676 V WindowManager: Starting Transition 7525, caller=com.android.server.wm.WindowOrganizerController.startTransition:43 com.android.server.wm.WindowOrganizerController.startTransition:1 android.window.IWindowOrganizerController$Stub.onTransact:268 
+09-18 02:01:31.204 27716 29676 D BLASTSyncEngine: SyncGroup 7525: Set ready true, caller=com.android.server.wm.BLASTSyncEngine.setReady:31 com.android.server.wm.Transition.applyReady:48 com.android.server.wm.Transition.start:106 com.android.server.wm.WindowOrganizerController.startTransition:43 com.android.server.wm.WindowOrganizerController.startTransition:1 android.window.IWindowOrganizerController$Stub.onTransact:268 
+09-18 02:01:31.205 28383 28383 D TileServices: Couldn't find tile for ComponentInfo{com.samsung.android.app.aodservice/com.samsung.android.app.aodservice.settings.AODTileService}(0)
+09-18 02:01:31.206 27716 29676 I WindowManager: release() >> KnoxZT mIsKnoxZtStarted is false for Display Id : 2091
+09-18 02:01:31.207 27716 27746 W PhoneWindowManager: lockNow pending, ignore updating lockscreen timeout
+09-18 02:01:31.207  1228  1455 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.207  1228  1455 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.207 27716 27746 W PhoneWindowManager: lockNow pending, ignore updating lockscreen timeout
+09-18 02:01:31.207 27716 27746 V WindowManager: SyncGroup 7525: Finished!
+09-18 02:01:31.208 27716 27746 D ChangeTransitionController: onTransactionReady: TransitionRecord{3a86365 id=7525 type=CLOSE flags=0x20000 parallelCollectType=NONE recentsDisplayId=-1 c=[
+09-18 02:01:31.208 27716 27746 D ChangeTransitionController:    ChangeInfo{fa19ceb container=Display{#2091 state=ON size=1080x1563 ROTATION_0} flags=0x0}
+09-18 02:01:31.208 27716 27746 D ChangeTransitionController: ]
+09-18 02:01:31.208 27716 27746 D ChangeTransitionController: }
+09-18 02:01:31.208 27716 27746 V WindowManager: Start calculating TransitionInfo based on participants: {Display{#2091 state=ON size=1080x1563 ROTATION_0}}
+09-18 02:01:31.208 27716 27746 V WindowManager:   Final targets: [ChangeInfo{fa19ceb container=Display{#2091 state=ON size=1080x1563 ROTATION_0} flags=0x0}]
+09-18 02:01:31.209  1228  1228 I SurfaceFlinger: [Display 2091 name="flutter-vd#0"#135944] setFrameRateCategory: High
+09-18 02:01:31.209  1228  1228 I SurfaceFlinger: destroyed Bounds for - @0#135952
+09-18 02:01:31.209  1228  1228 I SurfaceFlinger: destroyed Background for d82922e SurfaceView[]@0#135955
+09-18 02:01:31.209  1228  1228 I SurfaceFlinger: destroyed d82922e SurfaceView[]@0(BLAST)#135954
+09-18 02:01:31.209  1228  1228 I SurfaceFlinger: destroyed d82922e SurfaceView[]@0#135953
+09-18 02:01:31.209  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{WindowToken{ccb1cb type=2030 android.os.BinderProxy@f4cacd5}#135949} 1 children}] reparent to OffscreenRoot
+09-18 02:01:31.209  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{WindowToken{ccb1cb type=2030 android.os.BinderProxy@f4cacd5}#135949} 1 children}] RelativeParent to null
+09-18 02:01:31.209  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{2d37545 com.gota.gota#135950} 1 children}] reparent to OffscreenRoot
+09-18 02:01:31.209  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{2d37545 com.gota.gota#135950} 1 children}] RelativeParent to null
+09-18 02:01:31.209  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{$_13149#135951} no children}] reparent to OffscreenRoot
+09-18 02:01:31.209  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{$_13149#135951} no children}] RelativeParent to null
+09-18 02:01:31.210  1228  1228 I SurfaceFlinger: id=135954 Destroyed d82922e SurfaceView[]@0(BLAST)#135954
+09-18 02:01:31.210  1228  1455 I SurfaceFlinger: id=135958 createSurf, flag=84004, Transition Root: Display 2091 name="flutter-vd#0"#135958
+09-18 02:01:31.211  1228  1228 I SurfaceFlinger: id=135952 Destroyed Bounds for - @0#135952
+09-18 02:01:31.211  1228  1228 I SurfaceFlinger: id=135955 Destroyed Background for d82922e SurfaceView[]@0#135955
+09-18 02:01:31.211  1228  1228 I SurfaceFlinger: id=135953 Destroyed d82922e SurfaceView[]@0#135953
+09-18 02:01:31.211  1228  1228 I SurfaceFlinger: onHandleDestroyed: layerId=135949, name=WindowToken{ccb1cb type=2030 android.os.BinderProxy@f4cacd5}#135949
+09-18 02:01:31.211  1228  1228 I SurfaceFlinger: id=135949 Removed WindowToken{ccb1cb type=2030 android.os.BinderProxy@f4cacd5}#135949 (156)
+09-18 02:01:31.211  1228  1228 I SurfaceFlinger: onHandleDestroyed: layerId=135950, name=2d37545 com.gota.gota#135950
+09-18 02:01:31.211  1228  1228 I SurfaceFlinger: id=135950 Removed 2d37545 com.gota.gota#135950 (156)
+09-18 02:01:31.211  1228  1228 I SurfaceFlinger: onHandleDestroyed: layerId=135951, name=$_13149#135951
+09-18 02:01:31.211  1228  1228 I SurfaceFlinger: id=135951 Removed $_13149#135951 (156)
+09-18 02:01:31.212 27716 27746 V WindowManager: Calling onTransitionReady: {id=7525 t=CLOSE f=0x20000 trk=0 r=[2091@Point(0, 0)] c=[
+09-18 02:01:31.212 27716 27746 V WindowManager:         {WCT{RemoteToken{19c77de Display{#2091 state=ON size=1080x1563 ROTATION_0}}} m=CLOSE f=IS_DISPLAY leash=Surface(name=WindowingLayer:0:36#135936)/@0x44c5d8c sb=Rect(0, 0 - 1080, 1563) eb=Rect(0, 0 - 1080, 1563) epz=Point(1080, 2340) d=2091 inset=Rect(0, 0 - 0, 0)}] [mergeAsNoAnim=true
+09-18 02:01:31.212 27716 27746 V WindowManager:     ]}
+09-18 02:01:31.214 27716 27742 V WindowManager: Sent Transition (#7525) createdAt=09-18 02:01:31.191 via request=TransitionRequestInfo { type = CLOSE, triggerTask = null, pipChange = null, remoteTransitionInfo = null, displayChange = DisplayChange { displayId = 2091, startAbsBounds = null, endAbsBounds = null, startRotation = -1, endRotation = -1, physicalDisplayChanged = false, disconnectReparentDisplay = 0 }, requestedLocation = null, userChange = null, windowingLayerChange = null, flags = 131072, debugId = 7525 }
+09-18 02:01:31.215 28383 28525 V WindowManagerShell: onTransitionReady(transaction=119039314370258)
+09-18 02:01:31.215 27716 27742 V WindowManager:     startWCT=WindowContainerTransaction { changes= {} hops= [] errorCallbackToken=null taskFragmentOrganizer=null }
+09-18 02:01:31.215 27716 27742 V WindowManager:     info={id=7525 t=CLOSE f=0x20000 trk=0 r=[2091@Point(0, 0)] c=[
+09-18 02:01:31.215 27716 27742 V WindowManager:         {WCT{RemoteToken{19c77de Display{#2091 state=ON size=1080x1563 ROTATION_0}}} m=CLOSE f=IS_DISPLAY leash=Surface(name=WindowingLayer:0:36#135936)/@0x44c5d8c sb=Rect(0, 0 - 1080, 1563) eb=Rect(0, 0 - 1080, 1563) epz=Point(1080, 2340) d=2091 inset=Rect(0, 0 - 0, 0)}] [mergeAsNoAnim=true
+09-18 02:01:31.215 27716 27742 V WindowManager:     ]}
+09-18 02:01:31.215 28383 28493 V WindowManagerShell: onTransitionReady (#7525) android.os.BinderProxy@9cda0dc: {id=7525 t=CLOSE f=0x20000 trk=0 r=[2091@Point(0, 0)] c=[
+09-18 02:01:31.215 28383 28493 V WindowManagerShell:         {m=CLOSE f=IS_DISPLAY leash=Surface(name=WindowingLayer:0:36#135936)/@0x9b8b5e5 sb=Rect(0, 0 - 1080, 1563) eb=Rect(0, 0 - 1080, 1563) epz=Point(1080, 2340) d=2091 inset=Rect(0, 0 - 0, 0)}] [mergeAsNoAnim=true
+09-18 02:01:31.215 28383 28493 V WindowManagerShell:     ]}
+09-18 02:01:31.216 28383 28493 V ShellDesktopMode: DesktopModeLogger: taskInfo map after processing changes 0
+09-18 02:01:31.216 28383 28493 I SurfaceControlRegistry: hide, t=FinishTransaction_SyncId<7525> sc=WindowingLayer:0:36#135936, caller=android.view.SurfaceControl$Transaction.hide:3705 com.android.wm.shell.transition.Transitions.dispatchReady:1355 com.android.wm.shell.transition.Transitions$TransitionPlayerImpl$$ExternalSyntheticLambda1.run:284 android.os.Handler.handleCallback:1070 android.os.Handler.dispatchMessage:125 android.os.Looper.dispatchMessage:358 
+09-18 02:01:31.216 28383 28493 V WindowManagerShell: Playing animation for (#7525) android.os.BinderProxy@9cda0dc@0
+09-18 02:01:31.216 28383 28493 I SurfaceControlRegistry: show, t=StartTransaction_SyncId<7525> sc=Transition Root: Display 2091 name="flutter-vd#0"#135958, caller=android.view.SurfaceControl$Transaction.show:3679 com.android.wm.shell.transition.Transitions.playTransition:78 com.android.wm.shell.transition.Transitions.processReadyQueue:296 com.android.wm.shell.transition.Transitions.dispatchReady:1492 com.android.wm.shell.transition.Transitions$TransitionPlayerImpl$$ExternalSyntheticLambda1.run:284 android.os.Handler.handleCallback:1070 
+09-18 02:01:31.216 28383 28493 V WindowManagerShell:  try firstHandler com.android.wm.shell.desktopmode.DesktopTasksController@d5e768a
+09-18 02:01:31.217 28383 28493 I SurfaceControlRegistry: apply, t=StartTransaction_SyncId<7525>, caller=android.view.SurfaceControl$Transaction.apply:3581 android.view.SurfaceControl$Transaction.apply:3569 android.view.SurfaceControl$Transaction.apply:3519 com.android.wm.shell.desktopmode.DisplayDisconnectTransitionHandler.startAnimation:11 com.android.wm.shell.transition.Transitions.dispatchTransition:104 com.android.wm.shell.transition.Transitions.playTransition:1066 
+09-18 02:01:31.217 28383 28493 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#7525) android.os.BinderProxy@9cda0dc@0
+09-18 02:01:31.218 28383 28493 I SurfaceControlRegistry: apply, t=FinishTransaction_SyncId<7525>, caller=android.view.SurfaceControl$Transaction.apply:3581 android.view.SurfaceControl$Transaction.apply:3569 android.view.SurfaceControl$Transaction.apply:3519 com.android.wm.shell.transition.Transitions.onFinish:381 com.android.wm.shell.transition.Transitions$$ExternalSyntheticLambda8.onTransitionFinished:12 com.android.wm.shell.desktopmode.DisplayDisconnectTransitionHandler.startAnimation:15 
+09-18 02:01:31.218  1228  1455 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.218  1228  1455 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.219 27716 29676 V WindowManager: Finish Transition: TransitionRecord{3a86365 id=7525 type=CLOSE flags=0x20000 parallelCollectType=NONE recentsDisplayId=-1 c=[
+09-18 02:01:31.219 27716 29676 V WindowManager:    ChangeInfo{fa19ceb container=Display{#2091 state=ON size=1080x1563 ROTATION_0} flags=0x0}
+09-18 02:01:31.219 27716 29676 V WindowManager: ]
+09-18 02:01:31.219 27716 29676 V WindowManager: }, caller=com.android.server.wm.WindowOrganizerController.finishTransitionInner:34 com.android.server.wm.WindowOrganizerController.finishAllTransitions:60 android.window.IWindowOrganizerController$Stub.onTransact:292 
+09-18 02:01:31.220 27716 27742 V WindowManager: Finish Transition (#7525): created at 09-18 02:01:31.191 collect-started=0.853ms request-sent=2.735ms started=13.046ms ready=13.032ms sent=20.451ms finished=27.954ms
+09-18 02:01:31.222  1228  1453 I SurfaceFlinger: onHandleDestroyed: layerId=135945, name=Display Overlays#135945
+09-18 02:01:31.223 27716 27743 D InputTransport: Input channel destroyed: 'Pointer', fd=1165
+09-18 02:01:31.223  1228  1455 I SurfaceFlinger: onHandleDestroyed: layerId=135946, name=Input Overlays#135946
+09-18 02:01:31.223  1228  1453 I SurfaceFlinger: id=135945 Removed Display Overlays#135945 (156)
+09-18 02:01:31.223  1228  1320 I SurfaceFlinger: onHandleDestroyed: layerId=135948, name=Accessibility Overlays#135948
+09-18 02:01:31.223  1228  1320 I SurfaceFlinger: id=135948 Removed Accessibility Overlays#135948 (156)
+09-18 02:01:31.223 27716 27942 W InputDispatcher: channel 'PointerEventDispatcher2091' ~ Consumer closed input channel or an error occurred.  events=0x9
+09-18 02:01:31.223 27716 27942 E InputDispatcher: channel 'PointerEventDispatcher2091' ~ Channel is unrecoverably broken and will be disposed!
+09-18 02:01:31.223  1228  1320 I SurfaceFlinger: onHandleDestroyed: layerId=135947, name=PointerEventDispatcherOverlay2091#135947
+09-18 02:01:31.223  1228  1455 I SurfaceFlinger: id=135946 Removed Input Overlays#135946 (156)
+09-18 02:01:31.223  1228  1320 I SurfaceFlinger: id=135947 Removed PointerEventDispatcherOverlay2091#135947 (156)
+09-18 02:01:31.224 27716 29676 D ChangeTransitionController: onTransitionFinished: TransitionRecord{3a86365 id=7525 type=CLOSE flags=0x20000 parallelCollectType=NONE recentsDisplayId=-1 c=[
+09-18 02:01:31.224 27716 29676 D ChangeTransitionController:    ChangeInfo{fa19ceb container=Display{#2091 state=ON size=1080x1563 ROTATION_0} flags=0x0}
+09-18 02:01:31.224 27716 29676 D ChangeTransitionController: ]
+09-18 02:01:31.224 27716 29676 D ChangeTransitionController: }
+09-18 02:01:31.224 27716 29676 V WindowManager: Computed rotation=ROTATION_0 (0) for display id=0 based on lastOrientation=SCREEN_ORIENTATION_UNSPECIFIED (-1) and oldRotation=ROTATION_0 (0), caller=com.android.server.wm.WindowManagerService.updateRotationUnchecked:82 com.android.server.wm.TransitionController.finishTransition:2499 com.android.server.wm.WindowOrganizerController.finishTransitionInner:34 com.android.server.wm.WindowOrganizerController.finishAllTransitions:60 android.window.IWindowOrganizerController$Stub.onTransact:292 com.android.server.wm.WindowOrganizerController.onTransact:1 
+09-18 02:01:31.224 27716 29676 E WindowManager: DisplayContent already removed or removing.
+09-18 02:01:31.225 27716 27942 D InputTransport: Input channel destroyed: 'Pointer', fd=1134
+09-18 02:01:31.225 28383 28493 V WindowManagerShell: Track 0 became idle
+09-18 02:01:31.225 28383 28493 V WindowManagerShell: All active transition animations finished
+09-18 02:01:31.225 27716 27746 W PhoneWindowManager: lockNow pending, ignore updating lockscreen timeout
+09-18 02:01:31.225 28383 28493 V WindowManagerShell:  animated by com.android.wm.shell.desktopmode.DisplayDisconnectTransitionHandler@212b4fb
+09-18 02:01:31.225 28383 28493 V WindowManagerShell: Track 0 became idle
+09-18 02:01:31.225 28383 28493 V WindowManagerShell: All active transition animations finished
+09-18 02:01:31.225  1228  1228 I SurfaceFlinger: RequestedLayer [Transition Root: Display 2091 name="flutter-vd#0"#135958] hidden!! flag  from(1) --> to(0)
+09-18 02:01:31.225  1228  1228 I SurfaceFlinger: RequestedLayer [WindowingLayer:0:36#135936] hidden!! flag  from(0) --> to(1)
+09-18 02:01:31.225  1228  1228 I SurfaceFlinger: destroyed WindowToken{ccb1cb type=2030 android.os.BinderProxy@f4cacd5}#135949
+09-18 02:01:31.225  1228  1228 I SurfaceFlinger: destroyed 2d37545 com.gota.gota#135950
+09-18 02:01:31.225  1228  1228 I SurfaceFlinger: destroyed $_13149#135951
+09-18 02:01:31.225  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{WindowingLayer:0:36#135936 parentId=135944} 5 children}] reparent to LayerHierarchy{RequestedLayerState{Display 2091 name="flutter-vd#0"#135944 layerStack=2091} 4 children}
+09-18 02:01:31.225  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{ChangeLeashAnchor#135939} no children}] reparent to OffscreenRoot
+09-18 02:01:31.225  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{ChangeLeashAnchor#135939} no children}] RelativeParent to null
+09-18 02:01:31.225  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{FloatingLeashAnchor#135940 z=1} no children}] reparent to OffscreenRoot
+09-18 02:01:31.225  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{FloatingLeashAnchor#135940 z=1} no children}] RelativeParent to null
+09-18 02:01:31.225  1228  1228 I SurfaceFlinger: [Transition Root: Display 2091 name="flutter-vd#0"#135958] attach to parent OffscreenRoot
+09-18 02:01:31.225 28383 28383 D SystemUIService: SYSUI_RAM_OPTIMIZATION onTrimMemory=20
+09-18 02:01:31.226 28383 28383 D CentralSurfaces: SYSUI_RAM_OPTIMIZATION onTrimMemory=20
+09-18 02:01:31.226 28383 28684 D HWUI    : CacheManager::trimMemory(20)
+09-18 02:01:31.226 28383 28383 D SystemUIService: SYSUI_RAM_OPTIMIZATION onTrimMemory=20
+09-18 02:01:31.226 28383 28383 D CentralSurfaces: SYSUI_RAM_OPTIMIZATION onTrimMemory=20
+09-18 02:01:31.226  1228  1228 I SurfaceFlinger: id=135951 Destroyed $_13149#135951
+09-18 02:01:31.227 28383 28684 D HWUI    : CacheManager::trimMemory(20)
+09-18 02:01:31.227  1228  1228 I SurfaceFlinger: id=135950 Destroyed 2d37545 com.gota.gota#135950
+09-18 02:01:31.227  1228  1228 I SurfaceFlinger: id=135949 Destroyed WindowToken{ccb1cb type=2030 android.os.BinderProxy@f4cacd5}#135949
+09-18 02:01:31.229  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.229  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.230  1228  1640 I SurfaceFlinger: onHandleDestroyed: layerId=135939, name=ChangeLeashAnchor#135939
+09-18 02:01:31.230  1228  1322 I SurfaceFlinger: onHandleDestroyed: layerId=135940, name=FloatingLeashAnchor#135940
+09-18 02:01:31.230  1228  1322 I SurfaceFlinger: id=135940 Removed FloatingLeashAnchor#135940 (153)
+09-18 02:01:31.230  1228  1640 I SurfaceFlinger: id=135939 Removed ChangeLeashAnchor#135939 (153)
+09-18 02:01:31.230  1228  1640 I SurfaceFlinger: onHandleDestroyed: layerId=135958, name=Transition Root: Display 2091 name="flutter-vd#0"#135958
+09-18 02:01:31.230  1228  1640 I SurfaceFlinger: id=135958 Removed Transition Root: Display 2091 name="flutter-vd#0"#135958 (153)
+09-18 02:01:31.230 27716 29676 D InputDispatcher: removing all handles on display 2091
+09-18 02:01:31.240  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.240  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: destroyed ChangeLeashAnchor#135939
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: destroyed Transition Root: Display 2091 name="flutter-vd#0"#135958
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: destroyed FloatingLeashAnchor#135940
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{WindowingLayer:0:36#135936} 5 children}] reparent to OffscreenRoot
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{WindowingLayer:0:36#135936} 5 children}] RelativeParent to null
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{Leaf:0:1#135937} no children}] reparent to OffscreenRoot
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{Leaf:0:1#135937} no children}] RelativeParent to null
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{DefaultTaskDisplayArea_d2091#135938 z=1} no children}] reparent to OffscreenRoot
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{DefaultTaskDisplayArea_d2091#135938 z=1} no children}] RelativeParent to null
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{Leaf:3:12#135941 z=2} no children}] reparent to OffscreenRoot
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{Leaf:3:12#135941 z=2} no children}] RelativeParent to null
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{ImeContainer#135942 z=3} no children}] reparent to OffscreenRoot
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{ImeContainer#135942 z=3} no children}] RelativeParent to null
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{Leaf:15:36#135943 z=4} no children}] reparent to OffscreenRoot
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{Leaf:15:36#135943 z=4} no children}] RelativeParent to null
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{Display 2091 name="flutter-vd#0"#135944 layerStack=2091} 3 children}] reparent to OffscreenRoot
+09-18 02:01:31.242  1228  1228 I SurfaceFlinger: [LayerHierarchy{RequestedLayerState{Display 2091 name="flutter-vd#0"#135944 layerStack=2091} 3 children}] RelativeParent to null
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: id=135958 Destroyed Transition Root: Display 2091 name="flutter-vd#0"#135958
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: id=135939 Destroyed ChangeLeashAnchor#135939
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: id=135940 Destroyed FloatingLeashAnchor#135940
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: onHandleDestroyed: layerId=135944, name=Display 2091 name="flutter-vd#0"#135944
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: id=135944 Removed Display 2091 name="flutter-vd#0"#135944 (150)
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: onHandleDestroyed: layerId=135943, name=Leaf:15:36#135943
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: id=135943 Removed Leaf:15:36#135943 (150)
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: onHandleDestroyed: layerId=135938, name=DefaultTaskDisplayArea_d2091#135938
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: id=135938 Removed DefaultTaskDisplayArea_d2091#135938 (150)
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: onHandleDestroyed: layerId=135937, name=Leaf:0:1#135937
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: id=135937 Removed Leaf:0:1#135937 (150)
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: onHandleDestroyed: layerId=135941, name=Leaf:3:12#135941
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: id=135941 Removed Leaf:3:12#135941 (150)
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: onHandleDestroyed: layerId=135942, name=ImeContainer#135942
+09-18 02:01:31.243  1228  1228 I SurfaceFlinger: id=135942 Removed ImeContainer#135942 (150)
+09-18 02:01:31.251  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.251  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.259  1228  1228 I SurfaceFlinger: destroyed Leaf:0:1#135937
+09-18 02:01:31.259  1228  1228 I SurfaceFlinger: destroyed Input Overlays#135946
+09-18 02:01:31.259  1228  1228 I SurfaceFlinger: destroyed Display Overlays#135945
+09-18 02:01:31.259  1228  1228 I SurfaceFlinger: destroyed Display 2091 name="flutter-vd#0"#135944
+09-18 02:01:31.259  1228  1228 I SurfaceFlinger: destroyed Leaf:15:36#135943
+09-18 02:01:31.259  1228  1228 I SurfaceFlinger: destroyed ImeContainer#135942
+09-18 02:01:31.259  1228  1228 I SurfaceFlinger: destroyed Leaf:3:12#135941
+09-18 02:01:31.259  1228  1228 I SurfaceFlinger: destroyed PointerEventDispatcherOverlay2091#135947
+09-18 02:01:31.259  1228  1228 I SurfaceFlinger: destroyed Accessibility Overlays#135948
+09-18 02:01:31.259  1228  1228 I SurfaceFlinger: destroyed DefaultTaskDisplayArea_d2091#135938
+09-18 02:01:31.260  1228  1228 I SurfaceFlinger: id=135946 Destroyed Input Overlays#135946
+09-18 02:01:31.260  1228  1228 I SurfaceFlinger: id=135945 Destroyed Display Overlays#135945
+09-18 02:01:31.260  1228  1228 I SurfaceFlinger: id=135947 Destroyed PointerEventDispatcherOverlay2091#135947
+09-18 02:01:31.260  1228  1228 I SurfaceFlinger: id=135948 Destroyed Accessibility Overlays#135948
+09-18 02:01:31.260  1228  1228 I SurfaceFlinger: id=135942 Destroyed ImeContainer#135942
+09-18 02:01:31.260  1228  1228 I SurfaceFlinger: id=135941 Destroyed Leaf:3:12#135941
+09-18 02:01:31.260  1228  1228 I SurfaceFlinger: id=135937 Destroyed Leaf:0:1#135937
+09-18 02:01:31.260  1228  1228 I SurfaceFlinger: id=135938 Destroyed DefaultTaskDisplayArea_d2091#135938
+09-18 02:01:31.260  1228  1228 I SurfaceFlinger: id=135943 Destroyed Leaf:15:36#135943
+09-18 02:01:31.260  1228  1228 I SurfaceFlinger: id=135944 Destroyed Display 2091 name="flutter-vd#0"#135944
+09-18 02:01:31.263  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.263  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.274  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.274  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:31.285  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.285  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.296  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.296  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 91
+09-18 02:01:31.308  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.308  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:31.319  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.319  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 91
+09-18 02:01:31.330  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.330  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:31.341  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.341  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:31.352  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.353  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.363  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.364  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.375  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.375  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.386  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.386  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.397  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.397  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:31.402 27716 28173 D NetdEventListenerService: DNS Requested by 195, 10254(com.gota.gota), SUCCESS, 263ms
+09-18 02:01:31.408  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.408  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.419  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.420  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.431  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.431  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:31.442  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.442  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.453  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.453  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 91
+09-18 02:01:31.453 11199 11199 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color,raw:input swipe 600 600 400 800 100'
+09-18 02:01:31.458 27716 28173 D NetdEventListenerService: DNS Requested by 195, 10254(com.gota.gota), 7(NODATA), isBlocked=false, 262ms
+09-18 02:01:31.464  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.464  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.475  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.476  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.487  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.487  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.499  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.499  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 91
+09-18 02:01:31.501   631   631 D io_stats: !@   8,32 r 202587456 3948829920 w 22267020 284807512 d 2772040 219461528 f 2855041 4396342 iot 31383232 0 th 0 0 0 pt 0 inp 0 0 369485.962
+09-18 02:01:31.507 27716 28627 D InputDispatcher: Inject motion (21170/2000): action=0x0, time=369485968000000, f=0x0, d=0 dsdx=1.000000 dtdx=0.000000
+09-18 02:01:31.509  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.509  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:31.510 27716 27942 I InputDispatcher: Delivering touch to (28383): action: 0x4, f=0x0, d=0, '1e666cb', t=1 
+09-18 02:01:31.510 27716 27942 I InputDispatcher: Delivering touch to (13149): action: 0x0, f=0x0, d=0, 'e5c047b', t=1 
+09-18 02:01:31.511 27716 27743 I GestureDetector: obtain mCurrentDownEvent. id: -18868378 caller: com.android.server.wm.SystemGesturesPointerEventListener.onPointerEvent:17 com.android.server.wm.PointerEventDispatcher.onInputEvent:51 android.view.InputEventReceiver.dispatchInputEvent:369 
+09-18 02:01:31.512 27716 27743 I GestureDetector: obtain mCurrentDownEvent. id: -18868378 caller: com.android.server.wm.SystemPerformancePointerEventListener.onPointerEvent:13 com.android.server.wm.PointerEventDispatcher.onInputEvent:51 android.view.InputEventReceiver.dispatchInputEvent:369 
+09-18 02:01:31.511 13149 13149 I VRI[MainActivity]@b9d1501: ViewPostIme pointer 0
+09-18 02:01:31.517 27716 27743 I GestureDetector: obtain mCurrentMotionEventRaw. action: 2 id: -676673537
+09-18 02:01:31.517 27716 27743 I GestureDetector: obtain mCurrentMotionEventRaw. action: 2 id: -676673537
+09-18 02:01:31.518 27716 28173 D NetdEventListenerService: DNS Requested by 195, 10254(com.gota.gota), 7(NODATA), isBlocked=false, 57ms
+09-18 02:01:31.520  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.520  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:31.531  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.531  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.543  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.543  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.554  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.554  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.565  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.565  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:31.576  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.576  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.587  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.587  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.598  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.599  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:31.610 27716 28627 D InputDispatcher: Inject motion (21170/2000): action=0x1, time=369486070000000, f=0x0, d=0 dsdx=1.000000 dtdx=0.000000
+09-18 02:01:31.610  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.610  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:31.610 27716 27942 I InputDispatcher: Delivering touch to (13149): action: 0x1, f=0x0, d=0, 'e5c047b', t=1 
+09-18 02:01:31.613 13149 13149 I VRI[MainActivity]@b9d1501: ViewPostIme pointer 1
+09-18 02:01:31.613 27716 27716 I SemDvfsHyPerManager: acquire hyper - SMOOTH_SCROLL/27716@23, type = -999
+09-18 02:01:31.613 27716 27716 I SemDvfsHyPerManager: acquire hyper - GESTURE_DETECTED/27716@26, type = -999
+09-18 02:01:31.613 27530 27540 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 384739953 [27716 / 23]  HINT : SMOOTH_SCROLL   list : 
+09-18 02:01:31.614 27716 27716 I SemDvfsHyPerManager: acquire hyper - GESTURE_DETECTED/27716@26, type = -999
+09-18 02:01:31.615 27530 27540 I HYPER-HAL: [RequestManager.cpp]releaseLocked(): Released ID : 384739953
+09-18 02:01:31.615 27530 27540 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 384823179 [27716 / 26]  HINT : GESTURE_DETECTED   list : [TIMEOUT / 1171] 
+09-18 02:01:31.615 27530 27540 I HYPER-HAL: [RequestManager.cpp]acquire(): Acquired ID : 384823179 [27716 / 26]  HINT : GESTURE_DETECTED   list : [TIMEOUT / 1171] 
+09-18 02:01:31.621  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.621  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:31.632  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.632  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.644  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.644  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.655  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.655  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:31.666  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.666  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.677  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.677  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.688  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.688  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.699  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.699  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:31.710  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.710  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.721  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.721  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.732  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.732  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.744  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.744  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.755  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.755  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.766  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.766  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.778  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.778  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:31.789  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.789  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:31.792  1150 21081 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+09-18 02:01:31.800  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.800  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:31.801  1150 20956 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+09-18 02:01:31.808 27716 29521 D SemWifiUsabilityStatsMonitor: onWifiUsabilityStats - seqNum 35029, isSameBssidAndFreq true
+09-18 02:01:31.811  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.811  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.822  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.822  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.828  1171  1195 I hwcomposer: [HWCDisplay] (0 updateFps():4131), (type:1, mode:2) fps:59.964550,dur:1017.27,max:18.59,min:15.16  
+09-18 02:01:31.833  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.833  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.842  1228  1228 I BufferQueueProducer: [StatusBar$_28383#34229](this:0xb400007c963c2eb0,id:-1,api:0,p:-1,c:1228) queueBuffer: fps=0.17 dur=6021.78 max=6021.78 min=6021.78
+09-18 02:01:31.842  1228  1228 I BufferQueueProducer: [798a591 SurfaceView[com.gota.gota/com.gota.gota.MainActivity]@0(BLAST)#135931](this:0xb400007c965bf6b0,id:-1,api:0,p:-1,c:1228) queueBuffer: fps=56.99 dur=1000.10 max=50.55 min=15.60
+09-18 02:01:31.845  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.845  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.856  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.856  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.867  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.867  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.875 27716 10111 D BSOHChargingDataCollector:  BSOH Sys-servce ... 
+09-18 02:01:31.875 27716 10111 D BSOHChargingDataCollector: performBatteryWork++
+09-18 02:01:31.875 27716 10111 D BSOHChargingDataCollector: performBatteryWork battery com.android.server.bsoh.device.PrimeBattery@1c6cbbb
+09-18 02:01:31.875 27716 10111 D BSOHChargingDataCollector: primeBatt readVoltage from sysFsBattVolt,  path : /sys/class/power_supply/battery/batt_voltage_now
+09-18 02:01:31.878  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.878  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.882 27716 10111 D BSOHChargingDataCollector: 0 	 BattData addData data : BattData { voltage:3.979, current:1.362, soc:0.49, temperature:37.4, status:2, timestamp:1789711291882, voltage_chg:null}
+09-18 02:01:31.882 27716 10111 D BSOHChargingDataCollector: performBatteryWork--
+09-18 02:01:31.890  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.890  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.900  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.901  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.912  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.912  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:31.923  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.923  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:31.934  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.934  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.946  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.946  1228  1320 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:31.957  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.957  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.968  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.968  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 91
+09-18 02:01:31.979  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.979  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:31.990  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:31.990  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:32.002  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.002  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:32.012  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.013  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:32.024  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.024  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:32.035  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.035  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 91
+09-18 02:01:32.042  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:32.042  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:32.046  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.046  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:32.057  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.057  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:32.069  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.069  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:32.080  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.080  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:32.091  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.091  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:32.104  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.105  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 76
+09-18 02:01:32.114  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.114  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 108
+09-18 02:01:32.125  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.125  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 85
+09-18 02:01:32.136  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.136  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 95
+09-18 02:01:32.147  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.147  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:32.158  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.158  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:32.169  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.169  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:32.189  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.189  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 52
+09-18 02:01:32.201  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.201  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 82
+09-18 02:01:32.236  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.236  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 28
+09-18 02:01:32.257  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.257  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 49
+09-18 02:01:32.277  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.277  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 50
+09-18 02:01:32.289  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.289  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 83
+09-18 02:01:32.299  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.299  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 101
+09-18 02:01:32.310  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.310  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:32.321  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.321  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 94
+09-18 02:01:32.351  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.351  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 33
+09-18 02:01:32.360  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.360  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 111
+09-18 02:01:32.373  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.373  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 77
+09-18 02:01:32.382  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.382  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 106
+09-18 02:01:32.394  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.394  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 82
+09-18 02:01:32.405  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.405  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 95
+09-18 02:01:32.415  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.415  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 92
+09-18 02:01:32.442  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.442  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 38
+09-18 02:01:32.449  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.449  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 141
+09-18 02:01:32.460  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.460  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:32.471  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.471  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:32.483  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.483  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:32.494  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.494  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 89
+09-18 02:01:32.513  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.514  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 52
+09-18 02:01:32.525  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.525  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 88
+09-18 02:01:32.585  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.585  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 17
+09-18 02:01:32.588  1228  1640 W SurfaceFlinger: Ignoring duplicate VSYNC event from HWC for display 4627039422300187648 (t=369487045402000)
+09-18 02:01:32.588  1171  1393 I hwcomposer: [DRMDEV] (0:115) failed to waitNextVsync: -1  
+09-18 02:01:32.591  1171  1393 I hwcomposer: [DRMDEV] (0:115) failed to waitNextVsync: -1  
+09-18 02:01:32.591  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.591  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 155
+09-18 02:01:32.602  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.602  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 90
+09-18 02:01:32.606  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.606  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 278
+09-18 02:01:32.623  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, hwcPeriod= 90
+09-18 02:01:32.624  1228  1640 I SurfaceFlinger: Current= 60, Period= 60, Distance= 57
+09-18 02:01:32.787 27530 21152 I HYPER-HAL: [RequestManager.cpp]releaseLocked(): Released ID : 384823179
+09-18 02:01:32.878 27716 10111 D BSOHChargingDataCollector:  BSOH Sys-servce ... 
+09-18 02:01:32.878 27716 10111 D BSOHChargingDataCollector: performBatteryWork++
+09-18 02:01:32.879 27716 10111 D BSOHChargingDataCollector: performBatteryWork battery com.android.server.bsoh.device.PrimeBattery@1c6cbbb
+09-18 02:01:32.879 27716 10111 D BSOHChargingDataCollector: primeBatt readVoltage from sysFsBattVolt,  path : /sys/class/power_supply/battery/batt_voltage_now
+09-18 02:01:32.897 27716 10111 D BSOHChargingDataCollector: 0 	 BattData addData data : BattData { voltage:3.977, current:1.528, soc:0.49, temperature:37.5, status:2, timestamp:1789711292896, voltage_chg:null}
+09-18 02:01:32.897 27716 10111 D BSOHChargingDataCollector: performBatteryWork--
+09-18 02:01:32.921 27716 27732 I system_server: Background young concurrent mark compact GC freed 24MB AllocSpace bytes, 168(3360KB) LOS objects, 6% free, 150MB/161MB, paused 3.132ms,15.520ms total 130.740ms
+09-18 02:01:33.021 27716 27732 I system_server: Background young concurrent mark compact GC freed 11MB AllocSpace bytes, 6(1440KB) LOS objects, 13% free, 139MB/161MB, paused 2.706ms,13.947ms total 99.298ms
+09-18 02:01:33.504   631   631 D io_stats: !@   8,32 r 202587469 3948829984 w 22267031 284808920 d 2772040 219461528 f 2855046 4396343 iot 31383252 0 th 0 0 0 pt 0 inp 0 0 369487.964
+09-18 02:01:33.505   631   631 D io_stats: !@ Read_top(KB): com.gota.gota:top(13149) 236 system_server:high(27716) 36 system_server:top(27716) 32
+09-18 02:01:33.505   631   631 D io_stats: !@ Write_top(KB): system_server:high(27716) 1344 kworker/u32:20:/(9492) 64
+09-18 02:01:33.879 27716 10111 D BSOHChargingDataCollector:  BSOH Sys-servce ... 
+09-18 02:01:33.879 27716 10111 D BSOHChargingDataCollector: performBatteryWork++
+09-18 02:01:33.879 27716 10111 D BSOHChargingDataCollector: performBatteryWork battery com.android.server.bsoh.device.PrimeBattery@1c6cbbb
+09-18 02:01:33.880 27716 10111 D BSOHChargingDataCollector: primeBatt readVoltage from sysFsBattVolt,  path : /sys/class/power_supply/battery/batt_voltage_now
+09-18 02:01:33.889 27716 10111 D BSOHChargingDataCollector: 0 	 BattData addData data : BattData { voltage:3.985, current:1.364, soc:0.49, temperature:37.4, status:2, timestamp:1789711293889, voltage_chg:null}
+09-18 02:01:33.889 27716 10111 D BSOHChargingDataCollector: performBatteryWork--
+09-18 02:01:34.232 29773 29773 I SDHMS:LOAD: type: LoadsFreqs, value: 0:0:3:863500:1600000:725000:737000:2000000:500000:42:545:0
+09-18 02:01:34.614 27716 27854 D PowerManagerService: UserActivityStateListenerState: 0
+09-18 02:01:34.614 13149 13149 I VRI[MainActivity]@b9d1501: call setFrameRateCategory for touch hint category=no preference, reason=boost timeout, vri=VRI[MainActivity]@b9d1501
+09-18 02:01:34.616  1228  1640 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:34.617  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:34.632  1228  1228 I SurfaceFlinger: [com.gota.gota/com.gota.gota.MainActivity$_13149#135925] setFrameRateCategory: NoPreference
+09-18 02:01:34.703 14305 14365 I DGW     : I[notifyStreamGroupError:1925] StreamGroupTransport[notifgateway] notify StreamGroup error: TransientError domain: MNSSecureTCP code: 0 detail: mbedtls_ssl_read():  (-0x0000)
+09-18 02:01:34.727 27716 28151 D WifiConnectivityMonitor: start WCM Poll.
+09-18 02:01:34.822 27716 29521 D SemWifiUsabilityStatsMonitor: onWifiUsabilityStats - seqNum 35030, isSameBssidAndFreq true
+09-18 02:01:34.824 27716 28122 I SemWifiLinkQualityMonitor: Link stat: 0 / 0 / 1.00 (2) / 433 / -49.0 || 100.0 : 433.00 / 0.5 : 1.00 / 0.55 : 0.30 / G (G) || 79fa51235200: 0.121 / 65.934 / D / V || N N / 0 0 / Y 2.0 / Y -1 0.000 0.000 / Y / X 0 / 369489283 0 0 || Invalid
+09-18 02:01:34.880 27716 10111 D BSOHChargingDataCollector:  BSOH Sys-servce ... 
+09-18 02:01:34.881 27716 10111 D BSOHChargingDataCollector: performBatteryWork++
+09-18 02:01:34.881 27716 10111 D BSOHChargingDataCollector: performBatteryWork battery com.android.server.bsoh.device.PrimeBattery@1c6cbbb
+09-18 02:01:34.881 27716 10111 D BSOHChargingDataCollector: primeBatt readVoltage from sysFsBattVolt,  path : /sys/class/power_supply/battery/batt_voltage_now
+09-18 02:01:34.891 27716 10111 D BSOHChargingDataCollector: 0 	 BattData addData data : BattData { voltage:3.985, current:1.415, soc:0.49, temperature:37.5, status:2, timestamp:1789711294891, voltage_chg:null}
+09-18 02:01:34.891 27716 10111 D BSOHChargingDataCollector: performBatteryWork--
+09-18 02:01:35.182 28340  2041 D IpClient/wlan0: interfaceLinkStateChanged: ifindex 53 up
+09-18 02:01:35.195 27716 21178 D WifiConnectivityMonitor.DnsThread:  [|208] []
+09-18 02:01:35.196 27716 28150 D WifiConnectivityMonitor.NetworkStatsAnalyzer: DNS resultType : 0, responseTime : 208
+09-18 02:01:35.197 27716 28148 D OpenNetworkQos[4.00]: updateBssidLatestDnsResultType - result: 0
+09-18 02:01:35.197 27716 28148 D OpenNetworkQos[4.00]: updateBssidNoInternet: mBssidNoInternet = false
+09-18 02:01:35.197 27716 28148 D OpenNetworkQos[4.00]: getOpenNetworkQosNoInternetStatus: false[Private DNS is active. Result is ignored.]
+09-18 02:01:35.197 27716 28148 D OpenNetworkQos[4.00]: getOpenNetworkQosScores: 26 26 25 [Private DNS is active. Result is ignored.]
+09-18 02:01:35.197 27716 28148 I WifiProfileShare: network QoS data was changed (internet), updateQoSData networkType: true, qosData: false
+09-18 02:01:35.198 27716 29349 D WifiProfileShare: nearby scanning settings stop
+09-18 02:01:35.198 27716 29349 V WifiProfileShare.Caster: checkAndGetShareData - nearby scanning
+09-18 02:01:35.472 27716 29376 I NSLocationMonitor: getGPSUsingApps() called
+09-18 02:01:35.473 29374 13362 I NSLocationManager_FLP: getGPSUsingApps, No change
+09-18 02:01:35.477 27716 29376 D FreecessHandler: skipping freeze com.gota.gota(10254) result : 12
+09-18 02:01:35.485 27535 27645 I thermal_core: pivot(AP) : 386, skin : 364
+09-18 02:01:35.489 27509 27544 W aurisys_controller: aurisys_get_parameter(), adb_cmd->adb_cmd_type 7 fail, need active handler!
+09-18 02:01:35.489 27509 27544 D AudioALSAHardware: -getParameters(), return "g_hw_speaker_amp_temp_spk=GET_FAIL"
+09-18 02:01:35.493 29773 31448 I SDHMS:x : SIOP:: AP:386 BAT:374 USB:0 CHG:404 PA:380 WIFI:376 BLK:0 SUBBAT:0 SKIN:364 SKINF:358 SKINB:364 LRP2:364 LRF2:358 LRB2:364 AP2:362 CHG2:364 MEM2:361 WIFI2:362 SPK2:339 DNSPK:351 VAP:389 AVGCUR:1552 AVGSYS:0 POWER:6183
+09-18 02:01:35.508 28219 28284 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+09-18 02:01:35.510 28219 28284 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+09-18 02:01:35.512 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2)
+09-18 02:01:35.512 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2) lastNotifiedSignalStrength level: 0
+09-18 02:01:35.512 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2) currSignalStrength level: 0
+09-18 02:01:35.515 27716 29607 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+09-18 02:01:35.516 28383 28637 D MobileSignalTransitionManager: updateSignalTransition
+09-18 02:01:35.516 28383 28642 D MobileSignalTransitionManager: updateSignalTransition
+09-18 02:01:35.531  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:35.532  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:35.554  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:35.555  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:35.556  1228  1228 I BufferQueueProducer: [StatusBar$_28383#34229](this:0xb400007c963c2eb0,id:-1,api:0,p:-1,c:1228) queueBuffer: fps=0.27 dur=3713.29 max=3713.29 min=3713.29
+09-18 02:01:35.558  1171  1195 I hwcomposer: [HWCDisplay] (0 updateFps():4131), (type:1, mode:2) fps:3.753172,dur:3730.18,max:3497.19,min:15.76  
+09-18 02:01:35.882 27716 10111 D BSOHChargingDataCollector:  BSOH Sys-servce ... 
+09-18 02:01:35.882 27716 10111 D BSOHChargingDataCollector: performBatteryWork++
+09-18 02:01:35.883 27716 10111 D BSOHChargingDataCollector: performBatteryWork battery com.android.server.bsoh.device.PrimeBattery@1c6cbbb
+09-18 02:01:35.883 27716 10111 D BSOHChargingDataCollector: primeBatt readVoltage from sysFsBattVolt,  path : /sys/class/power_supply/battery/batt_voltage_now
+09-18 02:01:35.893 27716 10111 D BSOHChargingDataCollector: 0 	 BattData addData data : BattData { voltage:3.985, current:1.494, soc:0.49, temperature:37.5, status:2, timestamp:1789711295893, voltage_chg:null}
+09-18 02:01:35.893 27716 10111 D BSOHChargingDataCollector: performBatteryWork--
+09-18 02:01:35.966  1220  1252 D HeatmapThread: Updated plugType via uevent: 2
+09-18 02:01:35.985  1200  1253 E BatteryDump: !@new_battery_dump : 3985,1494,1700,3150,49,375,375,404,0,0,364,404,0,Charging,NO_CHARGING,Normal,Good,USB,1,Normal,0,0,9600,0x8000,0x10010000,0x0,0,0,0000,0000,00000000,0,0,0,0,863,3853,4890,990,0,
+09-18 02:01:35.992 27716 29607 D [SS]BattFunctions: [sendRemainingChargingTimeChangedIntent]remainingChargingTime:4745 ,mLastRemainingChargingTime:4752
+09-18 02:01:35.992 27535 27535 I seh_thermal_service: getTemperaturesWithType SehTemperatureType: 3
+09-18 02:01:35.993  1200  1200 I sehhealth-service: updateLrpSysfs: write: 364
+09-18 02:01:35.997 28383 28383 I AODBatteryManager: updateBatteryData: ACTION_BATTERY_CHANGED: false, isSleepModeChanged:false ,isRemainingTimeChanged: true, isUSBRestriction: false
+09-18 02:01:35.997 28383 28383 I ChargingInfoManager: removeMessages: 
+09-18 02:01:35.997 28383 28383 W AODAlarmTimer_HIDE_CHARGING_INFO_TIMER: stop : not yet started 
+09-18 02:01:35.997 28383 28383 I ChargingInfoManager: updateChargingInfo: newState = AOD ChargingInfo [mState=BATTERY_AND_REMAIN_TIME, mIsCharging=true, mIsPlugged=true, mIsFullyCharged=false, mIsBatteryProtectMode=false, mBetteryLevel=49, mBetteryProtectModeType0, mIsSlowChargingtrue], oldState = AOD ChargingInfo [mState=BATTERY_AND_REMAIN_TIME, mIsCharging=true, mIsPlugged=true, mIsFullyCharged=false, mIsBatteryProtectMode=false, mBetteryLevel=49, mBetteryProtectModeType0, mIsSlowChargingtrue]
+09-18 02:01:35.998 28383 28383 D PowerUI : Remaining charging time : 4745
+09-18 02:01:35.998 28383 28383 D PowerUI : Charging time is changed, check charging notification
+09-18 02:01:36.001 28383 28383 D PowerUI.Notification: showChargingNotice - Battery Level : 49 -> 49, Charging Type : 8 -> 8, Charging Time : 4752 -> 4745, Maximum protection : false -> false, Maximum threshold : 80 -> 80
+09-18 02:01:36.007 28383 28383 I NotificationManager: com.android.systemui: notify(2114586824, charging_state, Notification(channel=CHR shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=ONGOING_EVENT|ONLY_ALERT_ONCE color=0x00000000 category=sys groupKey=CHARGING vis=PUBLIC semFlags=0x0 semPriority=0 semMissedCount=0 semScenarioType=0)) as user
+09-18 02:01:36.012 27716 28627 W PermissionService: getPermissionFlags: Unknown user -1
+09-18 02:01:36.012 27716 28627 W PermissionService: getPermissionFlags: Unknown user -1
+09-18 02:01:36.121 27716 28627 D PowerManagerService: [api] setMasterBrightnessLimit : lowerLimit : -1  upperLimit : 510  mMasterBrightnessLimitPeriod : 200 (uid: 1000 pid: 29773)
+09-18 02:01:36.122 27716 27854 D PowerManagerService: [api] BrightnessLimitRunnable done
+09-18 02:01:36.177 27716 15383 D PerProcessNandswap$NandswapHandler: nandswap start for non-activity com.samsung.android.mcfds(pid 30456) action:6 adj:100 type:2
+09-18 02:01:36.187 27716 15383 D PerProcessNandswapNative: enable WriteBooster
+09-18 02:01:36.208 14305 14365 I DGW     : I[sendRequest:91] StreamGroupConnectivityAwareNetworkLayer[notifgateway] processing request with connection state: 1
+09-18 02:01:36.218 27716 27716 I Telecom : SamsungTelecomServiceImpl : isInManagedCall - callingPackage : android / callingUser : UserHandle{0} / hasCrossUserAccess : true
+09-18 02:01:36.227 27716 15383 D PerProcessNandswap$NandswapHandler: nandswap end for non-activity com.samsung.android.mcfds(pid 30456) ret:8730243072 adj:100
+09-18 02:01:36.232 13834 14101 I HoneySpace.NotificationListener: onNotificationPosted com.android.systemui: -1|com.android.systemui|2114586824|charging_state|10053: 0
+09-18 02:01:36.232 13834 14101 I HoneySpace.NotificationListener: invalid notification: com.android.systemui UserHandle{-1}: canShowBadge is false
+09-18 02:01:36.233 13834 19174 I HoneySpace.BadgeDataSourceImpl: Get notification count. PK(p='com.binance.dev', u=UserHandle{0}) - forceBadgeCount: false, notification listener: 1, badge provider: 0
+09-18 02:01:36.234 13834 19174 I HoneySpace.BadgeDataSourceImpl: Get notification count. PK(p='pro.bingbon.app', u=UserHandle{0}) - forceBadgeCount: false, notification listener: 4, badge provider: 0
+09-18 02:01:36.234 13834 19174 I HoneySpace.BadgeDataSourceImpl: Get notification count. PK(p='com.whatsapp', u=UserHandle{0}) - forceBadgeCount: false, notification listener: 41, badge provider: 215
+09-18 02:01:36.236  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:36.236  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:36.240 28383 28383 I DateTimeView: getTimeFormat
+09-18 02:01:36.241 28383 28383 I DateTimeView: getTimeFormat
+09-18 02:01:36.242 28383 28383 I DateTimeView: getTimeFormat
+09-18 02:01:36.243 28383 28383 I DateTimeView: getTimeFormat
+09-18 02:01:36.245 28383 28383 I LockscreenNotificationIconsOnlyController: onNotificationInfoUpdated 0
+09-18 02:01:36.245 28383 28383 I AODNotificationManager: updateNotification() 
+09-18 02:01:36.264  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:36.265  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:36.280 27716 28173 D NetdEventListenerService: DNS Requested by 195, 10076(com.facebook.services), SUCCESS, 66ms
+09-18 02:01:36.287  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:36.288  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:36.432 28383 28383 D Bubbles : onEntryUpdated : shouldBubbleUp=false ,key=-1|com.android.systemui|2114586824|charging_state|10053
+09-18 02:01:36.434 28383 28383 D InterruptionStateProvider:  no Heads up : edgelighting enabled app. -1|com.android.systemui|2114586824|charging_state|10053
+09-18 02:01:36.434 28383 28383 I {OngoingActivityController}: onEntryUpdated and OA data is empty. So update latest task info
+09-18 02:01:36.449  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:36.450  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:36.460 28383 28383 I DateTimeView: getTimeFormat
+09-18 02:01:36.462 28383 28383 I DateTimeView: getTimeFormat
+09-18 02:01:36.464 28383 28383 I DateTimeView: getTimeFormat
+09-18 02:01:36.465 28383 28383 I DateTimeView: getTimeFormat
+09-18 02:01:36.469 28383 28383 W RefactorFlag: New code path expects SceneContainerFlag to be enabled.
+09-18 02:01:36.471 28383 28383 D ExpandableNotifRow: mMaxSmallHeight different before reInflateViews mMaxSmallHeight: 233 mTempSmallHeight:0 -1|com.android.systemui|2114586824|charging_state|10053
+09-18 02:01:36.471 28383 28383 D ExpandableNotifRow: mMaxSmallHeight different before reInflateViews mMaxSmallHeight: 233 mTempSmallHeight:0 -1|com.android.systemui|2114586824|charging_state|10053
+09-18 02:01:36.473 28383 28383 I LockscreenNotificationIconsOnlyController: onNotificationInfoUpdated 0
+09-18 02:01:36.473 28383 28383 I AODNotificationManager: updateNotification() 
+09-18 02:01:36.477  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:36.478  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:36.482 28383 28934 D LocalImageResolver: Couldn't use ImageDecoder for drawable, falling back to non-resized load.
+09-18 02:01:36.485 28383 28934 D LocalImageResolver: Couldn't use ImageDecoder for drawable, falling back to non-resized load.
+09-18 02:01:36.487 28383 28383 D LocalImageResolver: Couldn't use ImageDecoder for drawable, falling back to non-resized load.
+09-18 02:01:36.500  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:36.501  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:36.503 28383 28383 W RefactorFlag: New code path expects SceneContainerFlag to be enabled.
+09-18 02:01:36.509 28383 28383 D ExpandableNotifRow: mMaxSmallHeight different before reInflateViews mMaxSmallHeight: 233 mTempSmallHeight:0 -1|com.android.systemui|2114586824|charging_state|10053
+09-18 02:01:36.509 28383 28383 D ExpandableNotifRow: mMaxSmallHeight different before reInflateViews mMaxSmallHeight: 233 mTempSmallHeight:0 -1|com.android.systemui|2114586824|charging_state|10053
+09-18 02:01:36.509 28383 28383 D ExpandableNotifRow: mMaxSmallHeight different before reInflateViews mMaxSmallHeight: 233 mTempSmallHeight:0 -1|com.android.systemui|2114586824|charging_state|10053
+09-18 02:01:36.509 28383 28383 D ExpandableNotifRow: mMaxSmallHeight different before reInflateViews mMaxSmallHeight: 233 mTempSmallHeight:0 -1|com.android.systemui|2114586824|charging_state|10053
+09-18 02:01:36.515 28383 28383 D LocalImageResolver: Couldn't use ImageDecoder for drawable, falling back to non-resized load.
+09-18 02:01:36.522  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:36.523  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:36.525 28383 28383 I DateTimeView: getTimeFormat
+09-18 02:01:36.525 28383 28383 I DateTimeView: getTimeFormat
+09-18 02:01:36.526 28383 28383 I DateTimeView: getTimeFormat
+09-18 02:01:36.526 28383 28383 I DateTimeView: getTimeFormat
+09-18 02:01:36.530 28383 28383 W RefactorFlag: New code path expects SceneContainerFlag to be enabled.
+09-18 02:01:36.531 28383 28383 D ExpandableNotifRow: mMaxSmallHeight different before reInflateViews mMaxSmallHeight: 233 mTempSmallHeight:0 -1|com.android.systemui|2114586824|charging_state|10053
+09-18 02:01:36.532 28383 28383 D ExpandableNotifRow: mMaxSmallHeight different before reInflateViews mMaxSmallHeight: 233 mTempSmallHeight:0 -1|com.android.systemui|2114586824|charging_state|10053
+09-18 02:01:36.533 28383 28383 I LockscreenNotificationIconsOnlyController: onNotificationInfoUpdated 0
+09-18 02:01:36.533 28383 28383 I AODNotificationManager: updateNotification() 
+09-18 02:01:36.544  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:36.545  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:36.569  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:36.569  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:36.754   756   756 W keymint_tee: [WRN] begin req PARAMS: A3, D4, 
+09-18 02:01:36.757   756   756 D android.hardware.security.keymint-service: begin: ret 0
+09-18 02:01:36.757   755  9430 I keystore2: system/security/keystore2/src/security_level.rs:493 - In create_operation. Success to create IKeystoreOperation. AppUid(10076), None, TEE
+09-18 02:01:36.761   756   756 D android.hardware.security.keymint-service: finish: ret 0
+09-18 02:01:36.791 28219 28284 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+09-18 02:01:36.792 28219 28284 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+09-18 02:01:36.793 27716 28627 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+09-18 02:01:36.794 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2)
+09-18 02:01:36.794 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2) lastNotifiedSignalStrength level: 0
+09-18 02:01:36.794 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2) currSignalStrength level: 0
+09-18 02:01:36.815  1307  1307 I FPSGO   : FPSGO_SET_UNKNOWN cmd:-1
+09-18 02:01:36.883 27716 10111 D BSOHChargingDataCollector:  BSOH Sys-servce ... 
+09-18 02:01:36.883 27716 10111 D BSOHChargingDataCollector: performBatteryWork++
+09-18 02:01:36.884 27716 10111 D BSOHChargingDataCollector: performBatteryWork battery com.android.server.bsoh.device.PrimeBattery@1c6cbbb
+09-18 02:01:36.884 27716 10111 D BSOHChargingDataCollector: primeBatt readVoltage from sysFsBattVolt,  path : /sys/class/power_supply/battery/batt_voltage_now
+09-18 02:01:36.894 27716 10111 D BSOHChargingDataCollector: 0 	 BattData addData data : BattData { voltage:3.982, current:1.531, soc:0.49, temperature:37.5, status:2, timestamp:1789711296894, voltage_chg:null}
+09-18 02:01:36.894 27716 10111 D BSOHChargingDataCollector: performBatteryWork--
+09-18 02:01:36.970 14305 14365 W DGW     : W[onSuccessfulResponse:951] StreamGroupTransport[notifgateway] on successful response. DGW is now connected.
+09-18 02:01:37.062  1171  1393 I hwcomposer: [DRMDEV] (0:115) failed to waitNextVsync: -1  
+09-18 02:01:37.062  1228  1640 W SurfaceFlinger: Ignoring duplicate VSYNC event from HWC for display 4627039422300187648 (t=369491517598000)
+09-18 02:01:37.069  1171  1393 I hwcomposer: [DRMDEV] (0:115) failed to waitNextVsync: -1  
+09-18 02:01:37.510   631   631 D io_stats: !@   8,32 r 202587469 3948829984 w 22267052 284812548 d 2772041 219461532 f 2855047 4396344 iot 31383264 0 th 0 0 0 pt 0 inp 0 0 369491.971
+09-18 02:01:37.511   631   631 D io_stats: !@ Write_top(KB): kworker/u32:2:/(14880) 3072 kworker/u32:1:/(14233) 520 jbd2/sdc3-8:/(563) 24
+09-18 02:01:37.578  1192  1229 I libPerfCtl: xgfGetFPS pid:-1 fps:0
+09-18 02:01:37.578  1192  1229 I libPerfCtl: xgfGetFPS ioctl_valid:-2
+09-18 02:01:37.836 27716 29521 D SemWifiUsabilityStatsMonitor: onWifiUsabilityStats - seqNum 35031, isSameBssidAndFreq true
+09-18 02:01:37.838 27716 28122 I SemWifiLinkQualityMonitor: Link stat: 0 / 0 / 1.00 (24) / 433 / -49.0 || 100.0 : 433.00 / 0.5 : 1.00 / 0.55 : 0.30 / G (G) || 79fa51235200: 0.121 / 65.934 / D / V || N N / 0 0 / Y 2.0 / Y -1 0.000 0.000 / Y / X 0 / 369492298 0 0 || Invalid
+09-18 02:01:37.885 27716 10111 D BSOHChargingDataCollector:  BSOH Sys-servce ... 
+09-18 02:01:37.885 27716 10111 D BSOHChargingDataCollector: performBatteryWork++
+09-18 02:01:37.885 27716 10111 D BSOHChargingDataCollector: performBatteryWork battery com.android.server.bsoh.device.PrimeBattery@1c6cbbb
+09-18 02:01:37.885 27716 10111 D BSOHChargingDataCollector: primeBatt readVoltage from sysFsBattVolt,  path : /sys/class/power_supply/battery/batt_voltage_now
+09-18 02:01:37.895 27716 10111 D BSOHChargingDataCollector: 0 	 BattData addData data : BattData { voltage:3.984, current:1.519, soc:0.49, temperature:37.5, status:2, timestamp:1789711297894, voltage_chg:null}
+09-18 02:01:37.895 27716 10111 D BSOHChargingDataCollector: performBatteryWork--
+09-18 02:01:38.071 28219 28284 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+09-18 02:01:38.072 28219 28284 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+09-18 02:01:38.074 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2)
+09-18 02:01:38.074 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2) lastNotifiedSignalStrength level: 0
+09-18 02:01:38.074 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2) currSignalStrength level: 0
+09-18 02:01:38.075 27716 28627 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+09-18 02:01:38.888 27716 10111 D BSOHChargingDataCollector:  BSOH Sys-servce ... 
+09-18 02:01:38.889 27716 10111 D BSOHChargingDataCollector: performBatteryWork++
+09-18 02:01:38.889 27716 10111 D BSOHChargingDataCollector: performBatteryWork battery com.android.server.bsoh.device.PrimeBattery@1c6cbbb
+09-18 02:01:38.889 27716 10111 D BSOHChargingDataCollector: primeBatt readVoltage from sysFsBattVolt,  path : /sys/class/power_supply/battery/batt_voltage_now
+09-18 02:01:38.900 27716 10111 D BSOHChargingDataCollector: 0 	 BattData addData data : BattData { voltage:3.985, current:1.512, soc:0.49, temperature:37.4, status:2, timestamp:1789711298900, voltage_chg:null}
+09-18 02:01:38.900 27716 10111 D BSOHChargingDataCollector: performBatteryWork--
+09-18 02:01:39.119  1171  1393 I hwcomposer: [DRMDEV] (0:115) failed to waitNextVsync: -1  
+09-18 02:01:39.119  1228  1640 W SurfaceFlinger: Ignoring duplicate VSYNC event from HWC for display 4627039422300187648 (t=369493573557000)
+09-18 02:01:39.124  1171  1393 I hwcomposer: [DRMDEV] (0:115) failed to waitNextVsync: -1  
+09-18 02:01:39.353 28219 28284 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+09-18 02:01:39.354 28219 28284 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+09-18 02:01:39.356 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2)
+09-18 02:01:39.356 27716 28627 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+09-18 02:01:39.356 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2) lastNotifiedSignalStrength level: 0
+09-18 02:01:39.356 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2) currSignalStrength level: 0
+09-18 02:01:39.514   631   631 D io_stats: !@   8,32 r 202587475 3948830104 w 22267055 284812568 d 2772041 219461532 f 2855047 4396344 iot 31383268 0 th 0 0 0 pt 0 inp 0 0 369493.975
+09-18 02:01:39.890 27716 10111 D BSOHChargingDataCollector:  BSOH Sys-servce ... 
+09-18 02:01:39.890 27716 10111 D BSOHChargingDataCollector: performBatteryWork++
+09-18 02:01:39.890 27716 10111 D BSOHChargingDataCollector: performBatteryWork battery com.android.server.bsoh.device.PrimeBattery@1c6cbbb
+09-18 02:01:39.891 27716 10111 D BSOHChargingDataCollector: primeBatt readVoltage from sysFsBattVolt,  path : /sys/class/power_supply/battery/batt_voltage_now
+09-18 02:01:39.901 27716 10111 D BSOHChargingDataCollector: 0 	 BattData addData data : BattData { voltage:3.985, current:1.474, soc:0.49, temperature:37.5, status:2, timestamp:1789711299901, voltage_chg:null}
+09-18 02:01:39.901 27716 10111 D BSOHChargingDataCollector: performBatteryWork--
+09-18 02:01:40.076  2028  2028 I wpa_supplicant: Heartbeat 1798
+09-18 02:01:40.310  1171  1393 I hwcomposer: [DRMDEV] (0:115) failed to waitNextVsync: -1  
+09-18 02:01:40.311  1228  1640 W SurfaceFlinger: Ignoring duplicate VSYNC event from HWC for display 4627039422300187648 (t=369494765574000)
+09-18 02:01:40.313  1171  1393 I hwcomposer: [DRMDEV] (0:115) failed to waitNextVsync: -1  
+09-18 02:01:40.739 28563 29375 I TUIThread: epol_call: EPOLL_SKIP
+09-18 02:01:40.741 27716 28151 D WifiConnectivityMonitor: called startWcmPoll but already Ongoing
+09-18 02:01:40.741 27716 28151 D SemWifiRssiBasePoller: RSSI_BASE_STOP
+09-18 02:01:40.855 27716 29521 D SemWifiUsabilityStatsMonitor: onWifiUsabilityStats - seqNum 35032, isSameBssidAndFreq true
+09-18 02:01:40.869  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:40.870  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:40.892  1228  1433 D libcomposer_ext: ClientImplAidl::kickIdle()
+09-18 02:01:40.892 27716 10111 D BSOHChargingDataCollector:  BSOH Sys-servce ... 
+09-18 02:01:40.892 27716 10111 D BSOHChargingDataCollector: performBatteryWork++
+09-18 02:01:40.893 27716 10111 D BSOHChargingDataCollector: performBatteryWork battery com.android.server.bsoh.device.PrimeBattery@1c6cbbb
+09-18 02:01:40.893  1228  1228 I BufferQueueProducer: [StatusBar$_28383#34229](this:0xb400007c963c2eb0,id:-1,api:0,p:-1,c:1228) queueBuffer: fps=0.19 dur=5337.25 max=5337.25 min=5337.25
+09-18 02:01:40.893  1171  1195 D libcomposer_ext: DeviceImplAidl::asyncPerform(17), client_handle: 1
+09-18 02:01:40.893 27716 10111 D BSOHChargingDataCollector: primeBatt readVoltage from sysFsBattVolt,  path : /sys/class/power_supply/battery/batt_voltage_now
+09-18 02:01:40.894  1171  1195 I hwcomposer: [HWCDisplay] (0 updateFps():4131), (type:1, mode:2) fps:0.187404,dur:5336.05,max:5336.05,min:5336.05  
+09-18 02:01:40.903 27716 10111 D BSOHChargingDataCollector: 0 	 BattData addData data : BattData { voltage:3.984, current:1.535, soc:0.49, temperature:37.5, status:2, timestamp:1789711300903, voltage_chg:null}
+09-18 02:01:40.904 27716 10111 D BSOHChargingDataCollector: performBatteryWork--
+09-18 02:01:41.206 27716 28150 D WifiConnectivityMonitor.NetworkStatsAnalyzer: Backhaul result - RSSI:-49, CE:12, PE:11, TI:16, PTI:15, TW:1, PTW:7, Tx:82, Rx:86, TxS:40, RxS:39, RESULT:true, IC:0, ICT:5, WC:0, WCT:5, R:0, RC:0, IE:0, EC:0
+09-18 02:01:41.483 27716 29376 I NSLocationMonitor: getGPSUsingApps() called
+09-18 02:01:41.484 29374 13362 I NSLocationManager_FLP: getGPSUsingApps, No change
+09-18 02:01:41.487 27716 29376 D FreecessHandler: skipping freeze com.gota.gota(10254) result : 12
+09-18 02:01:41.516   631   631 D io_stats: !@ Read_top(KB): gle.android.gms:high(1150) 120
+09-18 02:01:41.516   631   631 D io_stats: !@ Write_top(KB): kworker/u32:2:/(14880) 48 kworker/u32:1:/(14233) 4
+09-18 02:01:41.671 11199 11199 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color,raw:screencap -p /sdcard/r4_03_pinch_zoom.png'
+09-18 02:01:41.874 21186 21186 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: SurfaceFlingerAIDL
+09-18 02:01:41.875 21186 21186 W libbinder.BpBinder: Linking to death on android.gui.ISurfaceComposer but there are no threads (yet?) listening to incoming transactions. See ProcessState::startThreadPool and ProcessState::setThreadPoolMaxThreadCount. Generally you should setup the binder threadpool before other initialization steps.
+09-18 02:01:41.877 21186 21186 W libbinder.BackendUnifiedServiceManager: Thread Pool max thread count is 0. Cannot cache binder as linkToDeath cannot be implemented. serviceName: edmnativehelper
+09-18 02:01:41.877 27716 28627 I EDMNativeHelperService: isScreenCaptureEnabled
+09-18 02:01:41.878 27716 28627 D RestrictionPolicy: isScreenCaptureEnabled : ret=true userId=0
+09-18 02:01:41.878 21186 21186 W libbinder.ProcessState: Extra binder thread started, but 0 threads requested. Do not use *startThreadPool when zero threads are requested.
+09-18 02:01:41.878 21186 21186 I SurfaceComposerClient: captureDisplay:Display-4627039422300187648
+09-18 02:01:41.881  1228  1640 I SurfaceFlinger: Capture layer list: 	 Background for 798a591 SurfaceView[com.gota.gota/com.gota.gota.MainActivity]@0#135932(preserveDisplayColors:0)
+09-18 02:01:41.881  1228  1640 I SurfaceFlinger: Capture layer list: 	 798a591 SurfaceView[com.gota.gota/com.gota.gota.MainActivity]@0(BLAST)#135931(preserveDisplayColors:0)
+09-18 02:01:41.881  1228  1640 I SurfaceFlinger: Capture layer list: 	 com.gota.gota/com.gota.gota.MainActivity$_13149#135925(preserveDisplayColors:0)
+09-18 02:01:41.881  1228  1640 I SurfaceFlinger: Capture layer list: 	 StatusBar$_28383#34229(preserveDisplayColors:0)
+09-18 02:01:41.881  1228  1640 I SurfaceFlinger: Capture layer list: 	 com.sec.android.app.launcher/com.samsung.app.honeyspace.edge.edgepanel.app.CocktailBarService$_13834#135769(preserveDisplayColors:0)
+09-18 02:01:41.881  1228  1640 I SurfaceFlinger: Capture layer list: 	 NavigationBar0$_28383#34226(preserveDisplayColors:0)
+09-18 02:01:41.893 27716 10111 D BSOHChargingDataCollector:  BSOH Sys-servce ... 
+09-18 02:01:41.893 27716 10111 D BSOHChargingDataCollector: performBatteryWork++
+09-18 02:01:41.893 27716 10111 D BSOHChargingDataCollector: performBatteryWork battery com.android.server.bsoh.device.PrimeBattery@1c6cbbb
+09-18 02:01:41.894 27716 10111 D BSOHChargingDataCollector: primeBatt readVoltage from sysFsBattVolt,  path : /sys/class/power_supply/battery/batt_voltage_now
+09-18 02:01:41.903 27716 10111 D BSOHChargingDataCollector: 0 	 BattData addData data : BattData { voltage:3.979, current:1.523, soc:0.49, temperature:37.5, status:2, timestamp:1789711301902, voltage_chg:null}
+09-18 02:01:41.903 27716 10111 D BSOHChargingDataCollector: performBatteryWork--
+09-18 02:01:41.911 28219 28284 D SatelliteController: isInCarrierRoamingNbIotNtn: satellite is disabled
+09-18 02:01:41.912 28219 28284 D SatelliteController: getCarrierRoamingNtnConnectType: Falling back to global carrier config connect type: 0
+09-18 02:01:41.912 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2)
+09-18 02:01:41.913 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2) lastNotifiedSignalStrength level: 0
+09-18 02:01:41.913 28219 28284 D SatelliteController: updateLastNotifiedCarrierRoamingNtnSignalStrengthAndNotify(2) currSignalStrength level: 0
+09-18 02:01:41.914 27716 28627 W libbinder.IPCThreadState: Sending oneway calls to frozen process.
+09-18 02:01:41.928 21186 21188 I GrallocExtra: gralloc_extra_query:is_SW3D 0
+09-18 02:01:41.935 29548 17733 W MediaProvider: isAppCloneUserPair for user 0: false
+09-18 02:01:41.951 27716 28627 D SyncManager: userId - 0 auto - true
+09-18 02:01:41.953 29438 29470 I MediaSyncer: generation: Generation(added=2226294, modified=2226295)
+09-18 02:01:41.970 27716 27903 D ActivityManager: sync unfroze 20686 com.google.android.googlequicksearchbox:search for 6
+09-18 02:01:41.975 20686 20715 I eiip    : Scheduling one-off OpaEnabledBroadcastWorker now
+09-18 02:01:41.977 20686 20715 I fnkp    : Validating WorkManager process
+09-18 02:01:41.978 20686 20716 I fnkp    : (REDACTED) Processes: %s, %s, %s, %s
+09-18 02:01:41.980 29438 29470 I MediaSyncer: loaded: 28ms, Success(maxMediaId=0, maxGenAdded=-9223372036854775808, maxGenModified=2226300, count=0)
+09-18 02:01:41.983 20686 20715 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+09-18 02:01:41.984 20686 20716 D WM-ForceStopRunnable: Is default app process = true
+09-18 02:01:41.984 20686 20716 D WM-ForceStopRunnable: Performing cleanup operations.
+09-18 02:01:41.987 20686 20686 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=2bc86274-77bf-4c17-9647-a3ede5c57345, generation=629)
+09-18 02:01:41.987 20686 20686 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=582658af-6c03-4893-9a0c-a8c17a472220, generation=1253)
+09-18 02:01:41.988 20686 20686 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=f1745a66-238b-48d4-8c25-81455f7e0395, generation=630)
+09-18 02:01:41.999 20686 20716 D WM-SystemJobScheduler: Reconciling jobs
+09-18 02:01:42.026 20686 20694 D nativeloader: Load libstats_jni.so using APEX ns com_android_os_statsd for caller /apex/com.android.os.statsd/javalib/framework-statsd.jar: ok
+09-18 02:01:42.026 20686 20716 D WM-ForceStopRunnable: Found unfinished work, scheduling it.
+09-18 02:01:42.036 20686 20716 D WM-SystemJobScheduler: Scheduling work ID efbbc7c6-5821-4a4c-8e48-ef982908a139 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22606
+09-18 02:01:42.050 20686 20716 W JobInfo : Requested important-while-foreground flag for job20998 is ignored and takes no effect
+09-18 02:01:42.050 20686 20716 D WM-SystemJobScheduler: Scheduling work ID df7b44b5-e83b-42ee-9e9b-44587e8fa4b8 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 20998
+09-18 02:01:42.055 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 4fa27dc4-e39d-49b6-8ee8-18213cc21453 (com.google.apps.tiktok.contrib.work.TikTokListenableWorker), Job ID 20402
+09-18 02:01:42.063 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 83e7415c-8d9c-4c44-900d-e9c880071736 (com.google.apps.tiktok.contrib.work.TikTokListenableWorker), Job ID 22313
+09-18 02:01:42.070 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 7e35613b-7a51-49c9-acec-8fb0bdb80816 (com.google.apps.tiktok.contrib.work.TikTokListenableWorker), Job ID 22324
+09-18 02:01:42.078 20686 20716 W JobInfo : Requested important-while-foreground flag for job22325 is ignored and takes no effect
+09-18 02:01:42.078 20686 20716 D WM-SystemJobScheduler: Scheduling work ID d3a4e462-c1d0-4227-92df-12fff3b43a82 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22325
+09-18 02:01:42.082 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 78466890-c148-464e-bad6-4e1e4185fe6d (com.google.apps.tiktok.contrib.work.TikTokListenableWorker), Job ID 22375
+09-18 02:01:42.087 20686 20716 D WM-SystemJobScheduler: Scheduling work ID d0044938-7e3c-4f52-be44-d0fdca0e905b (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22601
+09-18 02:01:42.091 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 901459da-e957-42d4-8706-7715bfff7725 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22603
+09-18 02:01:42.096 20686 20716 W JobInfo : Requested important-while-foreground flag for job22579 is ignored and takes no effect
+09-18 02:01:42.096 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 2201f255-b6cd-4483-8dac-5f868d6842d9 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22579
+09-18 02:01:42.099 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 35f2f5b3-0d0a-4689-9b2e-ed9681102521 (com.google.apps.tiktok.contrib.work.TikTokListenableWorker), Job ID 22592
+09-18 02:01:42.104 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 6b781879-133c-4272-9673-56d1a9de5148 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22607
+09-18 02:01:42.108 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 8e283018-065b-4142-ac13-03fd4f764243 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22608
+09-18 02:01:42.114 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 1722fd44-a427-4b2c-b18f-1f7b92830ada (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22609
+09-18 02:01:42.118 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 110f9cf6-990e-4251-bbcf-80bcb8234885 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22610
+09-18 02:01:42.123 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 3ecabde1-0e4e-4938-9101-e02a493f7564 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22611
+09-18 02:01:42.128 20686 20716 W JobInfo : Requested important-while-foreground flag for job22612 is ignored and takes no effect
+09-18 02:01:42.128 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 2bc86274-77bf-4c17-9647-a3ede5c57345 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22612
+09-18 02:01:42.131 20686 20686 D WM-SystemJobService: onStopJob for WorkGenerationalId(workSpecId=2bc86274-77bf-4c17-9647-a3ede5c57345, generation=629)
+09-18 02:01:42.133 20686 20716 W JobInfo : Requested important-while-foreground flag for job22613 is ignored and takes no effect
+09-18 02:01:42.133 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 582658af-6c03-4893-9a0c-a8c17a472220 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22613
+09-18 02:01:42.134 27716 29768 W ProcessStats: Tracking association SourceState{ba14a6a system/1000 ImpBg #829819} whose proc state 6 is better than process ProcessState{24f74f9 com.google.android.googlequicksearchbox:search/10246 pkg=com.google.android.googlequicksearchbox} proc state 15 (2 skipped)
+09-18 02:01:42.135 27716 29768 W JobScheduler: Job didn't exist in JobStore: 1055e78 {androidx.work.systemjobscheduler} #u0a246/22612 #TikTokWorker#com.google.apps.tiktok.sync.impl.workmanager.SyncPeriodicWorker#@androidx.work.systemjobscheduler@com.google.android.googlequicksearchbox/androidx.work.impl.background.systemjob.SystemJobService
+09-18 02:01:42.136 20686 20686 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=2bc86274-77bf-4c17-9647-a3ede5c57345, generation=629)
+09-18 02:01:42.136 27716 15383 D PerProcessNandswap$NandswapHandler: nandswap start for non-activity com.google.android.googlequicksearchbox:search(pid 20686) action:3 adj:250 type:2
+09-18 02:01:42.139 20686 20686 D WM-SystemJobService: onStopJob for WorkGenerationalId(workSpecId=582658af-6c03-4893-9a0c-a8c17a472220, generation=1253)
+09-18 02:01:42.140 20686 20716 W JobInfo : Requested important-while-foreground flag for job22614 is ignored and takes no effect
+09-18 02:01:42.140 20686 20716 D WM-SystemJobScheduler: Scheduling work ID f1745a66-238b-48d4-8c25-81455f7e0395 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22614
+09-18 02:01:42.144 27716 29768 W JobScheduler: Job didn't exist in JobStore: ae1f951 {androidx.work.systemjobscheduler} #u0a246/22613 #TikTokWorker#com.google.apps.tiktok.sync.impl.workmanager.SyncPeriodicWorker#@androidx.work.systemjobscheduler@com.google.android.googlequicksearchbox/androidx.work.impl.background.systemjob.SystemJobService
+09-18 02:01:42.145 20686 20686 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=582658af-6c03-4893-9a0c-a8c17a472220, generation=1253)
+09-18 02:01:42.146 27716 15383 D PerProcessNandswapNative: enable WriteBooster
+09-18 02:01:42.148 20686 20686 D WM-SystemJobService: onStopJob for WorkGenerationalId(workSpecId=f1745a66-238b-48d4-8c25-81455f7e0395, generation=630)
+09-18 02:01:42.149 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 8e3434bf-01d2-4393-b78b-f668ba291f2b (com.google.apps.tiktok.contrib.work.TikTokListenableWorker), Job ID 22615
+09-18 02:01:42.149 27716 29768 W JobScheduler: Job didn't exist in JobStore: ffbd98d {androidx.work.systemjobscheduler} #u0a246/22614 #TikTokWorker#com.google.apps.tiktok.sync.impl.workmanager.SyncPeriodicWorker#@androidx.work.systemjobscheduler@com.google.android.googlequicksearchbox/androidx.work.impl.background.systemjob.SystemJobService
+09-18 02:01:42.150 20686 20686 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=f1745a66-238b-48d4-8c25-81455f7e0395, generation=630)
+09-18 02:01:42.153 20686 20716 D WM-SystemJobScheduler: Scheduling work ID b2812a9a-e4df-441a-a3f8-019882a1d6e7 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22616
+09-18 02:01:42.154 27716 15383 D PerProcessNandswap$NandswapHandler: nandswap end for non-activity com.google.android.googlequicksearchbox:search(pid 20686) ret:9337368576 adj:250
+09-18 02:01:42.158 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 527c07a9-3ea2-4331-aec3-bc2d5b022d05 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22617
+09-18 02:01:42.167 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 6e5879b2-2025-4b56-88eb-e672d0b9064c (com.google.apps.tiktok.contrib.work.TikTokListenableWorker), Job ID 22618
+09-18 02:01:42.176 20686 20716 D WM-SystemJobScheduler: Scheduling work ID e77c4992-c664-4754-b767-a5536cdf10b0 (com.google.apps.tiktok.contrib.work.TikTokListenableWorker), Job ID 22282
+09-18 02:01:42.181 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 435c2a17-ab89-4065-abbe-ebb8b4d18bcc (androidx.work.multiprocess.RemoteListenableDelegatingWorker), Job ID 22619
+09-18 02:01:42.187 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 1e15e448-40f4-412a-8eb1-6f0864fbea37 (com.google.apps.tiktok.contrib.work.TikTokListenableWorker), Job ID 22621
+09-18 02:01:42.193 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 46855e97-ba48-41ba-9ef7-2103e8b5728e (com.google.apps.tiktok.contrib.work.TikTokListenableWorker), Job ID 22623
+09-18 02:01:42.198 20686 20716 D WM-GreedyScheduler: Starting tracking for 2bc86274-77bf-4c17-9647-a3ede5c57345,d3a4e462-c1d0-4227-92df-12fff3b43a82,f1745a66-238b-48d4-8c25-81455f7e0395,df7b44b5-e83b-42ee-9e9b-44587e8fa4b8,2201f255-b6cd-4483-8dac-5f868d6842d9,582658af-6c03-4893-9a0c-a8c17a472220
+09-18 02:01:42.230 20686 20716 W JobInfo : Requested important-while-foreground flag for job22624 is ignored and takes no effect
+09-18 02:01:42.231 20686 20716 D WM-SystemJobScheduler: Scheduling work ID 22a2c267-69f4-4f1c-b340-99c78339d6a4 (com.google.apps.tiktok.contrib.work.TikTokListenableWorker), Job ID 22624
+09-18 02:01:42.235 20686 20686 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=22a2c267-69f4-4f1c-b340-99c78339d6a4, generation=0)
+09-18 02:01:42.237 20686 20716 D WM-GreedyScheduler: Starting work for 22a2c267-69f4-4f1c-b340-99c78339d6a4
+09-18 02:01:42.238 20686 20716 D WM-GreedyScheduler: Starting tracking for 2bc86274-77bf-4c17-9647-a3ede5c57345,d3a4e462-c1d0-4227-92df-12fff3b43a82,f1745a66-238b-48d4-8c25-81455f7e0395,df7b44b5-e83b-42ee-9e9b-44587e8fa4b8,2201f255-b6cd-4483-8dac-5f868d6842d9,582658af-6c03-4893-9a0c-a8c17a472220
+09-18 02:01:42.244 20686 20715 D WM-Processor: ret: processing WorkGenerationalId(workSpecId=2bc86274-77bf-4c17-9647-a3ede5c57345, generation=629)
+09-18 02:01:42.246 20686 20715 D WM-Processor: ret: processing WorkGenerationalId(workSpecId=582658af-6c03-4893-9a0c-a8c17a472220, generation=1253)
+09-18 02:01:42.250 20686 20715 D WM-Processor: ret: processing WorkGenerationalId(workSpecId=f1745a66-238b-48d4-8c25-81455f7e0395, generation=630)
+09-18 02:01:42.253 20686 20715 D WM-Processor: WorkerWrapper interrupted for 2bc86274-77bf-4c17-9647-a3ede5c57345 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), reason: 1
+09-18 02:01:42.253 20686 20715 D WM-StopWorkRunnable: StopWorkRunnable for 2bc86274-77bf-4c17-9647-a3ede5c57345; Processor.stopWork = true, reason: 1
+09-18 02:01:42.255 20686 20715 D WM-Processor: ret: processing WorkGenerationalId(workSpecId=2bc86274-77bf-4c17-9647-a3ede5c57345, generation=629)
+09-18 02:01:42.255 20686 20715 D WM-Processor: WorkerWrapper interrupted for 582658af-6c03-4893-9a0c-a8c17a472220 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), reason: 1
+09-18 02:01:42.255 20686 20715 D WM-StopWorkRunnable: StopWorkRunnable for 582658af-6c03-4893-9a0c-a8c17a472220; Processor.stopWork = true, reason: 1
+09-18 02:01:42.257 20686 20715 D WM-Processor: ret: processing WorkGenerationalId(workSpecId=582658af-6c03-4893-9a0c-a8c17a472220, generation=1253)
+09-18 02:01:42.257 20686 20715 D WM-Processor: WorkerWrapper interrupted for f1745a66-238b-48d4-8c25-81455f7e0395 (androidx.work.multiprocess.RemoteListenableDelegatingWorker), reason: 1
+09-18 02:01:42.257 20686 20715 D WM-StopWorkRunnable: StopWorkRunnable for f1745a66-238b-48d4-8c25-81455f7e0395; Processor.stopWork = true, reason: 1
+09-18 02:01:42.259 20686 20715 D WM-Processor: ret: processing WorkGenerationalId(workSpecId=f1745a66-238b-48d4-8c25-81455f7e0395, generation=630)
+09-18 02:01:42.264 20686 20715 D WM-Processor: ret: processing WorkGenerationalId(workSpecId=22a2c267-69f4-4f1c-b340-99c78339d6a4, generation=0)
+09-18 02:01:42.265 20686 20715 D WM-Processor: Work WorkGenerationalId(workSpecId=22a2c267-69f4-4f1c-b340-99c78339d6a4, generation=0) is already enqueued for processing
+09-18 02:01:42.267 20686 20715 D WM-WorkerWrapper: Status for 2bc86274-77bf-4c17-9647-a3ede5c57345 is ENQUEUED; not doing any work and rescheduling for later execution
+09-18 02:01:42.272 20686 20686 D WM-Processor: ret 2bc86274-77bf-4c17-9647-a3ede5c57345 executed; reschedule = true
+09-18 02:01:42.272 20686 20686 D WM-SystemJobService: 2bc86274-77bf-4c17-9647-a3ede5c57345 executed on JobScheduler
+09-18 02:01:42.272 20686 20686 D WM-GreedyScheduler: Stopping tracking for WorkGenerationalId(workSpecId=2bc86274-77bf-4c17-9647-a3ede5c57345, generation=629)
+09-18 02:01:42.273 20686 20715 D WM-WorkerWrapper: Status for 582658af-6c03-4893-9a0c-a8c17a472220 is ENQUEUED; not doing any work and rescheduling for later execution
+09-18 02:01:42.276 20686 20686 D WM-Processor: ret 582658af-6c03-4893-9a0c-a8c17a472220 executed; reschedule = true
+09-18 02:01:42.276 20686 20686 D WM-SystemJobService: 582658af-6c03-4893-9a0c-a8c17a472220 executed on JobScheduler
+09-18 02:01:42.276 20686 20686 D WM-GreedyScheduler: Stopping tracking for WorkGenerationalId(workSpecId=582658af-6c03-4893-9a0c-a8c17a472220, generation=1253)
+09-18 02:01:42.277 20686 20715 D WM-WorkerWrapper: Status for f1745a66-238b-48d4-8c25-81455f7e0395 is ENQUEUED; not doing any work and rescheduling for later execution
+09-18 02:01:42.280 20686 20686 D WM-Processor: ret f1745a66-238b-48d4-8c25-81455f7e0395 executed; reschedule = true
+09-18 02:01:42.280 20686 20686 D WM-SystemJobService: f1745a66-238b-48d4-8c25-81455f7e0395 executed on JobScheduler
+09-18 02:01:42.280 20686 20686 D WM-GreedyScheduler: Stopping tracking for WorkGenerationalId(workSpecId=f1745a66-238b-48d4-8c25-81455f7e0395, generation=630)
+09-18 02:01:42.288 20686 20686 D WM-WorkerWrapper: Starting work for androidx.work.multiprocess.RemoteListenableDelegatingWorker
+09-18 02:01:42.292 20686 20686 D WM-ListenableWorkerImpl: Binding to com.google.android.googlequicksearchbox, com.google.android.libraries.search.integrations.tiktok.RemoteWorkerService_googleapp
+09-18 02:01:42.302 27716 29768 I ActivityManager: Broadcasting: Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }
+09-18 02:01:42.303 27716 29768 I ActivityManager: Enqueued broadcast Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x400000 }: 0
+09-18 02:01:42.308 29548 29548 I MediaServiceV2: Creating work for intent Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaServiceV2 }
+09-18 02:01:42.309 29548 29548 I MediaServiceV2: Work enqueued for intent: Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///... flg=0x1400010 cmp=com.google.android.providers.media.module/com.android.providers.media.MediaServiceV2 }
+09-18 02:01:42.310 27716 27742 I ActivityManager: Broadcast completed: result=0
+09-18 02:01:42.313 20686 20686 D WM-WorkerWrapper: Starting work for androidx.work.multiprocess.RemoteListenableDelegatingWorker
+09-18 02:01:42.314 20686 20686 D WM-ListenableWorkerImpl: Binding to com.google.android.googlequicksearchbox, com.google.android.libraries.search.integrations.tiktok.RemoteWorkerService_googleapp
+09-18 02:01:42.318 20686 20686 D WM-WorkerWrapper: Starting work for androidx.work.multiprocess.RemoteListenableDelegatingWorker
+09-18 02:01:42.318 20686 20686 D WM-ListenableWorkerImpl: Binding to com.google.android.googlequicksearchbox, com.google.android.libraries.search.integrations.tiktok.RemoteWorkerService_googleapp
+09-18 02:01:42.321 20595 20595 I WM-RemoteWorkerService: Binding to RemoteWorkerService
+09-18 02:01:42.322 20686 20686 D WM-ListenableWorkerImpl: Service connected
+09-18 02:01:42.323 20686 20686 D WM-ListenableWorkerImpl: Service connected
+09-18 02:01:42.323 20686 20686 D WM-ListenableWorkerImpl: Service connected
+09-18 02:01:42.324 21186 21186 W RefBase : RefBase: Explicit destruction, weak count = 0 (in 0x7b6b7dc0d8). Use sp<> to manage this object. Note - if weak count is 0, this leaks mRefs (weakref_impl).
+09-18 02:01:42.327 27716 27806 I ActivityManager: Changes in 5004 15 to 19, 256 to 0
+09-18 02:01:42.328 20686 20686 D WM-WorkerWrapper: Starting work for com.google.apps.tiktok.contrib.work.TikTokListenableWorker
+09-18 02:01:42.329 20974 20974 I CMHApplication: [#CMH#] Block to verify, Change Trim Memory Level: 40 
+09-18 02:01:42.331 20686 20715 D WM-SystemJobScheduler: Cancelling work ID 2bc86274-77bf-4c17-9647-a3ede5c57345, Job ID 22612
+09-18 02:01:42.331 21186 21186 D RefBase :   #00 pc 00000000000ae880  /apex/com.android.runtime/lib64/bionic/libc.so (__cxa_finalize+144) (BuildId: 249e3c1affad7ac5930fd8fc7c6478f5)
+09-18 02:01:42.332 21186 21186 D RefBase :   #01 pc 00000000000b36a4  /apex/com.android.runtime/lib64/bionic/libc.so (exit+36) (BuildId: 249e3c1affad7ac5930fd8fc7c6478f5)
+09-18 02:01:42.332 21186 21186 D RefBase :   #02 pc 00000000000a121c  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+124) (BuildId: 249e3c1affad7ac5930fd8fc7c6478f5)
+09-18 02:01:42.332 20595 20605 D WM-ListenableWorkerImpl: Executing work request (f1745a66-238b-48d4-8c25-81455f7e0395, com.google.apps.tiktok.contrib.work.TikTokListenableWorker)
+09-18 02:01:42.332 29548 29664 W JobInfo : Requested important-while-foreground flag for job4060 is ignored and takes no effect
+09-18 02:01:42.332 29548 29664 D WM-SystemJobScheduler: Scheduling work ID c17d19e9-7e45-40e5-a8f6-b721d4387d59Job ID 4060
+09-18 02:01:42.336 20686 20715 D WM-GreedyScheduler: Cancelling work ID 2bc86274-77bf-4c17-9647-a3ede5c57345
+09-18 02:01:42.341 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: cf2c3f3c-1971-4511-9217-ccf63a4f86bf}. Requires device idle.
+09-18 02:01:42.341 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 62c8b8f1-a262-4b2c-8bd7-aebee093fa9d}. Requires device idle.
+09-18 02:01:42.341 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 3539a709-0ced-454e-b385-35d4032d9d2f}. Requires device idle.
+09-18 02:01:42.341 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 8cbe4570-6f56-4c5c-8e31-34199465a460}. Requires device idle.
+09-18 02:01:42.341 29548 29664 D WM-GreedyScheduler: Starting work for c17d19e9-7e45-40e5-a8f6-b721d4387d59
+09-18 02:01:42.342 29548 29664 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=c17d19e9-7e45-40e5-a8f6-b721d4387d59, generation=0)
+09-18 02:01:42.342 29548 29548 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=c17d19e9-7e45-40e5-a8f6-b721d4387d59, generation=0)
+09-18 02:01:42.342 20686 20715 D WM-GreedyScheduler: Starting tracking for d3a4e462-c1d0-4227-92df-12fff3b43a82,df7b44b5-e83b-42ee-9e9b-44587e8fa4b8,2201f255-b6cd-4483-8dac-5f868d6842d9
+09-18 02:01:42.345 20686 20715 D WM-SystemJobScheduler: Cancelling work ID 582658af-6c03-4893-9a0c-a8c17a472220, Job ID 22613
+09-18 02:01:42.345 29548 29548 D WM-WorkerWrapper: Starting work for com.android.providers.media.MediaServiceV2
+09-18 02:01:42.345 29548 21198 I MediaServiceV2: Work initiated for action [ android.intent.action.MEDIA_SCANNER_SCAN_FILE ]
+09-18 02:01:42.346 29548 29664 D WM-Processor: Work WorkGenerationalId(workSpecId=c17d19e9-7e45-40e5-a8f6-b721d4387d59, generation=0) is already enqueued for processing
+09-18 02:01:42.349 20686 20715 D WM-GreedyScheduler: Cancelling work ID 582658af-6c03-4893-9a0c-a8c17a472220
+09-18 02:01:42.352 29548 21198 I Kumiho-Kumiho: getPackageName: com.google.android.providers.media.module
+09-18 02:01:42.353 29548 21198 I Kumiho-Kumiho: getPackageName: com.google.android.providers.media.module
+09-18 02:01:42.354 20686 20715 D WM-GreedyScheduler: Starting tracking for d3a4e462-c1d0-4227-92df-12fff3b43a82,df7b44b5-e83b-42ee-9e9b-44587e8fa4b8,2201f255-b6cd-4483-8dac-5f868d6842d9
+09-18 02:01:42.359 20595 20605 D WM-ListenableWorkerImpl: Executing work request (582658af-6c03-4893-9a0c-a8c17a472220, com.google.apps.tiktok.contrib.work.TikTokListenableWorker)
+09-18 02:01:42.360 20595 20605 D WM-ListenableWorkerImpl: Executing work request (2bc86274-77bf-4c17-9647-a3ede5c57345, com.google.apps.tiktok.contrib.work.TikTokListenableWorker)
+09-18 02:01:42.360 20686 20716 D WM-SystemJobScheduler: Cancelling work ID f1745a66-238b-48d4-8c25-81455f7e0395, Job ID 22614
+09-18 02:01:42.364 27716 29768 D SyncManager: userId - 0 auto - true
+09-18 02:01:42.367 29548 21198 I MediaServiceV2: Work ended for action [ android.intent.action.MEDIA_SCANNER_SCAN_FILE ]
+09-18 02:01:42.367 29438 29470 I MediaSyncer: generation: Generation(added=2226294, modified=2226300)
+09-18 02:01:42.368 29548 29664 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=c17d19e9-7e45-40e5-a8f6-b721d4387d59, tags={ com.android.providers.media.MediaServiceV2 } ]
+09-18 02:01:42.369 29548 29548 D WM-Processor: Processor c17d19e9-7e45-40e5-a8f6-b721d4387d59 executed; reschedule = false
+09-18 02:01:42.369 20686 20713 I eiir    : Broadcasting OPA enabled
+09-18 02:01:42.369 29548 29548 D WM-SystemJobService: c17d19e9-7e45-40e5-a8f6-b721d4387d59 executed on JobScheduler
+09-18 02:01:42.373 20686 20713 I eiir    : Broadcasting OPA user enabled
+09-18 02:01:42.375 29548 29664 D WM-GreedyScheduler: Cancelling work ID c17d19e9-7e45-40e5-a8f6-b721d4387d59
+09-18 02:01:42.375 20686 20716 D WM-GreedyScheduler: Cancelling work ID f1745a66-238b-48d4-8c25-81455f7e0395
+09-18 02:01:42.377 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: cf2c3f3c-1971-4511-9217-ccf63a4f86bf}. Requires device idle.
+09-18 02:01:42.377 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 62c8b8f1-a262-4b2c-8bd7-aebee093fa9d}. Requires device idle.
+09-18 02:01:42.377 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 3539a709-0ced-454e-b385-35d4032d9d2f}. Requires device idle.
+09-18 02:01:42.377 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 8cbe4570-6f56-4c5c-8e31-34199465a460}. Requires device idle.
+09-18 02:01:42.383 20686 20716 D WM-GreedyScheduler: Starting tracking for d3a4e462-c1d0-4227-92df-12fff3b43a82,df7b44b5-e83b-42ee-9e9b-44587e8fa4b8,2201f255-b6cd-4483-8dac-5f868d6842d9
+09-18 02:01:42.386 29548 29664 D WM-SystemJobScheduler: Scheduling work ID a9f57dc8-0d76-403c-bb11-6c9c6e085560Job ID 4061
+09-18 02:01:42.386 20686 20713 D WM-WorkConstraintsTrack: NetworkRequestConstraintController register shared callback
+09-18 02:01:42.387 11199 11199 I adbd    : adbd service requested 'sync:'
+09-18 02:01:42.387 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: cf2c3f3c-1971-4511-9217-ccf63a4f86bf}. Requires device idle.
+09-18 02:01:42.387 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 62c8b8f1-a262-4b2c-8bd7-aebee093fa9d}. Requires device idle.
+09-18 02:01:42.387 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 3539a709-0ced-454e-b385-35d4032d9d2f}. Requires device idle.
+09-18 02:01:42.387 29548 29664 D WM-GreedyScheduler: Ignoring {WorkSpec: 8cbe4570-6f56-4c5c-8e31-34199465a460}. Requires device idle.
+09-18 02:01:42.399 29438 24911 W SefInterface$Companion: This file doesn't have SEF
+09-18 02:01:42.402 20686 20713 D ConnectivityManager: StackLog: [android.net.ConnectivityManager.sendRequestForNetwork(ConnectivityManager.java:4744)] [android.net.ConnectivityManager.registerDefaultNetworkCallbackForUid(ConnectivityManager.java:5469)] [android.net.ConnectivityManager.registerDefaultNetworkCallback(ConnectivityManager.java:5436)] [android.net.ConnectivityManager.registerDefaultNetworkCallback(ConnectivityManager.java:5410)] [a$$ExternalSyntheticApiModelOutline0.m(D8$$SyntheticClass:72)] [rhl.invokeSuspend(PG:167)] [rhl.invoke(PG:13)] [gvkl.g(PG:3)] [gvkh.b(PG:57)] [gvpc.invokeSuspend(PG:20)] [guvn.resumeWith(PG:11)] [gvfq.run(PG:115)] [rlv.run(PG:3)] [djhn.run(PG:5)] [fyjx.run(PG:46)] [djgz.run(PG:81)] [java.lang.Thread.run(Thread.java:1572)] [djis.run(PG:62)]
+09-18 02:01:42.404 27716 29676 D ConnectivityService: requestNetwork for uid/pid:10246/20686 activeRequest: null callbackRequest: 47642 [NetworkRequest [ REQUEST id=47643, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10246 RequestorUid: 10246 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST|NC|BLK
+09-18 02:01:42.405 27716 28032 D ConnectivityService:    accepting network in place of null for NetworkRequest [ REQUEST id=47643, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10246 RequestorUid: 10246 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-18 02:01:42.407 27716 28021 D UntrustedWifiNetworkFactory: got request NetworkRequest [ REQUEST id=47643, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10246 RequestorUid: 10246 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-18 02:01:42.408 27716 28021 D OemPaidWifiNetworkFactory: got request NetworkRequest [ REQUEST id=47643, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10246 RequestorUid: 10246 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-18 02:01:42.408 27716 28021 D MultiInternetWifiNetworkFactory: got request NetworkRequest [ REQUEST id=47643, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10246 RequestorUid: 10246 RequestorPkg: com.google.android.googlequicksearchbox UnderlyingNetworks: Null] ]
+09-18 02:01:42.408 27716 28032 D ConnectivityService: Rematched networks [computed 1ms] [applied 1ms] [issued 1]
+09-18 02:01:42.408 27716 28032 D ConnectivityService: NetworkReassignment :
+09-18 02:01:42.408 27716 28032 D ConnectivityService:   47643 : null → 195
+09-18 02:01:42.409 20686 21203 D WM-WorkConstraintsTrack: NetworkRequestConstraintController onCapabilitiesChanged callback
+09-18 02:01:42.409 20686 21203 D WM-WorkConstraintsTrack: Not dispatching constraint state yet: isBlocked=null, capabilitiesInitialized=true
+09-18 02:01:42.409 20686 21203 D WM-WorkConstraintsTrack: NetworkRequestConstraintController onBlockedStatusChanged callback false
+09-18 02:01:42.412 20686 20713 D WM-GreedyScheduler: Constraints not met: Cancelling work ID WorkGenerationalId(workSpecId=d3a4e462-c1d0-4227-92df-12fff3b43a82, generation=0)
+09-18 02:01:42.412 20686 20713 D WM-GreedyScheduler: Constraints not met: Cancelling work ID WorkGenerationalId(workSpecId=df7b44b5-e83b-42ee-9e9b-44587e8fa4b8, generation=14)
+09-18 02:01:42.412 20686 20713 D WM-GreedyScheduler: Constraints not met: Cancelling work ID WorkGenerationalId(workSpecId=2201f255-b6cd-4483-8dac-5f868d6842d9, generation=0)
+09-18 02:01:42.414 29438 29470 I MediaSyncer: loaded: 46ms, Success(maxMediaId=373958, maxGenAdded=2226300, maxGenModified=2226302, count=1)
+09-18 02:01:42.415 27716 29676 D SyncManager: userId - 0 auto - true
+09-18 02:01:42.423 20686 20707 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=22a2c267-69f4-4f1c-b340-99c78339d6a4, class=com.google.apps.tiktok.contrib.work.TikTokListenableWorker, tags={ com.google.apps.tiktok.contrib.work.TikTokListenableWorker,TikTokWorker#com.google.android.libraries.search.assistant.launcher.OpaEnabledBroadcastWorker } ]
+09-18 02:01:42.425 20686 20686 D WM-Processor: ret 22a2c267-69f4-4f1c-b340-99c78339d6a4 executed; reschedule = false
+09-18 02:01:42.426 20686 20686 D WM-SystemJobService: 22a2c267-69f4-4f1c-b340-99c78339d6a4 executed on JobScheduler
+09-18 02:01:42.427 27716 29676 D SyncManager: userId - 0 auto - true
+09-18 02:01:42.428 20974 21008 I BaseThreadPoolExecutor: [#CMH#] Task com.samsung.cmh.core.task.MediaContentSyncTask@5873d05 is submitted
+09-18 02:01:42.428 20974 21206 I MediaContentSyncTask: [#CMH#] Start Media Contents Sync Task 
+09-18 02:01:42.428 20974 21206 I MediaContentSyncTask: [#CMH#] SKIP case for System Condition 
+09-18 02:01:42.430 27716 29768 D SyncManager: userId - 0 auto - true
+09-18 02:01:42.430 20974 21206 I MediaContentSyncTask: [#CMH#] Key  story_notification_sec_media_idValue 0
+09-18 02:01:42.431 20974 21206 I MediaContentSyncTask: [#CMH#] Key  ai_cover_sec_media_idValue 0
+09-18 02:01:42.431 20974 21206 I MediaContentSyncTask: [#CMH#] Get History Item: 788 
+09-18 02:01:42.432 20686 20707 D WM-GreedyScheduler: Cancelling work ID 22a2c267-69f4-4f1c-b340-99c78339d6a4
+09-18 02:01:42.436 20686 20707 D WM-GreedyScheduler: Starting tracking for d3a4e462-c1d0-4227-92df-12fff3b43a82,df7b44b5-e83b-42ee-9e9b-44587e8fa4b8,2201f255-b6cd-4483-8dac-5f868d6842d9
+09-18 02:01:42.438 20974 21206 I MediaContentSyncTask: [#CMH#] History Count: 1 
+09-18 02:01:42.439 20595 20595 I cjsj    : (REDACTED) #sharesheet enabled: %s #sharesheet with image type enabled: %s
+09-18 02:01:42.440 20595 20595 I cjsn    : (REDACTED) AvailabilityUtils.updateAvailability() component:%s enabled:%s
+09-18 02:01:42.441 27716 29607 D PackageManager: setEnabledSetting : userId = 0 packageName = com.google.android.googlequicksearchbox cmp = com.google.android.apps.search.googleapp.saves.savefeature.sharereceiver.SavesShareReceiver newState = 1 callingPackage = com.google.android.googlequicksearchbox
+09-18 02:01:42.441 27716 29607 D ApplicationPolicy: getApplicationStateEnabled : pkg = com.google.android.googlequicksearchbox userId : 0
+09-18 02:01:42.442 27716 29607 D ApplicationPolicy: getApplicationComponentState : pkg = com.google.android.googlequicksearchbox userId : 0
+09-18 02:01:42.445 20595 20595 I cjsn    : (REDACTED) Update complete. %s enabled: %s
+09-18 02:01:42.445 11199 11199 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color:export ANDROID_LOG_TAGS=''; exec logcat '-d''
+09-18 02:01:42.445 20595 20595 I cjsn    : (REDACTED) AvailabilityUtils.updateAvailability() component:%s enabled:%s
+09-18 02:01:42.447 27716 29607 D PackageManager: setEnabledSetting : userId = 0 packageName = com.google.android.googlequicksearchbox cmp = com.google.android.apps.search.googleapp.saves.savefeature.sharereceiver.SavesShareReceiverWithImageType newState = 1 callingPackage = com.google.android.googlequicksearchbox
+09-18 02:01:42.447 27716 29607 D ApplicationPolicy: getApplicationStateEnabled : pkg = com.google.android.googlequicksearchbox userId : 0
+09-18 02:01:42.448 27716 29607 D ApplicationPolicy: getApplicationComponentState : pkg = com.google.android.googlequicksearchbox userId : 0
+09-18 02:01:42.449 20595 20595 I cjsn    : (REDACTED) Update complete. %s enabled: %s
+09-18 02:01:42.449 20595 20595 I cjsj    : #synclet interval set for every : 12 hours
+09-18 02:01:42.452 20595 20595 I four    : #sync(). Running Synclets and scheduling next sync.
+09-18 02:01:42.452 20974 21206 W SQLiteLog: (28) walCheckpoint: rc(0) eMode(0), mxFrame(109), nBackfill(109), /data/user/0/com.samsung.cmh/databases/cmh.db-wal taking (3) ms
+09-18 02:01:42.456 20974 21206 I MediaContentSyncTask: [#CMH#] Get History Item: 789 
+09-18 02:01:42.458 20595 20595 I four    : #sync(). Running Synclets and scheduling next sync.
+09-18 02:01:42.458 20595 20595 I four    : #sync(). Running Synclets and scheduling next sync.
+09-18 02:01:42.462 20974 21206 I MediaContentSyncTask: [#CMH#] Media Sync Time:  34
+09-18 02:01:42.462 20974 21206 E MediaContentSyncTask: [#CMH#] Insert : 1, Update: 0, Delete: 0 
+09-18 02:01:42.462 20974 21206 I BaseThreadPoolExecutor: [#CMH#] afterExecute FutureTask
+09-18 02:01:42.462 20974 21206 I ControllerEventHandler: [#CMH#] Alive Privacy Ignored Policy Called:  false
+09-18 02:01:42.480 20595 20623 I cgfh$a  : (REDACTED) #provideSyncletBinding isEmberNativeEnabled:%s enableAutofetch:%s
