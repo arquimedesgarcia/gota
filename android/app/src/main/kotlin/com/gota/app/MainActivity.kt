@@ -1,4 +1,4 @@
-package com.gota.gota
+package com.gota.app
 
 import io.flutter.embedding.android.FlutterActivity
 

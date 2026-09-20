@@ -134,7 +134,7 @@ endpoint Legacy está prohibido.
 
 ### Configuración Firebase (cliente)
 
-1. Crear proyecto Firebase y app Android (`com.gota.gota`); descargar
+1. Crear proyecto Firebase y app Android (`com.gota.app`); descargar
    `google-services.json` a `android/app/` (fuera de Git; el plugin Gradle
    se aplica condicionalmente: sin el archivo la app compila y funciona sin
    push).
