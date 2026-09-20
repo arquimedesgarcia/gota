@@ -6,6 +6,7 @@ import '../../../../core/errors/app_exception.dart';
 import '../../../../features/leaks/domain/leak_age.dart';
 import '../../../../features/leaks/domain/leak_community.dart';
 import '../../../../features/leaks/presentation/leak_detail_screen.dart';
+import '../../../../features/notifications/presentation/notification_providers.dart';
 import '../../../../shared/widgets/gota_filter_chip.dart';
 import '../../../../shared/widgets/gota_icon_tile.dart';
 import '../../../../shared/widgets/gota_status_badge.dart';
@@ -230,6 +231,20 @@ class _FilterMenuButton extends ConsumerWidget {
   final MapFilterState filterState;
   final bool asChip;
 
+  Future<void> _handleFilterSelection(WidgetRef ref, MapFilterType filter) async {
+    if (filter == MapFilterType.mySector) {
+      final preferencesAsync = ref.read(notificationPreferencesControllerProvider);
+      final preferences = preferencesAsync.value;
+      if (preferences?.preferredSectorId != null) {
+        ref.read(mapFilterProvider.notifier).setSectorId(preferences!.preferredSectorId);
+      } else {
+        ref.read(mapFilterProvider.notifier).setFilter(filter);
+      }
+    } else {
+      ref.read(mapFilterProvider.notifier).setFilter(filter);
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (asChip) {
@@ -237,7 +252,7 @@ class _FilterMenuButton extends ConsumerWidget {
         key: mapMoreFiltersChipKey,
         tooltip: 'Filtrar',
         onSelected: (filter) {
-          ref.read(mapFilterProvider.notifier).setFilter(filter);
+          _handleFilterSelection(ref, filter);
         },
         itemBuilder: _items,
         child: Container(
@@ -269,7 +284,7 @@ class _FilterMenuButton extends ConsumerWidget {
       tooltip: 'Filtrar',
       icon: const Icon(Icons.filter_list),
       onSelected: (filter) {
-        ref.read(mapFilterProvider.notifier).setFilter(filter);
+        _handleFilterSelection(ref, filter);
       },
       itemBuilder: _items,
     );
@@ -454,14 +469,46 @@ class _MapViewContent extends ConsumerWidget {
   final double? centerLat;
   final double? centerLng;
 
+  /// Calcula el centro del bounding box de los reportes (para "Mi sector").
+  ({double lat, double lng})? _calculateSectorCenter() {
+    final leaksWithCoordinates = leaks.where((l) => l.hasCoordinates).toList();
+    if (leaksWithCoordinates.isEmpty) return null;
+
+    double minLat = leaksWithCoordinates[0].latitude!;
+    double maxLat = leaksWithCoordinates[0].latitude!;
+    double minLng = leaksWithCoordinates[0].longitude!;
+    double maxLng = leaksWithCoordinates[0].longitude!;
+
+    for (final leak in leaksWithCoordinates) {
+      minLat = leak.latitude! < minLat ? leak.latitude! : minLat;
+      maxLat = leak.latitude! > maxLat ? leak.latitude! : maxLat;
+      minLng = leak.longitude! < minLng ? leak.longitude! : minLng;
+      maxLng = leak.longitude! > maxLng ? leak.longitude! : maxLng;
+    }
+
+    return (lat: (minLat + maxLat) / 2, lng: (minLng + maxLng) / 2);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final filterState = ref.watch(mapFilterProvider);
+    final finalCenterLat = centerLat ??
+        (filterState.filterType == MapFilterType.mySector
+            ? _calculateSectorCenter()?.lat
+            : null) ??
+        10.99;
+    final finalCenterLng = centerLng ??
+        (filterState.filterType == MapFilterType.mySector
+            ? _calculateSectorCenter()?.lng
+            : null) ??
+        -63.87;
+
     return GotaMapView(
       leaks: leaks,
       selectedLeak: selectedLeak,
       onMarkerTapped: onMarkerTapped,
-      centerLat: centerLat,
-      centerLng: centerLng,
+      centerLat: finalCenterLat,
+      centerLng: finalCenterLng,
       onBoundsChanged: (bounds) {
         if (bounds != null) {
           ref

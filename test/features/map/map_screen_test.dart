@@ -24,6 +24,7 @@ class _MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 class _FakeRoute extends Fake implements Route<dynamic> {}
 
+
 /// Test widget builder that returns a simple widget instead of MapLibre.
 Widget _testMapBuilder(
   BuildContext context, {
@@ -445,6 +446,7 @@ void main() {
         ).called(greaterThanOrEqualTo(1));
       },
     );
+
 
     testWidgets('tocar marker muestra tarjeta y permite ver detalle', (
       tester,
