@@ -70,6 +70,7 @@ class MapScreen extends ConsumerWidget {
           _FilterChipsBar(filterState: filterState),
           Expanded(
             child: reportsAsync.when(
+              skipLoadingOnReload: true,
               loading: () => const _MapLoadingView(),
               error: (error, _) => _MapErrorView(
                 message: _mapErrorMessage(error),
