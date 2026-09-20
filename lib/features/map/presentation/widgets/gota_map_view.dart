@@ -288,35 +288,11 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
     if (c == null) return;
     if (!_mapCreated || !_styleLoaded) return;
     try {
-      await c.moveCamera(CameraUpdate.zoomBy(delta));
-      // Tras un zoom programático el callback onCameraIdle puede no dispararse
-      // (quirk del plugin Android): emite los bounds visibles explícitamente
-      // para que el provider refetchee los reportes del nuevo viewport. Se
-      // emite dos veces porque getVisibleRegion puede devolver la región
-      // previa al movimiento si la cámara aún no asentó.
-      await Future<void>.delayed(const Duration(milliseconds: 350));
-      await _emitVisibleBounds();
-      await Future<void>.delayed(const Duration(milliseconds: 700));
-      await _emitVisibleBounds();
-    } catch (_) {
-      // Ignorar errores transitorios del controlador nativo
-    }
-  }
-
-  Future<void> _emitVisibleBounds() async {
-    final c = _controller;
-    if (c == null) return;
-    if (!_mapCreated || !_styleLoaded) return;
-    if (widget.onBoundsChanged == null) return;
-    try {
-      final region = await c.getVisibleRegion();
-      widget.onBoundsChanged!(
-        LatLngBounds(
-          minLat: region.southwest.latitude,
-          minLng: region.southwest.longitude,
-          maxLat: region.northeast.latitude,
-          maxLng: region.northeast.longitude,
-        ),
+      // animateCamera garantiza que onCameraIdle se dispare al finalizar,
+      // lo que emite los bounds correctos una sola vez sin dobles refetches.
+      await c.animateCamera(
+        CameraUpdate.zoomBy(delta),
+        duration: const Duration(milliseconds: 250),
       );
     } catch (_) {
       // Ignorar errores transitorios del controlador nativo
