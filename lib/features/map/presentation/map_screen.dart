@@ -10,6 +10,7 @@ import '../../../../shared/widgets/gota_filter_chip.dart';
 import '../../../../shared/widgets/gota_icon_tile.dart';
 import '../../../../shared/widgets/gota_status_badge.dart';
 import '../domain/map_filter.dart';
+import '../domain/leak_map_status.dart';
 import 'map_providers.dart'
     show
         mapFilterProvider,
@@ -82,6 +83,16 @@ class MapScreen extends ConsumerWidget {
               ),
               data: (reports) {
                 if (reports.isEmpty) {
+                  // El estado vacío desmonta el mapa; sin esto el bbox queda
+                  // clavado en la zona vacía y ningún filtro ni gesto puede
+                  // recuperar los reportes. Al limpiarlo, el siguiente
+                  // refetch (que ocurre con este mismo cambio de estado)
+                  // vuelve a consultar sin límite espacial. Si de verdad no
+                  // hay reportes, clearBounds se vuelve un no-op y no hay
+                  // bucle.
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    ref.read(mapFilterProvider.notifier).clearBounds();
+                  });
                   return _MapEmptyView(filterState: filterState);
                 }
 
@@ -365,8 +376,8 @@ class _SelectedLeakCard extends StatelessWidget {
   }
 }
 
-/// Leyenda Activa/Resuelta sobre el mapa (patrón prototipo §mapa):
-/// color + texto, nunca color solo.
+/// Leyenda de tres estados sobre el mapa (patrón prototipo §mapa):
+/// color + texto, nunca color solo. Colores idénticos a los markers.
 class _MapLegend extends StatelessWidget {
   const _MapLegend();
 
@@ -411,9 +422,14 @@ class _MapLegend extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _entry(AppColors.danger, 'Activa'),
-            const SizedBox(width: AppSpacing.lg),
-            _entry(AppColors.success, 'Resuelta'),
+            for (final status in LeakMapStatus.values) ...[
+              if (status != LeakMapStatus.reported)
+                const SizedBox(width: AppSpacing.lg),
+              _entry(
+                leakMapStatusColor(status),
+                leakMapStatusLabel(status),
+              ),
+            ],
           ],
         ),
       ),
@@ -499,9 +515,7 @@ class _MapListView extends StatelessWidget {
                     icon: leak.isResolved
                         ? Icons.check_circle_outline
                         : Icons.water_drop_outlined,
-                    color: leak.isResolved
-                        ? AppColors.success
-                        : AppColors.accent,
+                    color: leakMapStatusColor(leakMapStatusOf(leak)),
                   ),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
@@ -514,9 +528,9 @@ class _MapListView extends StatelessWidget {
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: leak.isResolved
-                                    ? AppColors.success
-                                    : AppColors.danger,
+                                color: leakMapStatusColor(
+                                  leakMapStatusOf(leak),
+                                ),
                                 shape: BoxShape.circle,
                               ),
                             ),

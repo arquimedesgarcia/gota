@@ -80,6 +80,7 @@ class MapFilterState {
     double? maxLat,
     double? maxLng,
     bool clearSector = false,
+    bool clearBounds = false,
   }) {
     return MapFilterState(
       filterType: filterType ?? this.filterType,
@@ -89,10 +90,10 @@ class MapFilterState {
           : (selectedSectorId ?? this.selectedSectorId),
       userLatitude: userLatitude ?? this.userLatitude,
       userLongitude: userLongitude ?? this.userLongitude,
-      minLat: minLat ?? this.minLat,
-      minLng: minLng ?? this.minLng,
-      maxLat: maxLat ?? this.maxLat,
-      maxLng: maxLng ?? this.maxLng,
+      minLat: clearBounds ? null : (minLat ?? this.minLat),
+      minLng: clearBounds ? null : (minLng ?? this.minLng),
+      maxLat: clearBounds ? null : (maxLat ?? this.maxLat),
+      maxLng: clearBounds ? null : (maxLng ?? this.maxLng),
     );
   }
 }

@@ -56,6 +56,19 @@ class MapFilterNotifier extends Notifier<MapFilterState> {
       maxLng: maxLng,
     );
   }
+
+  /// Limpia el bounding box del viewport (vuelve a consultar sin límite
+  /// espacial). Se usa cuando la vista de mapa queda sin reportes: el mapa
+  /// se desmonta y, sin esto, ningún gesto podría ampliar el área de nuevo.
+  void clearBounds() {
+    if (state.minLat == null &&
+        state.minLng == null &&
+        state.maxLat == null &&
+        state.maxLng == null) {
+      return;
+    }
+    state = state.copyWith(clearBounds: true);
+  }
 }
 
 final mapFilterProvider = NotifierProvider<MapFilterNotifier, MapFilterState>(

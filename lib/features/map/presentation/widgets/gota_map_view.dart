@@ -4,6 +4,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../../app/theme/app_theme.dart';
 import '../../../leaks/domain/leak_community.dart';
+import '../../domain/leak_map_status.dart';
 import '../map_providers.dart';
 
 /// Claves estables para pruebas de UI (§17).
@@ -12,12 +13,15 @@ Key mapMarkerKey(String reportId) => ValueKey('map-marker-$reportId');
 
 /// URL del estilo de mapa, configurable vía dart-define MAP_TILE_STYLE_URL.
 ///
-/// Por defecto apunta a los tiles de demostración de MapLibre, únicamente
-/// para desarrollo y staging. En producción debe suministrarse una URL real:
+/// Por defecto usa el estilo vectorial "Liberty" de OpenFreeMap (datos
+/// OpenStreetMap): calles, nombres de calles, sectores, edificaciones, parques
+/// y cuerpos de agua. Gratuito y sin API key; la atribución requerida (©
+/// OpenStreetMap / OpenFreeMap) la muestra MapLibre automáticamente desde el
+/// propio estilo. Se puede sobreescribir:
 ///   flutter run --dart-define=MAP_TILE_STYLE_URL=https://...
 const kMapLibreDefaultStyle = String.fromEnvironment(
   'MAP_TILE_STYLE_URL',
-  defaultValue: 'https://demotiles.maplibre.org/style.json',
+  defaultValue: 'https://tiles.openfreemap.org/styles/liberty',
 );
 
 /// Bounding box de un viewport MapLibre (Sprint 05).
@@ -243,13 +247,11 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
       for (final leak in widget.leaks) {
         if (!leak.hasCoordinates) continue;
 
-        // ACTIVE vs RESOLVED: Distinción visual (§11)
-        final isResolved = leak.isResolved;
-        final isSelected = widget.selectedLeak?.id == leak.id;
-
-        final color = isResolved ? AppColors.success : AppColors.accent;
+        // Estado visual derivado: reportada/validada/resuelta (§leyenda).
+        final color = leakMapStatusColor(leakMapStatusOf(leak));
         final hexColor = _colorToHex(color);
 
+        final isSelected = widget.selectedLeak?.id == leak.id;
         final circle = await c.addCircle(
           CircleOptions(
             geometry: LatLng(leak.latitude!, leak.longitude!),
@@ -281,19 +283,119 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
     super.dispose();
   }
 
+  Future<void> _zoomBy(double delta) async {
+    final c = _controller;
+    if (c == null) return;
+    if (!_mapCreated || !_styleLoaded) return;
+    try {
+      await c.moveCamera(CameraUpdate.zoomBy(delta));
+      // Tras un zoom programático el callback onCameraIdle puede no dispararse
+      // (quirk del plugin Android): emite los bounds visibles explícitamente
+      // para que el provider refetchee los reportes del nuevo viewport. Se
+      // emite dos veces porque getVisibleRegion puede devolver la región
+      // previa al movimiento si la cámara aún no asentó.
+      await Future<void>.delayed(const Duration(milliseconds: 350));
+      await _emitVisibleBounds();
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      await _emitVisibleBounds();
+    } catch (_) {
+      // Ignorar errores transitorios del controlador nativo
+    }
+  }
+
+  Future<void> _emitVisibleBounds() async {
+    final c = _controller;
+    if (c == null) return;
+    if (!_mapCreated || !_styleLoaded) return;
+    if (widget.onBoundsChanged == null) return;
+    try {
+      final region = await c.getVisibleRegion();
+      widget.onBoundsChanged!(
+        LatLngBounds(
+          minLat: region.southwest.latitude,
+          minLng: region.southwest.longitude,
+          maxLat: region.northeast.latitude,
+          maxLng: region.northeast.longitude,
+        ),
+      );
+    } catch (_) {
+      // Ignorar errores transitorios del controlador nativo
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MapLibreMap(
-      styleString: kMapLibreDefaultStyle,
-      initialCameraPosition: CameraPosition(
-        target: LatLng(widget.initialLat, widget.initialLng),
-        zoom: 12.0,
+    return Stack(
+      children: [
+        MapLibreMap(
+          styleString: kMapLibreDefaultStyle,
+          initialCameraPosition: CameraPosition(
+            target: LatLng(widget.initialLat, widget.initialLng),
+            zoom: 12.0,
+          ),
+          onMapCreated: _onMapCreated,
+          onStyleLoadedCallback: _onStyleLoaded,
+          onCameraIdle: _onCameraIdle,
+          myLocationEnabled: false,
+          trackCameraPosition: false,
+        ),
+        // Controles de zoom explícitos (§13): complementan el pinch del gesto
+        // nativo; usan el mismo controlador, no crean un segundo mapa.
+        Positioned(
+          right: AppSpacing.md,
+          top: AppSpacing.md,
+          child: Column(
+            children: [
+              _ZoomButton(
+                key: const Key('map-zoom-in'),
+                icon: Icons.add,
+                tooltip: 'Acercar',
+                onPressed: () => _zoomBy(1.0),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _ZoomButton(
+                key: const Key('map-zoom-out'),
+                icon: Icons.remove,
+                tooltip: 'Alejar',
+                onPressed: () => _zoomBy(-1.0),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Botón circular de zoom sobre el mapa (patrón prototipo §mapa).
+class _ZoomButton extends StatelessWidget {
+  const _ZoomButton({
+    super.key,
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surface.withValues(alpha: 0.95),
+      shape: const CircleBorder(
+        side: BorderSide(color: AppColors.border),
       ),
-      onMapCreated: _onMapCreated,
-      onStyleLoadedCallback: _onStyleLoaded,
-      onCameraIdle: _onCameraIdle,
-      myLocationEnabled: false,
-      trackCameraPosition: false,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onPressed,
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Icon(icon, size: 22, color: AppColors.primary),
+        ),
+      ),
     );
   }
 }
