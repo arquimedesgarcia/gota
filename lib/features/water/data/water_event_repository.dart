@@ -41,6 +41,10 @@ abstract class WaterEventRepository {
     int limit = 20,
     WaterEventCursor? cursor,
   });
+
+  /// Último evento del ámbito (`sectorId == null` = todo el piloto), o
+  /// `null` si no hay eventos. Para el "Estado del agua" de Home.
+  Future<WaterEventSummary?> latestEvent({String? sectorId});
 }
 
 class SupabaseWaterEventRepository implements WaterEventRepository {
@@ -170,6 +174,25 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
             )
           : null;
       return WaterEventsPage(events: events, nextCursor: nextCursor);
+    } on TimeoutException {
+      throw const NetworkException();
+    } on SocketException {
+      throw const NetworkException();
+    } on http.ClientException {
+      throw const NetworkException();
+    } on supabase.PostgrestException {
+      throw const QueryException();
+    } on supabase.AuthException {
+      throw const QueryException();
+    }
+  }
+
+  @override
+  Future<WaterEventSummary?> latestEvent({String? sectorId}) async {
+    try {
+      final rows = await _database.fetchLatestWaterEvent(sectorId: sectorId);
+      if (rows.isEmpty) return null;
+      return WaterEventSummary.fromJson(rows.first);
     } on TimeoutException {
       throw const NetworkException();
     } on SocketException {

@@ -135,6 +135,9 @@ class _FakeWaterRepository implements WaterEventRepository {
     int limit = 20,
     WaterEventCursor? cursor,
   }) => throw UnimplementedError();
+
+  @override
+  Future<WaterEventSummary?> latestEvent({String? sectorId}) async => null;
 }
 
 class _FakePushService implements PushService {

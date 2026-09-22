@@ -42,6 +42,12 @@ abstract class GotaWaterDatabase {
     int limit = 20,
     WaterEventCursor? cursor,
   });
+
+  /// Último evento del ámbito (`sectorId == null` = todo el piloto),
+  /// para el "Estado del agua" del resumen de Home. Máximo una fila.
+  Future<List<Map<String, dynamic>>> fetchLatestWaterEvent({
+    String? sectorId,
+  });
 }
 
 class SupabaseGotaWaterDatabase implements GotaWaterDatabase {
@@ -122,6 +128,18 @@ class SupabaseGotaWaterDatabase implements GotaWaterDatabase {
 
     final rows = await query;
     return rows;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchLatestWaterEvent({
+    String? sectorId,
+  }) async {
+    var query = _client.from('water_events').select(_listColumns);
+    if (sectorId != null) query = query.eq('sector_id', sectorId);
+    return query
+        .order('event_time', ascending: false)
+        .order('id', ascending: false)
+        .limit(1);
   }
 
   Map<String, dynamic> _asMap(Object? data, String rpcName) {

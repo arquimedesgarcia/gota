@@ -36,6 +36,9 @@ class _FakeWaterRepository implements WaterEventRepository {
   }
 
   @override
+  Future<WaterEventSummary?> latestEvent({String? sectorId}) async => null;
+
+  @override
   Future<WaterEventsPage> recentEvents({
     int limit = 20,
     WaterEventCursor? cursor,

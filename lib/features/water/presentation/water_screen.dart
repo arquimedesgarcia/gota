@@ -6,6 +6,7 @@ import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/gota_icon_tile.dart';
 import '../../../shared/widgets/loading_view.dart';
+import '../../home/presentation/community_summary_providers.dart';
 import '../domain/water_errors.dart';
 import '../domain/water_event.dart';
 import '../domain/water_event_age.dart';
@@ -51,6 +52,8 @@ class WaterScreen extends ConsumerWidget {
       // El historial se refresca solo después de que el backend confirmó
       // la creación del evento.
       ref.invalidate(waterHistoryControllerProvider);
+      // El "Estado del agua" del resumen de Home depende del evento nuevo.
+      ref.invalidate(sectorWaterStatusProvider);
     }
   }
 

@@ -28,6 +28,15 @@ abstract class GotaCommunityDatabase {
     String? sectorId,
   });
 
+  /// Conteos de fallas ACTIVAS del ámbito, divididas por umbral de
+  /// validación comunitaria (mismas reglas visuales del mapa):
+  /// `reported` = ACTIVE con `validation_count < validatedThreshold`,
+  /// `validated` = ACTIVE con `validation_count >= validatedThreshold`.
+  Future<({int reported, int validated})> countActiveReports({
+    String? sectorId,
+    int validatedThreshold = 3,
+  });
+
   /// RPC `get_leak_report_detail`: detalle + estado del usuario actual.
   Future<Map<String, dynamic>> rpcLeakReportDetail(String reportId);
 
@@ -111,6 +120,31 @@ class SupabaseGotaCommunityDatabase implements GotaCommunityDatabase {
     if (sectorId != null) query = query.eq('sector_id', sectorId);
     final res = await query.count(supabase.CountOption.exact);
     return res.count;
+  }
+
+  @override
+  Future<({int reported, int validated})> countActiveReports({
+    String? sectorId,
+    int validatedThreshold = 3,
+  }) async {
+    Future<int> count({required bool validated}) async {
+      var query = _client
+          .from('reports')
+          .select(_countColumns)
+          .eq('status', 'ACTIVE');
+      query = validated
+          ? query.gte('validation_count', validatedThreshold)
+          : query.lt('validation_count', validatedThreshold);
+      if (sectorId != null) query = query.eq('sector_id', sectorId);
+      final res = await query.count(supabase.CountOption.exact);
+      return res.count;
+    }
+
+    final results = await Future.wait([
+      count(validated: false),
+      count(validated: true),
+    ]);
+    return (reported: results[0], validated: results[1]);
   }
 
   @override

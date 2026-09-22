@@ -40,12 +40,14 @@ void main() {
       observer = _MockNavigatorObserver();
     });
 
-    testWidgets('tap en "Mapa de fugas" navega a MapScreen', (tester) async {
+    testWidgets('tap en "Fugas activas en el mapa" navega a MapScreen', (
+      tester,
+    ) async {
       await _pumpHomeScreenWithObserver(tester, observer);
       clearInteractions(observer);
 
-      // Encuentra y toca el botón "Mapa de fugas"
-      await tester.tap(find.text('Mapa de\nfugas'));
+      // Encuentra y toca la acción "Fugas activas en el mapa"
+      await tester.tap(find.text('Fugas activas en el mapa'));
       await tester.pump();
 
       // Verifica que se hizo push a la navegación
@@ -57,13 +59,13 @@ void main() {
     });
 
     testWidgets(
-      'tap en "Llegó / Se fue el agua" navega a WaterRegisterScreen',
+      'tap en "Reportar agua" navega a WaterRegisterScreen',
       (tester) async {
         await _pumpHomeScreenWithObserver(tester, observer);
         clearInteractions(observer);
 
-        // Encuentra y toca el botón "Llegó / Se fue el agua"
-        await tester.tap(find.text('Llegó / Se fue el agua'));
+        // Encuentra y toca el botón "Reportar agua"
+        await tester.tap(find.text('Reportar agua'));
         await tester.pump();
 
         // Verifica que se hizo push a la navegación
@@ -83,9 +85,9 @@ void main() {
       // Verifica que los textos esperados están presentes
       expect(find.text('GOTA'), findsOneWidget);
       expect(find.text('Reportar fuga'), findsOneWidget);
-      expect(find.text('Llegó / Se fue el agua'), findsOneWidget);
-      expect(find.text('Mapa de\nfugas'), findsOneWidget);
-      expect(find.text('Toma menos de un minuto'), findsOneWidget);
+      expect(find.text('Reportar agua'), findsOneWidget);
+      expect(find.text('Fugas activas en el mapa'), findsOneWidget);
+      expect(find.text('Ayúdanos a cuidar el agua'), findsOneWidget);
     });
   });
 }

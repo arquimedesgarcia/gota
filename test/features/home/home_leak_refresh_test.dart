@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:gota/app/theme/app_theme.dart';
-import 'package:gota/features/home/presentation/home_screen.dart';
 import 'package:gota/features/leaks/data/leak_community_repository.dart';
 import 'package:gota/features/leaks/domain/create_leak_report_outcome.dart';
 import 'package:gota/features/leaks/domain/leak_community.dart';
@@ -121,8 +120,7 @@ Future<void> _pumpResultHost(
 void main() {
   group('S10-B refresh Home tras crear fuga', () {
     testWidgets('TEST 1: nuevo leak visible tras invalidate', (tester) async {
-      // Viewport alto: HomeScreen usa ListView (construcción perezosa) y la
-      // sección de fugas queda bajo el pliegue con el tamaño de test base.
+      // Viewport alto: la lista es perezosa y necesita espacio.
       tester.view.physicalSize = const Size(800, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -132,6 +130,8 @@ void main() {
       final repo = _FakeLeakCommunityRepository([_summary('r1')]);
       late ProviderContainer container;
 
+      // El listado de fugas ya no vive en Home: se verifica el contrato
+      // S10-B sobre el widget que lo mostrará en su página definitiva.
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -142,7 +142,7 @@ void main() {
             home: Builder(
               builder: (context) {
                 container = ProviderScope.containerOf(context);
-                return const HomeScreen();
+                return const Scaffold(body: RecentLeaksList());
               },
             ),
           ),

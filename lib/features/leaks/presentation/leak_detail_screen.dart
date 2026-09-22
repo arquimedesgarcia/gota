@@ -6,6 +6,7 @@ import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/app_components.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
+import '../../home/presentation/community_summary_providers.dart';
 import '../data/leak_community_repository.dart';
 import '../domain/leak_age.dart';
 import '../domain/leak_community.dart';
@@ -88,6 +89,8 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
   void _refresh() {
     ref.invalidate(leakDetailProvider(widget.reportId));
     ref.invalidate(recentLeaksProvider);
+    // La validación/resolución cambia los conteos del resumen de Home.
+    ref.invalidate(communitySummaryProvider);
   }
 
   String _messageFor(Object error) {

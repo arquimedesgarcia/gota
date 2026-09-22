@@ -18,7 +18,12 @@ import '../domain/community_summary.dart';
 abstract class CommunitySummaryRepository {
   /// Resumen de hoy en el ámbito dado (`sectorId == null` = cobertura
   /// global del piloto). [nowUtc] permite fijar el reloj en pruebas.
-  Future<CommunitySummary> todaySummary({String? sectorId, DateTime? nowUtc});
+  /// [validatedThreshold] es el umbral comunitario de "validada".
+  Future<CommunitySummary> todaySummary({
+    String? sectorId,
+    DateTime? nowUtc,
+    int validatedThreshold = 3,
+  });
 }
 
 class SupabaseCommunitySummaryRepository
@@ -31,12 +36,13 @@ class SupabaseCommunitySummaryRepository
   Future<CommunitySummary> todaySummary({
     String? sectorId,
     DateTime? nowUtc,
+    int validatedThreshold = 3,
   }) async {
     final bounds = caracasDayBounds(nowUtc ?? DateTime.now().toUtc());
     final startIso = bounds.startUtc.toIso8601String();
     final endIso = bounds.endUtc.toIso8601String();
     try {
-      final results = await Future.wait([
+      final results = await Future.wait<Object>([
         _database.countReportsCreatedBetween(
           startIso: startIso,
           endIso: endIso,
@@ -47,10 +53,17 @@ class SupabaseCommunitySummaryRepository
           endIso: endIso,
           sectorId: sectorId,
         ),
+        _database.countActiveReports(
+          sectorId: sectorId,
+          validatedThreshold: validatedThreshold,
+        ),
       ]);
+      final active = results[2] as ({int reported, int validated});
       return CommunitySummary(
-        reportedToday: results[0],
-        resolvedToday: results[1],
+        reportedToday: results[0] as int,
+        resolvedToday: results[1] as int,
+        activeReported: active.reported,
+        activeValidated: active.validated,
       );
     } on TimeoutException {
       throw const NetworkException();

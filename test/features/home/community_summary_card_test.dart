@@ -18,6 +18,8 @@ import 'package:gota/shared/models/sector.dart';
 class _FakeSummaryRepository implements CommunitySummaryRepository {
   int reported = 0;
   int resolved = 0;
+  int activeReported = 0;
+  int activeValidated = 0;
   Object? error;
   String? lastSectorId;
 
@@ -25,12 +27,15 @@ class _FakeSummaryRepository implements CommunitySummaryRepository {
   Future<CommunitySummary> todaySummary({
     String? sectorId,
     DateTime? nowUtc,
+    int validatedThreshold = 3,
   }) async {
     if (error != null) throw error!;
     lastSectorId = sectorId;
     return CommunitySummary(
       reportedToday: reported,
       resolvedToday: resolved,
+      activeReported: activeReported,
+      activeValidated: activeValidated,
     );
   }
 }
@@ -170,21 +175,23 @@ Future<ProviderContainer> _pumpHome(
 }
 
 void main() {
-  group('S10-C tarjeta Hoy en tu comunidad', () {
-    testWidgets('Caso 1: muestra reportadas y resueltas de hoy', (
+  group('S10-C tarjeta Resumen de tu comunidad', () {
+    testWidgets('Caso 1: muestra fallas activas, resueltas y estado del agua', (
       tester,
     ) async {
       final summary = _FakeSummaryRepository()
-        ..reported = 3
+        ..activeReported = 2
+        ..activeValidated = 1
         ..resolved = 1;
       await _pumpHome(tester, summary: summary);
 
-      expect(find.text('Hoy en tu comunidad'), findsOneWidget);
-      expect(find.text('3'), findsOneWidget);
+      expect(find.text('Resumen de hoy'), findsOneWidget);
+      expect(find.text('3'), findsOneWidget); // 2 reportadas + 1 validada
+      expect(find.text('Fallas activas'), findsOneWidget);
+      expect(find.text('2 reportadas · 1 validadas'), findsOneWidget);
       expect(find.text('1'), findsOneWidget);
-      expect(find.text('reportadas hoy'), findsOneWidget);
-      expect(find.text('resueltas hoy'), findsOneWidget);
-      expect(find.text('Sin datos todavía'), findsNothing);
+      expect(find.text('Resueltas hoy'), findsOneWidget);
+      expect(find.text('Sin información del agua'), findsOneWidget);
     });
 
     testWidgets('Caso 7: sin actividad muestra 0/0 sin ocultar la tarjeta', (
@@ -192,15 +199,13 @@ void main() {
     ) async {
       await _pumpHome(tester, summary: _FakeSummaryRepository());
 
-      expect(find.text('Hoy en tu comunidad'), findsOneWidget);
+      expect(find.text('Resumen de hoy'), findsOneWidget);
       expect(find.text('0'), findsNWidgets(2));
-      // El único "Sin datos todavía" visible es el de la tarjeta (la lista
-      // de fugas tiene un item en este test).
-      expect(find.text('Sin datos todavía'), findsOneWidget);
-      expect(find.text('Cobertura del piloto'), findsOneWidget);
+      // Sin eventos de agua, la fila de estado degrada honestamente.
+      expect(find.text('Sin información del agua'), findsOneWidget);
     });
 
-    testWidgets('Caso 5: con sector de interés etiqueta y filtra por sector', (
+    testWidgets('Caso 5: con sector de interés el resumen filtra por sector', (
       tester,
     ) async {
       final summary = _FakeSummaryRepository()
@@ -212,8 +217,7 @@ void main() {
         preferences: _prefs(sectorId: 's1'),
       );
 
-      expect(find.text('La Caranta'), findsOneWidget);
-      expect(find.text('Cobertura del piloto'), findsNothing);
+      expect(find.text('Resumen de hoy'), findsOneWidget);
       expect(summary.lastSectorId, 's1');
     });
 
@@ -221,7 +225,7 @@ void main() {
       final summary = _FakeSummaryRepository();
       await _pumpHome(tester, summary: summary);
 
-      expect(find.text('Cobertura del piloto'), findsOneWidget);
+      expect(find.text('Resumen de hoy'), findsOneWidget);
       expect(summary.lastSectorId, isNull);
     });
 
@@ -237,11 +241,12 @@ void main() {
         findsOneWidget,
       );
       expect(find.byKey(communitySummaryRetryKey), findsOneWidget);
-      // La lista de fugas sigue funcionando (resto de Home intacto).
-      expect(find.text('Fugas cerca de ti'), findsOneWidget);
+      // El resto del Home sigue intacto.
+      expect(find.text('Reportar fuga'), findsOneWidget);
+      expect(find.text('Reportar agua'), findsOneWidget);
 
       summary.error = null;
-      summary.reported = 1;
+      summary.activeReported = 1;
       await tester.tap(find.byKey(communitySummaryRetryKey));
       await tester.pumpAndSettle();
 
@@ -260,7 +265,7 @@ void main() {
       final container = await _pumpHome(tester, summary: summary);
       expect(find.text('0'), findsNWidgets(2));
 
-      summary.reported = 1;
+      summary.activeReported = 1;
       container.invalidate(communitySummaryProvider);
       await tester.pumpAndSettle();
 

@@ -102,7 +102,7 @@ void main() {
     // Header y acciones principales del home.
     expect(find.text('GOTA'), findsOneWidget);
     expect(find.text('Reportar fuga'), findsOneWidget);
-    expect(find.text('Llegó / Se fue el agua'), findsOneWidget);
+    expect(find.text('Reportar agua'), findsOneWidget);
 
     // Etiquetas de la barra de navegación.
     expect(find.text('Inicio'), findsOneWidget);

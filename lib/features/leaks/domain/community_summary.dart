@@ -7,16 +7,31 @@
 library;
 
 /// Resumen agregado de un día en un ámbito (sector o cobertura global).
+///
+/// `activeReported`/`activeValidated` son acumulados vigentes (no diarios):
+/// fallas ACTIVE del ámbito divididas por el umbral de validación
+/// comunitaria, mismas reglas visuales del mapa (docs/MIGRATION_NOTES.md).
 class CommunitySummary {
   const CommunitySummary({
     required this.reportedToday,
     required this.resolvedToday,
+    this.activeReported = 0,
+    this.activeValidated = 0,
   });
 
   final int reportedToday;
   final int resolvedToday;
+  final int activeReported;
+  final int activeValidated;
 
-  bool get isEmpty => reportedToday == 0 && resolvedToday == 0;
+  /// Total de fallas activas reportadas más validadas.
+  int get activeTotal => activeReported + activeValidated;
+
+  bool get isEmpty =>
+      reportedToday == 0 &&
+      resolvedToday == 0 &&
+      activeReported == 0 &&
+      activeValidated == 0;
 }
 
 /// Desplazamiento fijo de `America/Caracas` respecto a UTC.

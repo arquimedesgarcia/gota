@@ -47,6 +47,15 @@ class _FakeCommunityDatabase implements GotaCommunityDatabase {
   }
 
   @override
+  Future<({int reported, int validated})> countActiveReports({
+    String? sectorId,
+    int validatedThreshold = 3,
+  }) async {
+    if (error != null) throw error!;
+    return (reported: 0, validated: 0);
+  }
+
+  @override
   Future<List<Map<String, dynamic>>> fetchRecentLeakReports({int limit = 20}) =>
       throw UnimplementedError();
 
