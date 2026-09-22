@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gota/core/errors/app_exception.dart';
 import 'package:gota/core/network/gota_community_database.dart';
 import 'package:gota/features/leaks/data/leak_community_repository.dart';
+import 'package:gota/features/leaks/domain/community_activity.dart';
 import 'package:gota/features/leaks/domain/leak_community.dart';
 import 'package:gota/features/leaks/domain/leak_community_errors.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
@@ -16,6 +17,7 @@ class _FakeCommunityDatabase implements GotaCommunityDatabase {
     this.detail,
     this.validateResponse,
     this.confirmResponse,
+    this.activity,
     this.error,
   });
 
@@ -23,6 +25,7 @@ class _FakeCommunityDatabase implements GotaCommunityDatabase {
   final Map<String, dynamic>? detail;
   final Map<String, dynamic>? validateResponse;
   final Map<String, dynamic>? confirmResponse;
+  final Map<String, dynamic>? activity;
   final Object? error;
 
   String? lastRpc;
@@ -89,6 +92,12 @@ class _FakeCommunityDatabase implements GotaCommunityDatabase {
   }) async {
     if (error != null) throw error!;
     return rows;
+  }
+
+  @override
+  Future<Map<String, dynamic>?> fetchLatestCommunityActivity() async {
+    if (error != null) throw error!;
+    return activity;
   }
 
   @override
@@ -524,6 +533,71 @@ void main() {
       await expectLater(
         _repo(database).confirmResolution(_reportId),
         throwsA(isA<LeakCommunityUnauthorizedException>()),
+      );
+    });
+  });
+
+  group('última actividad comunitaria', () {
+    test('mapea la fila del backend a CommunityActivity', () async {
+      final database = _FakeCommunityDatabase(
+        activity: const {
+          'activity_type': 'VALIDATED',
+          'at': '2026-09-02T10:00:00.000Z',
+          'report_id': 'r1',
+          'status': 'ACTIVE',
+          'validation_count': 3,
+          'resolution_confirmation_count': 0,
+          'created_at': '2026-09-01T10:00:00.000Z',
+          'resolved_at': null,
+          'description': 'Tubería rota',
+          'sector_id': 's1',
+          'sector_name': 'La Caranta',
+          'municipality_id': 'm1',
+          'municipality_name': 'Maneiro',
+        },
+      );
+
+      final activity = await _repo(database).latestActivity();
+
+      expect(activity, isNotNull);
+      expect(activity!.type, CommunityActivityType.validated);
+      expect(activity.reportId, 'r1');
+      expect(activity.isResolved, isFalse);
+      expect(activity.validationCount, 3);
+      expect(activity.placeLabel, 'La Caranta · Maneiro');
+      expect(
+        activity.at,
+        DateTime.parse('2026-09-02T10:00:00.000Z'),
+      );
+    });
+
+    test('sin actividad devuelve null', () async {
+      final database = _FakeCommunityDatabase();
+
+      final activity = await _repo(database).latestActivity();
+
+      expect(activity, isNull);
+    });
+
+    test('error de PostgREST se traduce a QueryException', () async {
+      final database = _FakeCommunityDatabase(
+        error: const supabase.PostgrestException(message: 'boom'),
+      );
+
+      await expectLater(
+        _repo(database).latestActivity(),
+        throwsA(isA<QueryException>()),
+      );
+    });
+
+    test('un fallo de red se traduce a NetworkException', () async {
+      final database = _FakeCommunityDatabase(
+        error: const SocketException('sin red'),
+      );
+
+      await expectLater(
+        _repo(database).latestActivity(),
+        throwsA(isA<NetworkException>()),
       );
     });
   });

@@ -46,6 +46,11 @@ abstract class GotaCommunityDatabase {
   /// RPC `confirm_leak_resolution`.
   Future<Map<String, dynamic>> rpcConfirmLeakResolution(String reportId);
 
+  /// RPC `get_latest_community_activity`: último evento comunitario global
+  /// sobre fallas (0 o 1 fila). Devuelve la primera fila o `null` si no hay
+  /// actividad.
+  Future<Map<String, dynamic>?> fetchLatestCommunityActivity();
+
   /// RPC `get_map_reports`: fugas geolocalizadas con filtros (Sprint 05).
   Future<List<Map<String, dynamic>>> rpcGetMapReports({
     String? status,
@@ -172,6 +177,24 @@ class SupabaseGotaCommunityDatabase implements GotaCommunityDatabase {
       params: {'p_report_id': reportId},
     );
     return _asMap(data, 'confirm_leak_resolution');
+  }
+
+  @override
+  Future<Map<String, dynamic>?> fetchLatestCommunityActivity() async {
+    // RPC `returns table`: el SDK entrega una lista de filas (vacía = sin
+    // actividad). Se toma la primera (la RPC ya garantiza 0 o 1).
+    final data = await _client.rpc<dynamic>('get_latest_community_activity');
+    if (data == null) return null;
+    if (data is List) {
+      if (data.isEmpty) return null;
+      final first = data.first;
+      if (first is Map) return Map<String, dynamic>.from(first);
+    } else if (data is Map) {
+      return Map<String, dynamic>.from(data);
+    }
+    throw StateError(
+      'get_latest_community_activity devolvió un formato inesperado.',
+    );
   }
 
   @override

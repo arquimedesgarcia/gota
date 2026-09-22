@@ -7,6 +7,7 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/leaks/presentation/leak_community_providers.dart';
 import '../../features/leaks/presentation/leak_report_controller.dart';
 import '../../features/leaks/presentation/leak_report_screen.dart';
+import '../../features/leaks/presentation/recent_activity_providers.dart';
 import '../../features/map/presentation/map_providers.dart';
 import '../../features/map/presentation/map_screen.dart';
 import '../../features/notifications/presentation/settings_screen.dart';
@@ -57,6 +58,8 @@ class _AppShellState extends State<AppShell> {
       // S10-C: la tarjeta "Hoy en tu comunidad" también depende del
       // reporte recién creado.
       container.invalidate(communitySummaryProvider);
+      // La tarjeta "Actividad reciente" muestra el nuevo REPORTED.
+      container.invalidate(latestActivityProvider);
       // El mapa conserva su resultado cacheado si no se invalida explícitamente.
       container.invalidate(mapReportsProvider);
     }

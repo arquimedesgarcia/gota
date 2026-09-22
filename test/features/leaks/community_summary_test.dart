@@ -60,6 +60,12 @@ class _FakeCommunityDatabase implements GotaCommunityDatabase {
       throw UnimplementedError();
 
   @override
+  Future<Map<String, dynamic>?> fetchLatestCommunityActivity() async {
+    if (error != null) throw error!;
+    return null;
+  }
+
+  @override
   Future<List<Map<String, dynamic>>> rpcGetMapReports({
     String? status,
     String? sectorId,

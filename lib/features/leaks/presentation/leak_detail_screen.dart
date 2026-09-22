@@ -13,6 +13,7 @@ import '../domain/leak_community.dart';
 import '../domain/leak_community_errors.dart';
 import 'leak_community_microcopy.dart';
 import 'leak_community_providers.dart';
+import 'recent_activity_providers.dart';
 
 /// Claves estables para las pruebas de UI.
 const leakValidateButtonKey = Key('leak-validate-button');
@@ -91,6 +92,8 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
     ref.invalidate(recentLeaksProvider);
     // La validación/resolución cambia los conteos del resumen de Home.
     ref.invalidate(communitySummaryProvider);
+    // …y puede ser el nuevo evento más reciente de la tarjeta de actividad.
+    ref.invalidate(latestActivityProvider);
   }
 
   String _messageFor(Object error) {

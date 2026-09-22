@@ -7,6 +7,7 @@ import 'package:gota/features/home/presentation/community_summary_providers.dart
 import 'package:gota/features/home/presentation/home_screen.dart';
 import 'package:gota/features/leaks/data/community_summary_repository.dart';
 import 'package:gota/features/leaks/data/leak_community_repository.dart';
+import 'package:gota/features/leaks/domain/community_activity.dart';
 import 'package:gota/features/leaks/domain/community_summary.dart';
 import 'package:gota/features/leaks/domain/leak_community.dart';
 import 'package:gota/features/location/data/sector_repository.dart';
@@ -65,6 +66,9 @@ class _FakeLeakCommunityRepository implements LeakCommunityRepository {
   @override
   Future<CommunityActionResult> confirmResolution(String reportId) =>
       throw UnimplementedError();
+
+  @override
+  Future<CommunityActivity?> latestActivity() async => null;
 
   @override
   Future<List<LeakSummary>> mapReports({

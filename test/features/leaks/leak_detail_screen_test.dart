@@ -7,9 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gota/app/theme/app_theme.dart';
 import 'package:gota/core/errors/app_exception.dart';
 import 'package:gota/features/leaks/data/leak_community_repository.dart';
+import 'package:gota/features/leaks/domain/community_activity.dart';
 import 'package:gota/features/leaks/domain/leak_community.dart';
 import 'package:gota/features/leaks/domain/leak_community_errors.dart';
 import 'package:gota/features/leaks/presentation/leak_detail_screen.dart';
+import 'package:gota/features/leaks/presentation/recent_activity_providers.dart';
 
 const _reportId = 'r1';
 
@@ -62,9 +64,16 @@ class _FakeLeakCommunityRepository implements LeakCommunityRepository {
 
   int validateCalls = 0;
   int confirmCalls = 0;
+  int latestActivityCalls = 0;
 
   @override
   Future<List<LeakSummary>> recentReports({int limit = 20}) async => list;
+
+  @override
+  Future<CommunityActivity?> latestActivity() async {
+    latestActivityCalls++;
+    return null;
+  }
 
   @override
   Future<List<LeakSummary>> mapReports({
@@ -394,6 +403,61 @@ void main() {
 
     expect(find.text('Fuga activa'), findsOneWidget);
   });
+
+  testWidgets(
+    'validar invalida latestActivityProvider por la ruta de producción',
+    (tester) async {
+      // Viewport alto: el botón de validar vive al final del ListView.
+      tester.view.physicalSize = const Size(800, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final repository = _FakeLeakCommunityRepository(detail: _detail());
+      repository.validateResult = const CommunityActionResult(
+        status: 'ACTIVE',
+        validationCount: 3,
+        resolutionConfirmationCount: 1,
+        threshold: 3,
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            leakCommunityRepositoryProvider.overrideWithValue(repository),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.light,
+            home: Column(
+              children: [
+                // Observador de la tarjeta de actividad (como el Home real).
+                Consumer(
+                  builder: (context, ref, _) {
+                    ref.watch(latestActivityProvider);
+                    return const SizedBox.shrink();
+                  },
+                ),
+                const Expanded(child: LeakDetailScreen(reportId: _reportId)),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Primera lectura del provider por el observador.
+      expect(repository.latestActivityCalls, 1);
+
+      await tester.tap(find.byKey(leakValidateButtonKey));
+      await tester.pumpAndSettle();
+
+      // _refresh() en producción invalida latestActivityProvider y el
+      // observador reconsulta: sin ninguna invalidación manual en el test.
+      expect(repository.latestActivityCalls, 2);
+    },
+  );
 
   testWidgets('error al cargar el detalle ofrece reintentar', (tester) async {
     final repository = _FakeLeakCommunityRepository(detail: _detail());

@@ -153,12 +153,25 @@ RPC `register_notification_token` / `unregister_notification_token`.
 - updated_at
 
 Claves sembradas: `duplicate_detection` (radio/ventana), `photo_limits`
-(cantidad/tamaño/MIME) y `resolution` (`{"threshold": 3}`).
+(cantidad/tamaño/MIME), `resolution` (`{"threshold": 3}`) y `validation`
+(`{"threshold": 3}`, migración 00029).
+
+**Estado derivado "validada":** una falla se considera *validada* cuando su
+`validation_count` **cruza** el umbral comunitario
+`system_config.validation.threshold` (hoy 3). No es un `status` persistido
+(`reports.status` sigue siendo `ACTIVE`/`RESOLVED`); es un umbral leído por
+`public.validation_threshold()` (`returns int`, `stable`, `security definer`,
+`search_path = ''`, respaldo `greatest(coalesce(…, 3), 1)`). Es una función
+**interna**: `revoke execute … from public, anon, authenticated`; solo la usan
+las RPC definer. Copia el patrón de `public.resolution_threshold()`.
 
 ## 3. Índices
 
 - GIST sobre `reports.location`.
 - reports por status/sector/municipality/created_at.
+- `reports_resolved_at_idx` parcial sobre `reports (resolved_at desc) where
+  status = 'RESOLVED'` (00029): barrido del evento RESOLVED de la tarjeta
+  "Actividad reciente".
 - water_events por sector/event_time.
 - FKs e índices de búsqueda habituales.
 

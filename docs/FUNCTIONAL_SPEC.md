@@ -25,6 +25,22 @@ Debe mostrar:
 - resumen de actividad comunitaria;
 - fugas cercanas o recientes.
 
+**Tarjeta "Actividad reciente"** (debajo de "Fugas activas en el mapa"): una
+sola fila con el **último evento comunitario global** sobre fallas
+(`get_latest_community_activity`), reutilizando la fila del listado y navegando
+al detalle. Tres tipos de evento, el más reciente en el tiempo gana:
+
+- `REPORTED` — se creó una falla (`created_at`);
+- `VALIDATED` — la falla **cruzó el umbral** de validación comunitaria (hoy 3,
+  `system_config.validation.threshold`): el momento de la N-ésima validación,
+  no cada validación individual;
+- `RESOLVED` — la falla quedó resuelta (`resolved_at`).
+
+La fila usa el `status` **real** de la falla para el icono/estado (un REPORTED o
+VALIDATED de una falla ACTIVE se pinta como activa). Si no hay actividad, la
+tarjeta **no se oculta**: muestra "Sin actividad reciente" (evita que el bloque
+aparezca y desaparezca entre refrescos).
+
 ## 3. Reportar fuga
 
 Flujo:

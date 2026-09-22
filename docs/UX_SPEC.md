@@ -32,6 +32,12 @@ Orden recomendado:
 4. fugas cercanas;
 5. resumen comunitario.
 
+**Tarjeta "Actividad reciente"** (bajo "Fugas activas en el mapa"): encabezado
+"Actividad reciente" + una sola fila (la del listado de fallas) con el último
+evento comunitario global. Estado vacío o de error: la tarjeta **se mantiene**
+con el texto muted "Sin actividad reciente"; ante un error añade un
+"Reintentar". Nunca se oculta, para que el bloque no parpadee entre refrescos.
+
 ## 4. Reportar
 
 Pantallas/estados:

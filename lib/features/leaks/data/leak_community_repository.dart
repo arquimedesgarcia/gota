@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../../../core/errors/app_exception.dart';
 import '../../../core/network/gota_community_database.dart';
 import '../../../core/network/network_providers.dart';
+import '../domain/community_activity.dart';
 import '../domain/leak_community.dart';
 import '../domain/leak_community_errors.dart';
 
@@ -40,6 +41,10 @@ abstract class LeakCommunityRepository {
     String orderBy = 'recent',
     int limit = 100,
   });
+
+  /// Última actividad comunitaria global sobre fallas (tarjeta de Inicio).
+  /// `null` si no hay actividad.
+  Future<CommunityActivity?> latestActivity();
 }
 
 class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
@@ -88,6 +93,25 @@ class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
         limit: limit,
       );
       return rows.map(LeakSummary.fromJson).toList();
+    } on TimeoutException {
+      throw const NetworkException();
+    } on SocketException {
+      throw const NetworkException();
+    } on http.ClientException {
+      throw const NetworkException();
+    } on supabase.PostgrestException {
+      throw const QueryException();
+    } on supabase.AuthException {
+      throw const QueryException();
+    }
+  }
+
+  @override
+  Future<CommunityActivity?> latestActivity() async {
+    try {
+      final row = await _database.fetchLatestCommunityActivity();
+      if (row == null) return null;
+      return CommunityActivity.fromJson(row);
     } on TimeoutException {
       throw const NetworkException();
     } on SocketException {

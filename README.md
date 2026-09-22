@@ -2,7 +2,7 @@
 
 Aplicación comunitaria móvil (Flutter + Supabase) para reportar y validar fugas de agua y registrar eventos de suministro en Isla de Margarita, Venezuela.
 
-**Estado: Sprint 08 — Stabilization en curso.** Sprint 01 Foundation, Sprint 02 Leak Reporting, Sprint 03 Validation & Resolution, Sprint 04 Water Events, Sprint 05 Map, Sprint 06 Notifications y Sprint 07 Security & Abuse Hardening están implementados y migrados. La auditoría del Sprint 07 encontró DEF-01 (helpers de rate limit expuestos a `authenticated`); la corrección (`07557a4`), su revalidación y la regresión asociada a `create_leak_report` (`2ac8377`, `0b27fcf`) están aplicadas en `main`. El estado READY del Sprint 08 lo determina el tester independiente.
+**Estado: Sprint 08 — Stabilization en curso.** Sprint 01 Foundation, Sprint 02 Leak Reporting, Sprint 03 Validation & Resolution, Sprint 04 Water Events, Sprint 05 Map, Sprint 06 Notifications y Sprint 07 Security & Abuse Hardening están implementados y migrados. La auditoría del Sprint 07 encontró DEF-01 (helpers de rate limit expuestos a `authenticated`); la corrección (`07557a4`), su revalidación y la regresión asociada a `create_leak_report` (`2ac8377`, `0b27fcf`) están aplicadas en `main`. El estado READY del Sprint 08 lo determina el tester independiente. Sobre esta base, el Home incorpora la tarjeta **"Actividad reciente"** (último evento comunitario global sobre fallas: reportada / validada = cruce del umbral / resuelta) con su RPC `get_latest_community_activity` (migración `20260922000029`).
 
 ## Documentación (fuente de verdad)
 

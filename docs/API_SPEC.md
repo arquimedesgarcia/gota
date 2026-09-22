@@ -85,6 +85,40 @@ Respuesta (`jsonb`): `report_id`, `status`, `validation_count`,
 
 Códigos: `OK`, `NOT_FOUND`, `UNAUTHORIZED`.
 
+### get-latest-community-activity
+
+RPC `get_latest_community_activity()` (sin parámetros): el **último evento
+comunitario a nivel global** sobre fallas para la tarjeta "Actividad reciente"
+de Inicio. Global (todos los sectores del piloto), no el sector del usuario.
+Devuelve **0 o 1 fila** (`returns table`): el evento más reciente en el tiempo
+entre tres tipos, de cualquier falla.
+
+Tipos de evento y su timestamp (`at`):
+
+- `REPORTED` — falla creada: `reports.created_at`.
+- `VALIDATED` — la falla **cruzó el umbral** de validación comunitaria
+  (`system_config.validation.threshold`, hoy 3): `created_at` de la N-ésima
+  validación (N = umbral), ordenada por `(created_at, id)`. **No** es cada
+  validación individual: la 1ª y la 2ª de una falla con umbral 3 no producen
+  evento; la que cruza el umbral sí.
+- `RESOLVED` — falla resuelta: `reports.resolved_at`.
+
+Orden determinista: `at desc`, y a igual `at` gana `RESOLVED` > `VALIDATED` >
+`REPORTED` con desempate final por `report_id`.
+
+Columnas: `activity_type` (`REPORTED`|`VALIDATED`|`RESOLVED`), `at`,
+`report_id`, `status` (estado ACTUAL: `ACTIVE`|`RESOLVED`), `validation_count`,
+`resolution_confirmation_count`, `created_at`, `resolved_at`, `description`,
+`sector_id`, `sector_name`, `municipality_id`, `municipality_name`.
+
+Grants: `revoke execute … from public` + `grant execute … to anon,
+authenticated` (lectura pública, igual que `get-map-reports`).
+
+**Privacidad (REQ-100):** ningún campo de identidad. Sin `created_by`,
+`user_id`, email, teléfono, `storage_path` ni ids de `app_users`. El lateral
+sobre `report_validations` es válido porque la función es `security definer`;
+el cliente sigue sin acceso directo a esa tabla.
+
 ### register-water-event (Sprint 04)
 
 RPC `register_water_event(p_municipality_id, p_sector_id, p_event_type, p_event_time, p_comment)`.
