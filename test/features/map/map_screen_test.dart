@@ -448,6 +448,116 @@ void main() {
     );
 
 
+    // --- Tests nuevos PROMPT 2 ---
+
+    testWidgets('estado vacío en modo mapa no desmonta el mapa', (tester) async {
+      await _pumpMapScreen(tester, repository, reports: []);
+
+      // El mapa siempre debe estar montado (C1).
+      expect(find.byKey(gotaMapContainerKey), findsOneWidget);
+      // El overlay de área vacía también debe estar visible (C1).
+      expect(find.byKey(mapEmptyStateKey), findsOneWidget);
+    });
+
+    testWidgets('el overlay vacío no se muestra con la consulta en vuelo', (
+      tester,
+    ) async {
+      // Carga inicial con resultado vacío.
+      when(
+        () => repository.mapReports(
+          status: any(named: 'status'),
+          sectorId: any(named: 'sectorId'),
+          minLat: any(named: 'minLat'),
+          minLng: any(named: 'minLng'),
+          maxLat: any(named: 'maxLat'),
+          maxLng: any(named: 'maxLng'),
+          orderBy: any(named: 'orderBy'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer((_) async => []);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            leakCommunityRepositoryProvider.overrideWithValue(repository),
+            mapWidgetBuilderProvider.overrideWithValue(_testMapBuilder),
+          ],
+          child: MaterialApp(theme: AppTheme.light, home: const MapScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+      // Overlay visible tras la primera carga vacía.
+      expect(find.byKey(mapEmptyStateKey), findsOneWidget);
+
+      // Re-fetch con respuesta lenta: simula consulta en vuelo.
+      when(
+        () => repository.mapReports(
+          status: any(named: 'status'),
+          sectorId: any(named: 'sectorId'),
+          minLat: any(named: 'minLat'),
+          minLng: any(named: 'minLng'),
+          maxLat: any(named: 'maxLat'),
+          maxLng: any(named: 'maxLng'),
+          orderBy: any(named: 'orderBy'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer(
+        (_) => Future.delayed(const Duration(milliseconds: 500), () => []),
+      );
+
+      final element = tester.element(find.byType(MapScreen));
+      ProviderScope.containerOf(element).invalidate(mapReportsProvider);
+      await tester.pump(); // inicia la recarga
+
+      // Durante la recarga (isLoading=true, datos previos=[]): sin overlay (C6).
+      expect(find.byKey(mapEmptyStateKey), findsNothing);
+      // El mapa sigue montado (C1).
+      expect(find.byKey(gotaMapContainerKey), findsOneWidget);
+
+      // Avanzar el clock para que el timer pendiente se resuelva.
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets(
+      'Mi sector sin selección muestra la guía y no el overlay vacío',
+      (tester) async {
+        await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
+
+        await tester.tap(find.byKey(mapFilterMenuKey));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Mi sector'));
+        await tester.pumpAndSettle();
+
+        // Vista de guía completa (C2): mapEmptyStateKey con "Configura tu sector".
+        expect(find.byKey(mapEmptyStateKey), findsOneWidget);
+        expect(find.text('Configura tu sector'), findsOneWidget);
+        // El mapa no debe estar montado: esta vista reemplaza al mapa (C2).
+        expect(find.byKey(gotaMapContainerKey), findsNothing);
+      },
+    );
+
+    testWidgets('el estado vacío no limpia los bounds', (tester) async {
+      await _pumpMapScreen(tester, repository, reports: []);
+
+      final element = tester.element(find.byType(MapScreen));
+      final container = ProviderScope.containerOf(element);
+
+      // Simula que el viewport ya tenía bounds establecidos.
+      container.read(mapFilterProvider.notifier).setBounds(10.5, -64.0, 11.0, -63.5);
+      await tester.pumpAndSettle();
+
+      // Los bounds deben conservarse: ningún render llama a clearBounds() (C4).
+      final state = container.read(mapFilterProvider);
+      expect(state.hasBounds, isTrue);
+      expect(state.minLat, equals(10.5));
+      expect(state.minLng, equals(-64.0));
+      expect(state.maxLat, equals(11.0));
+      expect(state.maxLng, equals(-63.5));
+    });
+
+    // --- Fin tests nuevos PROMPT 2 ---
+
     testWidgets('tocar marker muestra tarjeta y permite ver detalle', (
       tester,
     ) async {

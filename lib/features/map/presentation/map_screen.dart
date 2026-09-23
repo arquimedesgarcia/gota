@@ -36,6 +36,10 @@ const mapErrorStateKey = Key('map-error-state');
 const mapLoadingStateKey = Key('map-loading-state');
 const mapLegendKey = Key('map-legend');
 
+bool _isMySectorWithoutSelection(MapFilterState filterState) =>
+    filterState.filterType == MapFilterType.mySector &&
+    filterState.selectedSectorId == null;
+
 /// Pantalla principal del Mapa (Sprint 05).
 ///
 /// Muestra fugas geolocalizadas con filtros y vista Mapa/Lista.
@@ -84,21 +88,13 @@ class MapScreen extends ConsumerWidget {
                 ),
               ),
               data: (reports) {
-                if (reports.isEmpty) {
-                  // El estado vacío desmonta el mapa; sin esto el bbox queda
-                  // clavado en la zona vacía y ningún filtro ni gesto puede
-                  // recuperar los reportes. Al limpiarlo, el siguiente
-                  // refetch (que ocurre con este mismo cambio de estado)
-                  // vuelve a consultar sin límite espacial. Si de verdad no
-                  // hay reportes, clearBounds se vuelve un no-op y no hay
-                  // bucle.
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    ref.read(mapFilterProvider.notifier).clearBounds();
-                  });
+                // C2: Mi sector sin selección → vista de guía completa (no mapa).
+                if (_isMySectorWithoutSelection(filterState)) {
                   return _MapEmptyView(filterState: filterState);
                 }
 
                 return switch (filterState.viewMode) {
+                  // C1: el mapa siempre está montado en modo mapa.
                   MapViewMode.map => Stack(
                     children: [
                       _MapViewContent(
@@ -112,6 +108,9 @@ class MapScreen extends ConsumerWidget {
                         centerLat: filterState.userLatitude,
                         centerLng: filterState.userLongitude,
                       ),
+                      // C6: overlay sólo cuando la consulta terminó y el área está vacía.
+                      if (reports.isEmpty && !reportsAsync.isLoading)
+                        const _MapEmptyOverlay(),
                       const _MapLegend(),
                       if (selectedLeak != null)
                         Positioned(
@@ -130,14 +129,17 @@ class MapScreen extends ConsumerWidget {
                         ),
                     ],
                   ),
-                  MapViewMode.list => _MapListView(
-                    leaks: reports,
-                    onLeakTapped: (leak) => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => LeakDetailScreen(reportId: leak.id),
-                      ),
-                    ),
-                  ),
+                  MapViewMode.list => reports.isEmpty
+                      ? _MapEmptyView(filterState: filterState)
+                      : _MapListView(
+                          leaks: reports,
+                          onLeakTapped: (leak) => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) =>
+                                  LeakDetailScreen(reportId: leak.id),
+                            ),
+                          ),
+                        ),
                 };
               },
             ),
@@ -728,6 +730,53 @@ class _MapEmptyView extends StatelessWidget {
               isMySectorWithoutSelection
                   ? 'Para usar el filtro "Mi sector", establece tu sector desde tu perfil.'
                   : 'Cambia los filtros o amplía el área para ver más resultados.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(color: AppColors.textMuted),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Overlay no intrusivo sobre el mapa cuando el área está vacía (C1/C6).
+///
+/// No bloquea gestos del mapa. Reutiliza [mapEmptyStateKey] y la misma
+/// copy que [_MapEmptyView] para el caso de área vacía.
+class _MapEmptyOverlay extends StatelessWidget {
+  const _MapEmptyOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      child: Container(
+        key: mapEmptyStateKey,
+        margin: const EdgeInsets.all(AppSpacing.xl),
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: AppColors.surface.withValues(alpha: 0.92),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const GotaIconTile(
+              icon: Icons.map_outlined,
+              color: AppColors.textMuted,
+              size: 48,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Sin fugas para mostrar',
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'Cambia los filtros o amplía el área para ver más resultados.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium
                   ?.copyWith(color: AppColors.textMuted),
