@@ -290,7 +290,7 @@ class LeakReportController extends Notifier<LeakReportState> {
       );
       return;
     }
-    final service = ImagePickerPhotoService();
+    final service = ref.read(photoServiceProvider);
     try {
       final photo = await service.pickAndPrepare(fromCamera: fromCamera);
       state = state.copyWith(
@@ -304,9 +304,8 @@ class LeakReportController extends Notifier<LeakReportState> {
       state = state.copyWith(message: e.userMessage);
     } on LeakFlowException catch (e) {
       state = state.copyWith(message: e.userMessage);
-    } on Exception {
-      // Errores crudos de la plataforma (picker/compresor): se traducen al
-      // error de foto tipado para no propagar texto técnico a la UI.
+    } catch (error, stackTrace) {
+          if (kDebugMode) debugPrint('addPhoto falló: $error\n$stackTrace');
       state = state.copyWith(
         message: const PhotoValidationException(
           'No pudimos procesar esa foto. Elige otra.',

@@ -6,8 +6,10 @@ import 'package:gota/app/theme/app_theme.dart';
 import 'package:gota/features/leaks/data/geolocator_location_service.dart'
     show locationServiceProvider;
 import 'package:gota/features/leaks/data/location_service.dart';
+import 'package:gota/features/leaks/data/photo_service.dart';
 import 'package:gota/features/leaks/data/reverse_geocoding_service.dart';
 import 'package:gota/features/leaks/domain/leak_errors.dart';
+import 'package:gota/features/leaks/domain/leak_report_draft.dart';
 import 'package:gota/features/leaks/domain/location_source.dart';
 import 'package:gota/features/leaks/domain/location_suggestion.dart';
 import 'package:gota/features/leaks/presentation/leak_report_controller.dart';
@@ -145,8 +147,9 @@ void main() {
     await tester.pumpAndSettle();
 
     // Etapa 2: fotos. Sin fotos, continuar avisa mínimo 1.
-    expect(find.text('Agrega de 1 a 3 fotos de la fuga'), findsOneWidget);
-    expect(find.text('Fotos agregadas: 0 de 3'), findsOneWidget);
+    // kReportPhotoMaxCount fue reducido a 2 (C1); las cadenas reflejan el nuevo límite.
+    expect(find.text('Agrega de 1 a 2 fotos de la fuga'), findsOneWidget);
+    expect(find.text('Fotos agregadas: 0 de 2'), findsOneWidget);
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
     expect(
@@ -385,4 +388,341 @@ void main() {
     expect(loc.longitude, -63.87);
     expect(loc.source, LocationSource.gps);
   });
+
+  // ── Fotos: seam C0 ───────────────────────────────────────────────────────
+
+  test('agregar foto cuando el servicio lanza Error no cierra el flujo y muestra banner', () async {
+    // Requiere el seam C0 (photoServiceProvider); antes era imposible sin device.
+    final c = ProviderContainer(
+      overrides: [
+        locationServiceProvider.overrideWithValue(_FakeLocationService()),
+        reverseGeocodingServiceProvider.overrideWithValue(_FakeReverseGeocoder()),
+        municipalityRepositoryProvider.overrideWithValue(_FakeMunicipalityRepository()),
+        sectorRepositoryProvider.overrideWithValue(_FakeSectorRepository()),
+        photoServiceProvider.overrideWithValue(_ExplodingPhotoService()),
+      ],
+    );
+    addTearDown(c.dispose);
+
+    await c.read(leakReportProvider.notifier).addPhoto(fromCamera: false);
+
+    final state = c.read(leakReportProvider);
+    expect(state.message, isNotNull, reason: 'debe mostrar banner de error');
+    expect(
+      state.message,
+      contains('No pudimos procesar esa foto'),
+      reason: 'el mensaje debe ser el mensaje tipado, no un stack trace técnico',
+    );
+    expect(state.draft.photos, isEmpty, reason: 'no debe agregar la foto al draft');
+  });
+
+  test('el máximo de fotos es 2', () async {
+    final c = _container();
+    addTearDown(c.dispose);
+
+    final notifier = c.read(leakReportProvider.notifier);
+    final syntheticPhoto = PreparedPhoto(
+      id: 'test-1',
+      originalPath: '/tmp/a.jpg',
+      compressedPath: '/tmp/a_gota.jpg',
+      mimeType: 'image/jpeg',
+      sizeBytes: 1024,
+      width: 0,
+      height: 0,
+    );
+    notifier.addPreparedPhotoForTest(syntheticPhoto);
+    notifier.addPreparedPhotoForTest(
+      PreparedPhoto(
+        id: 'test-2',
+        originalPath: '/tmp/b.jpg',
+        compressedPath: '/tmp/b_gota.jpg',
+        mimeType: 'image/jpeg',
+        sizeBytes: 1024,
+        width: 0,
+        height: 0,
+      ),
+    );
+    expect(c.read(leakReportProvider).draft.photos.length, 2);
+
+    // Intentar agregar una tercera foto debe rechazarla antes de llamar al servicio.
+    await notifier.addPhoto(fromCamera: false);
+
+    final state = c.read(leakReportProvider);
+    expect(state.draft.photos.length, 2, reason: 'no debe superar 2');
+    expect(
+      state.message,
+      contains('máximo de 2 fotos'),
+      reason: 'debe mostrar el mensaje del contrato',
+    );
+  });
+
+    // ── T1-T4: tests de widget para la preselección GPS ─────────────────
+
+  testWidgets('T1: preselección GPS habilita Continuar (widget)', (
+    tester,
+  ) async {
+    final container = ProviderContainer(
+      overrides: [
+        locationServiceProvider.overrideWithValue(_FakeLocationService()),
+        reverseGeocodingServiceProvider.overrideWithValue(
+          _FakeReverseGeocoder(
+            builder: (lat, lng) => LocationSuggestion(
+              latitude: lat,
+              longitude: lng,
+              municipality: 'Maneiro',
+              locality: 'La Caranta',
+              provider: 'test',
+            ),
+          ),
+        ),
+        municipalityRepositoryProvider.overrideWithValue(
+          _FakeMunicipalityRepository(),
+        ),
+        sectorRepositoryProvider.overrideWithValue(_FakeSectorRepository()),
+        locationMapBuilderProvider.overrideWithValue(
+          ({required latitude, required longitude, required onMapTapped}) =>
+              const SizedBox(key: Key('fake-location-map')),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(theme: AppTheme.light, home: const LeakReportScreen()),
+      ),
+    );
+    await tester.pump();
+
+    final controller = container.read(leakReportProvider.notifier);
+    await controller.requestGps();
+    controller.goTo(ReportStep.data);
+    await tester.pump();
+
+    expect(
+      tester.widget<FilledButton>(
+        find.widgetWithText(FilledButton, 'Continuar'),
+      ).onPressed,
+      isNotNull,
+    );
+  });
+
+  testWidgets(
+    'T2: pulsar Continuar con preselección escribe el borrador y avanza',
+    (tester) async {
+      final container = ProviderContainer(
+        overrides: [
+          locationServiceProvider.overrideWithValue(_FakeLocationService()),
+          reverseGeocodingServiceProvider.overrideWithValue(
+            _FakeReverseGeocoder(
+              builder: (lat, lng) => LocationSuggestion(
+                latitude: lat,
+                longitude: lng,
+                municipality: 'Maneiro',
+                locality: 'La Caranta',
+                provider: 'test',
+              ),
+            ),
+          ),
+          municipalityRepositoryProvider.overrideWithValue(
+            _FakeMunicipalityRepository(),
+          ),
+          sectorRepositoryProvider.overrideWithValue(_FakeSectorRepository()),
+          locationMapBuilderProvider.overrideWithValue(
+            ({required latitude, required longitude, required onMapTapped}) =>
+                const SizedBox(key: Key('fake-location-map')),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+              theme: AppTheme.light, home: const LeakReportScreen()),
+        ),
+      );
+      await tester.pump();
+
+      final controller = container.read(leakReportProvider.notifier);
+      await controller.requestGps();
+      controller.goTo(ReportStep.data);
+      await tester.pump();
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Continuar'));
+      await tester.pump();
+
+      expect(container.read(leakReportProvider).draft.municipalityId, 'm1');
+      expect(container.read(leakReportProvider).draft.sectorId, 's1');
+      expect(
+        find.widgetWithText(FilledButton, 'Continuar'),
+        findsNothing,
+      );
+    },
+  );
+
+  testWidgets(
+    'T3: sin sugerencia el botón Continuar sigue deshabilitado (widget)',
+    (tester) async {
+      final container = ProviderContainer(
+        overrides: [
+          locationServiceProvider.overrideWithValue(_FakeLocationService()),
+          reverseGeocodingServiceProvider.overrideWithValue(
+            _FakeReverseGeocoder(
+              builder: (lat, lng) => LocationSuggestion(
+                latitude: lat,
+                longitude: lng,
+                municipality: 'Municipio Arismendi',
+                provider: 'test',
+              ),
+            ),
+          ),
+          municipalityRepositoryProvider.overrideWithValue(
+            _FakeMunicipalityRepository(),
+          ),
+          sectorRepositoryProvider.overrideWithValue(_FakeSectorRepository()),
+          locationMapBuilderProvider.overrideWithValue(
+            ({required latitude, required longitude, required onMapTapped}) =>
+                const SizedBox(key: Key('fake-location-map')),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(theme: AppTheme.light, home: const LeakReportScreen()),
+        ),
+      );
+      await tester.pump();
+
+      final controller = container.read(leakReportProvider.notifier);
+      await controller.requestGps();
+      controller.goTo(ReportStep.data);
+      await tester.pump();
+
+      expect(
+        tester.widget<FilledButton>(
+          find.widgetWithText(FilledButton, 'Continuar'),
+        ).onPressed,
+        isNull,
+      );
+    },
+  );
+
+  testWidgets(
+    'T4: cambiar el municipio a mano limpia el sector y deshabilita Continuar',
+    (tester) async {
+      final container = ProviderContainer(
+        overrides: [
+          locationServiceProvider.overrideWithValue(_FakeLocationService()),
+          reverseGeocodingServiceProvider.overrideWithValue(
+            _FakeReverseGeocoder(
+              builder: (lat, lng) => LocationSuggestion(
+                latitude: lat,
+                longitude: lng,
+                municipality: 'Maneiro',
+                locality: 'La Caranta',
+                provider: 'test',
+              ),
+            ),
+          ),
+          municipalityRepositoryProvider.overrideWithValue(
+            _FakeMunicipalityRepositoryMultiple(),
+          ),
+          sectorRepositoryProvider.overrideWithValue(_FakeSectorRepository()),
+          locationMapBuilderProvider.overrideWithValue(
+            ({required latitude, required longitude, required onMapTapped}) =>
+                const SizedBox(key: Key('fake-location-map')),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(theme: AppTheme.light, home: const LeakReportScreen()),
+        ),
+      );
+      await tester.pump();
+
+      final controller = container.read(leakReportProvider.notifier);
+      await controller.requestGps();
+      controller.goTo(ReportStep.data);
+      await tester.pump();
+
+      // Continuar habilitado con preselección.
+      expect(
+        tester.widget<FilledButton>(
+          find.widgetWithText(FilledButton, 'Continuar'),
+        ).onPressed,
+        isNotNull,
+      );
+
+      // Cambiar el municipio a otro distinto por la UI.
+      // El dropdown de municipio vive dentro del ListView del paso de datos: los
+      // items fuera de pantalla no se construyen, así que hay que desplazarse
+      // hasta él. El botón "Continuar" está fuera de la lista.
+      final municipalityDropdown = find.byType(DropdownButtonFormField<String>).first;
+      await tester.scrollUntilVisible(
+        municipalityDropdown,
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(municipalityDropdown);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Municipio Arismendi').last);
+      await tester.pumpAndSettle();
+      expect(
+        container.read(leakReportProvider).draft.municipalityId,
+        'm2',
+        reason: 'la selección manual debe quedar en el borrador',
+      );
+
+      // Continuar deshabilitado porque el sector ya no coincide con la sugerencia.
+      expect(
+        tester.widget<FilledButton>(
+          find.widgetWithText(FilledButton, 'Continuar'),
+        ).onPressed,
+        isNull,
+      );
+    },
+  );
+}
+
+class _ExplodingPhotoService implements PhotoService {
+  @override
+  Future<PreparedPhoto> pickAndPrepare({required bool fromCamera}) async {
+    throw StateError('fallo nativo simulado (test de mutación C2)');
+  }
+
+  @override
+  Future<PreparedPhoto> prepareFromFile(String path) async {
+    throw StateError('fallo nativo simulado');
+  }
+}
+
+class _FakeMunicipalityRepositoryMultiple implements MunicipalityRepository {
+  @override
+  Future<List<Municipality>> getActive() async => const [
+    Municipality(
+      id: 'm1',
+      name: 'Maneiro',
+      state: 'Nueva Esparta',
+      country: 'Venezuela',
+      isActive: true,
+    ),
+    Municipality(
+      id: 'm2',
+      name: 'Municipio Arismendi',
+      state: 'Nueva Esparta',
+      country: 'Venezuela',
+      isActive: true,
+    ),
+  ];
 }

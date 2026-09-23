@@ -8,10 +8,20 @@ import '../domain/leak_errors.dart';
 /// RPC `create_leak_report` vuelve a validarlos server-side contra el
 /// binario real en Storage. Ambas capas existen a propósito: el cliente
 /// da respuesta inmediata, el servidor es la autoridad.
-const kReportPhotoMaxCount = 3;
+/// El dueño del producto ajusta `max_count` a 2 en la BD por separado;
+/// esta constante no puede quedar por encima del valor del servidor.
+const kReportPhotoMaxCount = 2;
 const kReportPhotoMaxBytes = 10 * 1024 * 1024; // 10 MB
 const kReportPhotoAllowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
 const kReportPhotoContentType = 'image/jpeg';
+
+/// Presupuesto de resolución de la evidencia: **no** es alta resolución.
+/// 1280 px en el lado mayor alcanza para reconocer una fuga y mantiene bajo el
+/// pico de memoria del pipeline nativo (decode + reencode, dos pasadas: en
+/// `image_picker` y en el pase que borra el EXIF).
+const kReportPhotoPickerMaxDimension = 1280;
+const kReportPhotoCompressMaxDimension = 1280;
+const kReportPhotoCompressQuality = 75;
 
 /// Valida el archivo elegido por el usuario antes de comprimirlo.
 void validatePickedPhoto({required String path, required int sizeBytes}) {

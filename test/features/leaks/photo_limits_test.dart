@@ -81,8 +81,9 @@ void main() {
 
   group('cantidad (capa cliente)', () {
     test('el límite cliente coincide con el del servidor', () {
-      // Debe coincidir con system_config.photo_limits (migración 00009).
-      expect(kReportPhotoMaxCount, 3);
+      // Debe coincidir con system_config.photo_limits (migración 00009);
+      // el valor del servidor se ajusta por separado en la BD.
+      expect(kReportPhotoMaxCount, 2);
       expect(kReportPhotoMaxBytes, 10 * 1024 * 1024);
     });
   });

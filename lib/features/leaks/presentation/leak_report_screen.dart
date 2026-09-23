@@ -700,13 +700,13 @@ class DataStepView extends ConsumerWidget {
               Expanded(
                 child: FilledButton(
                   style: AppComponents.primaryButtonStyle(),
-                  // El municipio es obligatorio; el sector también
-                  // (REQ-020). La descripción es opcional.
-                  onPressed:
-                      (state.draft.municipalityId != null &&
-                          state.draft.sectorId != null)
-                      ? () => controller.goToNext()
-                      : null,
+                  onPressed: _buildContinueCallback(
+                    ref,
+                    state,
+                    controller,
+                    effectiveMunicipalityId,
+                    effectiveSectorId,
+                  ),
                   child: const Text('Continuar'),
                 ),
               ),
@@ -715,6 +715,41 @@ class DataStepView extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  VoidCallback? _buildContinueCallback(
+    WidgetRef ref,
+    LeakReportState state,
+    LeakReportController controller,
+    String? effectiveMunicipalityId,
+    String? effectiveSectorId,
+  ) {
+    if (effectiveMunicipalityId == null || effectiveSectorId == null) {
+      return null;
+    }
+    return () => _continueWithEffectiveSelection(
+          ref,
+          state,
+          controller,
+          effectiveMunicipalityId,
+          effectiveSectorId,
+        );
+  }
+
+  void _continueWithEffectiveSelection(
+    WidgetRef ref,
+    LeakReportState state,
+    LeakReportController controller,
+    String effectiveMunicipalityId,
+    String effectiveSectorId,
+  ) {
+    if (state.draft.municipalityId == null) {
+      controller.selectMunicipality(effectiveMunicipalityId);
+    }
+    if (state.draft.sectorId == null) {
+      controller.selectSector(effectiveSectorId);
+    }
+    controller.goToNext();
   }
 }
 
