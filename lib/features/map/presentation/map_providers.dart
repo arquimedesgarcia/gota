@@ -28,6 +28,8 @@ class MapFilterNotifier extends Notifier<MapFilterState> {
     state = state.copyWith(
       selectedSectorId: sectorId,
       filterType: MapFilterType.mySector,
+      sectorCenterLat: null,
+      sectorCenterLng: null,
     );
   }
 
@@ -36,18 +38,29 @@ class MapFilterNotifier extends Notifier<MapFilterState> {
   }
 
   void clearSector() {
-    state = state.copyWith(clearSector: true);
+    state = state.clearSector();
   }
 
-  /// Establece el bounding box del viewport visible en el mapa (Sprint 05).
-  /// Se invoca desde GotaMapView cuando MapLibre dispara onCameraIdle.
-  /// R4: Ignore updates if bounds haven't changed significantly (debounce zoom loop).
+  static const double _boundsTolerance = 1e-5;
+
   void setBounds(double minLat, double minLng, double maxLat, double maxLng) {
-    final boundsChanged = state.minLat != minLat ||
-        state.minLng != minLng ||
-        state.maxLat != maxLat ||
-        state.maxLng != maxLng;
-    if (!boundsChanged) return;
+    final hasExistingBounds =
+        state.minLat != null ||
+        state.minLng != null ||
+        state.maxLat != null ||
+        state.maxLng != null;
+    if (hasExistingBounds) {
+      final dx = (state.minLat ?? minLat) - minLat;
+      final dy = (state.minLng ?? minLng) - minLng;
+      final dx2 = (state.maxLat ?? maxLat) - maxLat;
+      final dy2 = (state.maxLng ?? maxLng) - maxLng;
+      if (dx.abs() < _boundsTolerance &&
+          dy.abs() < _boundsTolerance &&
+          dx2.abs() < _boundsTolerance &&
+          dy2.abs() < _boundsTolerance) {
+        return;
+      }
+    }
 
     state = state.copyWith(
       minLat: minLat,
@@ -57,17 +70,9 @@ class MapFilterNotifier extends Notifier<MapFilterState> {
     );
   }
 
-  /// Limpia el bounding box del viewport (vuelve a consultar sin límite
-  /// espacial). Se usa cuando la vista de mapa queda sin reportes: el mapa
-  /// se desmonta y, sin esto, ningún gesto podría ampliar el área de nuevo.
-  void clearBounds() {
-    if (state.minLat == null &&
-        state.minLng == null &&
-        state.maxLat == null &&
-        state.maxLng == null) {
-      return;
-    }
-    state = state.copyWith(clearBounds: true);
+  void setSectorCenter(double lat, double lng) {
+    if (state.sectorCenterLat == lat && state.sectorCenterLng == lng) return;
+    state = state.copyWith(sectorCenterLat: lat, sectorCenterLng: lng);
   }
 }
 
