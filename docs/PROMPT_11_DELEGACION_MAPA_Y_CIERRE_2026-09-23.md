@@ -24,10 +24,12 @@ gratuito o muy barato»*):
 | Arquitectura y dictámenes | Opus |
 | Verificación mecánica (analyze/test/mutación/adb/git) | el orquestador (Hermes), no un agente |
 
-Esta tanda es **una sola**: el mapa. Es un refactor con criterio sobre el ciclo de vida del `Widget` y el
-viewport → **Sonnet**. Los tests que acompañan van con el mismo motor (es el mismo contrato), pero
-**ningún test escrito cuenta como entregado sin su control de mutación**, y si el motor pago falla en
-escribirlos bien, el reintento va con un modelo gratuito.
+Esta tanda es **una sola**: el mapa. El contrato de `§5` ya está resuelto con `archivo:línea` y los
+hallazgos verificados: **es trabajo puntual, no arquitectura** → arrancá con el motor **más barato**
+(gratuito/barato; ver la tabla). Escalá a Sonnet **solo** si el intento barato falla el criterio de
+aceptación (`§6`, `§7`) — no antes. Ningún test cuenta como entregado sin su control de mutación; si el
+motor barato escribe tests que pasan con el fix revertido, el reintento se hace con otro modelo, no con
+Sonnet «por las dudas».
 
 ## 1. Dónde estamos (verificado por el orquestador, no por el agente)
 
