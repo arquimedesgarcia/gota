@@ -613,8 +613,17 @@ En `_save()`, si el estado no tiene valor (`!state.hasValue`, es decir la carga 
 la operación **no puede** traducirse en `sectorId: null`. Comportamiento exigido:
 
 - Si `clearSector == true` → `sectorId: null` (explícito del usuario, como hoy).
-- Si `sectorId != null` → ese valor.
-- Si `sectorId == null` y `!previousState.hasValue` → **no escribir**: asignar
+- **CORREGIDO EN LA v4 (ver `Registro de revisión — v4`):** el guard se evalúa **antes** de resolver el
+  valor, con la condición `!clearSector && !previousState.hasValue`. Es decir: **cualquier** guardado sin
+  carga previa se bloquea, incluido un `sectorId != null` explícito del usuario. El motivo verificado es
+  que la regla original tenía un agujero destructivo: con `current == null`,
+  `enabled = enabled ?? false` enviaría **`enabled: false`** apagando las notificaciones de agua que el
+  usuario tenía encendidas, sin que lo haya pedido. Bloquear toda escritura sin valor previo evita esa
+  escritura y el error tipado llega igual al usuario.
+- Si `previousState.hasValue` y `sectorId != null` → ese valor.
+- Si `previousState.hasValue` y `sectorId == null` y `!clearSector` → el sector previo
+  (`current?.preferredSectorId`), como hoy.
+- En el caso bloqueado, asignar
   `_saveError = StateError('Tus preferencias aún están cargando. Intenta de nuevo en un momento.')` y
   **cambiar el estado** (ver el porqué abajo), luego `return`.
 - `enabled` mantiene su regla actual (`enabled ?? current?.waterNotificationsEnabled ?? false`) para no
@@ -644,7 +653,12 @@ libera y el SnackBar con `saveError` aparece (los tres llamadores ya lo hacen). 
 en vuelo termina después y deja `AsyncValue.data`, limpiando el error. **No** toques
 `sector_selection_screen.dart` ni los llamadores: si el guard está bien hecho, no hace falta.
 
-**C2 · El guardado no oculta el valor.**
+**C2 · El guardado no oculta el valor.** **SUPERADO POR EL PROMPT 6 (v4):** la implementación de la
+tanda 1 cumplió este punto con `copyWithPrevious`, que en riverpod 3.4.3 está anotado `@internal`
+(`riverpod-3.4.3/lib/src/core/async_value.dart:630`) y obligó a un `// ignore:
+invalid_use_of_internal_member` en código de producción. El prompt 6
+(`docs/PROMPT_6_IS_SAVING_2026-09-23.md`) sustituye esa vía por un flag `_isSaving` explícito. Lo de
+abajo queda como registro de lo ejecutado en la tanda 1.
 `state = const AsyncValue.loading()` pasa a conservar el dato previo **con `isRefresh`**:
 `state = const AsyncValue<NotificationPreferences?>.loading().copyWithPrevious(previousState, isRefresh: true);`
 
@@ -951,3 +965,37 @@ cambiaron supuestos de la v2 y ya están incorporados:
 
 **Lo que la RC NO cambia:** los 5 prompts, sus modelos, el orden por tandas y las aprobaciones A1/A2
 siguen igual; tampoco habilita mergear a `main` sin tu decisión.
+
+---
+
+## Registro de revisión — v4 (2026-09-23, tras ejecutar y verificar la tanda 1)
+
+La tanda 1 (**prompt 2 ∥ 1 ∥ 4**, Sonnet, en worktrees separados) se ejecutó y el orquestador la
+verificó con evidencia propia: `flutter analyze` limpio y `flutter test` **194/194** (prompt 1),
+**193/193** (prompts 2 y 4), más control de mutación reproducido en los tres (revertir el fix hace
+fallar los tests nuevos). Archivos PROHIBIDOS respetados; ningún commit. Dos correcciones al plan:
+
+1. **Prompt 4, C1 — el guard correcto es más amplio que el contratado.** El plan exigía escribir el
+   `sectorId` explícito aunque no hubiera carga previa, y bloquear solo el caso `sectorId == null`. La
+   implementación bloquea **cualquier** guardado sin valor previo
+   (`notification_providers.dart:59-65`: `!clearSector && !previousState.hasValue`). El motivo, verificado
+   en el código: con `current == null`, `enabled = enabled ?? false` (`:77`) enviaría **`enabled: false`**
+   apagando las notificaciones de agua que el usuario tenía encendidas, sin pedirlo. El contrato literal
+   tenía un agujero destructivo; se adopta el guard amplio y se corrige el texto de C1 arriba.
+2. **Prompt 4, C2 — la vía elegida usa una API `@internal`.** `copyWithPrevious` está anotado
+   `@internal` en riverpod 3.4.3 (`riverpod-3.4.3/lib/src/core/async_value.dart:629`, `:714`, `:777`,
+   `:865`); se usó con `// ignore: invalid_use_of_internal_member`
+   (`notification_providers.dart:68-69`). No hay vía pública al mismo efecto. Se abre el **prompt 6**
+   (`docs/PROMPT_6_IS_SAVING_2026-09-23.md`, Sonnet) para eliminarla sin perder el "no ocultar el valor"
+   ni la liberación de los llamadores. Ojo: su contrato exige cubrir dos casos que el diseño "solo flag"
+   rompe — **éxito con valor igual al previo** y **fallo con valor previo** (en este último, `:85-87`
+   reasigna el mismo `previousState`, que no notifica).
+
+**Error del plan detectado al verificar (corregido en el prompt 6):** el prompt 4, C1, afirma que
+`settings_screen.dart:199-210` (`_confirmClear`) tiene el patrón `if (!_toggling || next is AsyncLoading)
+return;`. En el baseline **no lo tiene**: hace `await controller.clearSector()` y luego lee `saveError`.
+Los listeners que sí existen son dos (`sector_selection_screen.dart:34-52` y
+`settings_screen.dart:240-257`).
+
+**Aprobaciones A3–A6 siguen intactas y sin ejecutar** (merge a `main`, rebuild del release, device,
+medición de `onCameraIdle`, limpieza de datos). La tanda 1 **no** desbloquea el gate de build por sí sola.
