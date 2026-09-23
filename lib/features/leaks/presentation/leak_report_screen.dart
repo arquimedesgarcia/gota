@@ -205,9 +205,7 @@ class LocationStepView extends ConsumerWidget {
                 onPressed: () => _showManualLocationDialog(context, ref),
               ),
               const SizedBox(height: 24),
-              // R2 — orden: dirección → coordenadas/precisión → mapa.
-              //
-              // 3. Tarjeta de dirección (reverse-geocode) + indicador de carga.
+              // Indicador de carga mientras se resuelve el reverse-geocode.
               if (state.suggestionLoading) ...[
                 const LinearProgressIndicator(),
                 const SizedBox(height: 8),
@@ -217,6 +215,24 @@ class LocationStepView extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
               ],
+              // 2. Mapa de ajuste (visible cuando hay ubicación).
+              if (location != null) ...[
+                SizedBox(
+                  height: 220,
+                  child: ref.watch(locationMapBuilderProvider)(
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                    onMapTapped: (point) => ref
+                        .read(leakReportProvider.notifier)
+                        .setAdjustedLocation(
+                          latitude: point.latitude,
+                          longitude: point.longitude,
+                        ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              // 3. Tarjeta "Ubicación aproximada" (reverse-geocode).
               if (state.locationSuggestion != null) ...[
                 Card(
                   child: Padding(
@@ -261,7 +277,20 @@ class LocationStepView extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
               ],
-              // 4. Tarjeta de coordenadas/precisión.
+              // 4. Leyenda "Precisión aproximada".
+              if (location?.accuracyMeters != null) ...[
+                Text(
+                  location!.accuracyMeters! <= 25
+                      ? 'Precisión aproximada: buena (${location.accuracyMeters!.round()} m)'
+                      : 'Precisión aproximada: ${location.accuracyMeters!.round()} m. Puedes continuar y confirmar el punto.',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              // 5. Tarjeta de coordenadas ("Ubicación por GPS" / manual).
               if (location != null) ...[
                 Card(
                   child: Padding(
@@ -301,38 +330,9 @@ class LocationStepView extends ConsumerWidget {
                     ),
                   ),
                 ),
-                if (location.accuracyMeters != null) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    location.accuracyMeters! <= 25
-                        ? 'Precisión aproximada: buena (${location.accuracyMeters!.round()} m)'
-                        : 'Precisión aproximada: ${location.accuracyMeters!.round()} m. Puedes continuar y confirmar el punto.',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-                ],
-                // 5. Mapa de ajuste.
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: SizedBox(
-                    height: 220,
-                    child: ref.watch(locationMapBuilderProvider)(
-                      latitude: location.latitude,
-                      longitude: location.longitude,
-                      onMapTapped: (point) => ref
-                          .read(leakReportProvider.notifier)
-                          .setAdjustedLocation(
-                            latitude: point.latitude,
-                            longitude: point.longitude,
-                          ),
-                    ),
-                  ),
-                ),
               ],
-              // 6. Sin ubicación todavía (cuando location == null).
-              if (location == null)
+              // Sin ubicación todavía (cuando location == null).
+              if (location == null && !state.suggestionLoading)
                 const Card(
                   child: Padding(
                     padding: EdgeInsets.all(16),
@@ -498,7 +498,7 @@ class PhotosStepView extends ConsumerWidget {
                 const SizedBox(height: 12),
               ],
               Text(
-                'Agrega de 1 a ${LeakReportController.photoMaxCount} fotos de la fuga',
+                'Fotos de la fuga (opcional, máx. ${LeakReportController.photoMaxCount})',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 12),
@@ -585,19 +585,7 @@ class PhotosStepView extends ConsumerWidget {
               Expanded(
                 child: FilledButton(
                   style: AppComponents.primaryButtonStyle(),
-                  onPressed: () {
-                    if (photos.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Necesitas al menos 1 foto para continuar.',
-                          ),
-                        ),
-                      );
-                      return;
-                    }
-                    controller.goToNext();
-                  },
+                  onPressed: () => controller.goToNext(),
                   child: const Text('Continuar'),
                 ),
               ),
@@ -611,11 +599,32 @@ class PhotosStepView extends ConsumerWidget {
 
 /// ---------- Etapa 3: Datos (municipio/sector/descripción) ----------
 
-class DataStepView extends ConsumerWidget {
+class DataStepView extends ConsumerStatefulWidget {
   const DataStepView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DataStepView> createState() => _DataStepViewState();
+}
+
+class _DataStepViewState extends ConsumerState<DataStepView> {
+  late final TextEditingController _descController;
+
+  @override
+  void initState() {
+    super.initState();
+    _descController = TextEditingController(
+      text: ref.read(leakReportProvider).draft.description ?? '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _descController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(leakReportProvider);
     final controller = ref.read(leakReportProvider.notifier);
     final municipalitiesState = ref.watch(municipalitiesProvider);
@@ -623,19 +632,18 @@ class DataStepView extends ConsumerWidget {
     // Valor efectivo = selección explícita del usuario ?? sugerencia GPS.
     final effectiveMunicipalityId =
         state.draft.municipalityId ?? state.suggestedMunicipalityId;
-    final isMunicipalitySuggested =
-        state.draft.municipalityId == null &&
-        state.suggestedMunicipalityId != null;
 
     // Sector sugerido solo aplica si el municipio activo coincide.
     final effectiveSectorId = state.draft.sectorId ??
         (effectiveMunicipalityId == state.suggestedMunicipalityId
             ? state.suggestedSectorId
             : null);
-    final isSectorSuggested =
-        state.draft.sectorId == null &&
-        state.suggestedSectorId != null &&
-        effectiveMunicipalityId == state.suggestedMunicipalityId;
+
+    // Texto "Sugerido según ubicación GPS" se muestra una sola vez,
+    // debajo de la tarjeta de dirección, cuando aplica.
+    final showGpsSuggestion =
+        state.locationSuggestion?.displayText != null &&
+        (state.draft.location?.isGps ?? false);
 
     return Column(
       children: [
@@ -649,7 +657,7 @@ class DataStepView extends ConsumerWidget {
               ],
               Text('¿Dónde?', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 12),
-              // Referencia de ubicación compacta (displayText del geocoder).
+              // Referencia de ubicación: texto completo sin truncar.
               if (state.locationSuggestion?.displayText != null) ...[
                 Card(
                   child: Padding(
@@ -658,11 +666,15 @@ class DataStepView extends ConsumerWidget {
                       vertical: 8,
                     ),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.pin_drop_outlined,
-                          size: 16,
-                          color: AppColors.textMuted,
+                        const Padding(
+                          padding: EdgeInsets.only(top: 2),
+                          child: Icon(
+                            Icons.pin_drop_outlined,
+                            size: 16,
+                            color: AppColors.textMuted,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -672,14 +684,22 @@ class DataStepView extends ConsumerWidget {
                               fontSize: 13,
                               color: AppColors.textMuted,
                             ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
+                if (showGpsSuggestion) ...[
+                  const SizedBox(height: 4),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4),
+                    child: Text(
+                      'Sugerido según ubicación GPS',
+                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 8),
               ],
               municipalitiesState.when(
@@ -689,39 +709,24 @@ class DataStepView extends ConsumerWidget {
                   message: 'No pudimos cargar los municipios.',
                   onRetry: () => ref.invalidate(municipalitiesProvider),
                 ),
-                data: (municipalities) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DropdownButtonFormField<String>(
-                      key: ValueKey(effectiveMunicipalityId),
-                      initialValue: effectiveMunicipalityId,
-                      decoration: const InputDecoration(labelText: 'Municipio'),
-                      items: municipalities
-                          .map(
-                            (m) => DropdownMenuItem(
-                              value: m.id,
-                              child: Text(m.name),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          ref.invalidate(sectorsProvider(value));
-                          controller.selectMunicipality(value);
-                        }
-                      },
-                    ),
-                    if (isMunicipalitySuggested) ...[
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Sugerido según ubicación GPS',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textMuted,
+                data: (municipalities) => DropdownButtonFormField<String>(
+                  key: ValueKey(effectiveMunicipalityId),
+                  initialValue: effectiveMunicipalityId,
+                  decoration: const InputDecoration(labelText: 'Municipio'),
+                  items: municipalities
+                      .map(
+                        (m) => DropdownMenuItem(
+                          value: m.id,
+                          child: Text(m.name),
                         ),
-                      ),
-                    ],
-                  ],
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      ref.invalidate(sectorsProvider(value));
+                      controller.selectMunicipality(value);
+                    }
+                  },
                 ),
               ),
               const SizedBox(height: 12),
@@ -730,10 +735,11 @@ class DataStepView extends ConsumerWidget {
                   municipalityId: effectiveMunicipalityId,
                   selectedSectorId: effectiveSectorId,
                   onSelected: controller.selectSector,
-                  isSuggested: isSectorSuggested,
                 ),
               const SizedBox(height: 12),
               TextField(
+                controller: _descController,
+                autofocus: true,
                 decoration: const InputDecoration(
                   labelText: 'Descripción (opcional)',
                   hintText: 'Ej: brocal roto frente a la panadería.',
@@ -753,7 +759,6 @@ class DataStepView extends ConsumerWidget {
                 child: FilledButton(
                   style: AppComponents.primaryButtonStyle(),
                   onPressed: _buildContinueCallback(
-                    ref,
                     state,
                     controller,
                     effectiveMunicipalityId,
@@ -770,7 +775,6 @@ class DataStepView extends ConsumerWidget {
   }
 
   VoidCallback? _buildContinueCallback(
-    WidgetRef ref,
     LeakReportState state,
     LeakReportController controller,
     String? effectiveMunicipalityId,
@@ -779,29 +783,15 @@ class DataStepView extends ConsumerWidget {
     if (effectiveMunicipalityId == null || effectiveSectorId == null) {
       return null;
     }
-    return () => _continueWithEffectiveSelection(
-          ref,
-          state,
-          controller,
-          effectiveMunicipalityId,
-          effectiveSectorId,
-        );
-  }
-
-  void _continueWithEffectiveSelection(
-    WidgetRef ref,
-    LeakReportState state,
-    LeakReportController controller,
-    String effectiveMunicipalityId,
-    String effectiveSectorId,
-  ) {
-    if (state.draft.municipalityId == null) {
-      controller.selectMunicipality(effectiveMunicipalityId);
-    }
-    if (state.draft.sectorId == null) {
-      controller.selectSector(effectiveSectorId);
-    }
-    controller.goToNext();
+    return () {
+      if (state.draft.municipalityId == null) {
+        controller.selectMunicipality(effectiveMunicipalityId);
+      }
+      if (state.draft.sectorId == null) {
+        controller.selectSector(effectiveSectorId);
+      }
+      controller.goToNext();
+    };
   }
 }
 
@@ -853,13 +843,11 @@ class _SectorsDropdown extends ConsumerWidget {
     required this.municipalityId,
     required this.selectedSectorId,
     required this.onSelected,
-    this.isSuggested = false,
   });
 
   final String municipalityId;
   final String? selectedSectorId;
   final ValueChanged<String> onSelected;
-  final bool isSuggested;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -870,28 +858,16 @@ class _SectorsDropdown extends ConsumerWidget {
         message: 'No pudimos cargar los sectores.',
         onRetry: () => ref.invalidate(sectorsProvider(municipalityId)),
       ),
-      data: (sectors) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          DropdownButtonFormField<String>(
-            key: ValueKey(selectedSectorId),
-            initialValue: selectedSectorId,
-            decoration: const InputDecoration(labelText: 'Sector'),
-            items: sectors
-                .map((s) => DropdownMenuItem(value: s.id, child: Text(s.name)))
-                .toList(),
-            onChanged: (value) {
-              if (value != null) onSelected(value);
-            },
-          ),
-          if (isSuggested) ...[
-            const SizedBox(height: 4),
-            const Text(
-              'Sugerido según ubicación GPS',
-              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-            ),
-          ],
-        ],
+      data: (sectors) => DropdownButtonFormField<String>(
+        key: ValueKey(selectedSectorId),
+        initialValue: selectedSectorId,
+        decoration: const InputDecoration(labelText: 'Sector'),
+        items: sectors
+            .map((s) => DropdownMenuItem(value: s.id, child: Text(s.name)))
+            .toList(),
+        onChanged: (value) {
+          if (value != null) onSelected(value);
+        },
       ),
     );
   }
@@ -936,19 +912,37 @@ class ReviewStepView extends ConsumerWidget {
                       Text(
                         draft.location == null
                             ? 'Sin ubicación'
-                            : draft.location!.source.label,
+                            : (state.locationSuggestion?.displayText ??
+                                draft.location!.source.label),
                         style: const TextStyle(color: AppColors.textMuted),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Fotos',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${draft.photos.length} foto(s) agregada(s).',
-                        style: const TextStyle(color: AppColors.textMuted),
-                      ),
+                      if (draft.photos.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          'Fotos',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: 80,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: draft.photos.length,
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(width: 8),
+                            itemBuilder: (context, index) => ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                File(draft.photos[index].compressedPath),
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                                cacheWidth: 160,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 12),
                       Text(
                         'Municipio y sector',
@@ -1006,11 +1000,8 @@ class ReviewStepView extends ConsumerWidget {
             children: [
               // Duplicado detectado: el usuario decide (UX_SPEC §5:
               // Ver y validar / Es otra fuga; nada en silencio).
+              // El mensaje ya se muestra en el banner superior de la lista.
               if (state.submitState == ReportSubmitState.duplicate) ...[
-                StatusBanner(
-                  message: state.message ?? LeakReportCopy.duplicateTitle,
-                ),
-                const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
