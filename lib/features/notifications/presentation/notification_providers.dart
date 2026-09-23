@@ -56,9 +56,17 @@ class NotificationPreferencesController
     bool clearSector = false,
   }) async {
     final previousState = state;
+    if (!clearSector && !previousState.hasValue) {
+      _saveError = StateError(
+        'Tus preferencias aún están cargando. Intenta de nuevo en un momento.',
+      );
+      state = AsyncValue.error(_saveError!, StackTrace.current);
+      return;
+    }
     final current = previousState.value;
     _saveError = null;
-    state = const AsyncValue.loading();
+    state = const AsyncValue<NotificationPreferences?>.loading()
+        .copyWithPrevious(previousState, isRefresh: true); // ignore: invalid_use_of_internal_member
     try {
       final saved = await ref
           .read(notificationRepositoryProvider)

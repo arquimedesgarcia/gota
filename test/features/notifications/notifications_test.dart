@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gota/app/providers.dart';
 import 'package:gota/app/router/app_navigator.dart';
 import 'package:gota/core/errors/app_exception.dart';
+import 'package:gota/features/location/presentation/location_providers.dart';
 import 'package:gota/features/notifications/data/notification_repository.dart';
 import 'package:gota/features/notifications/data/push_service.dart';
 import 'package:gota/features/notifications/domain/notification_page.dart';
@@ -15,6 +16,8 @@ import 'package:gota/features/notifications/domain/notification_preferences.dart
 import 'package:gota/features/notifications/domain/water_notification.dart';
 import 'package:gota/features/notifications/presentation/notification_providers.dart';
 import 'package:gota/features/notifications/presentation/notifications_screen.dart';
+import 'package:gota/features/notifications/presentation/settings_screen.dart';
+import 'package:gota/shared/widgets/loading_view.dart';
 import 'package:gota/features/water/data/water_event_repository.dart';
 import 'package:gota/features/water/domain/water_event.dart';
 import 'package:gota/features/water/domain/water_event_detail.dart';
@@ -164,6 +167,18 @@ class _FakePushService implements PushService {
 
   @override
   Future<RemoteMessage?> getInitialMessage() async => initialMessage;
+}
+
+class _BlockedSaveRepository extends _FakeNotificationRepository {
+  _BlockedSaveRepository(this._completer);
+
+  final Completer<NotificationPreferences> _completer;
+
+  @override
+  Future<NotificationPreferences> savePreferences({
+    String? sectorId,
+    required bool enabled,
+  }) => _completer.future;
 }
 
 void main() {
@@ -374,6 +389,166 @@ void main() {
         'sector-x',
       );
     });
+
+    test(
+      'guardar antes de que la carga complete no borra el sector',
+      () async {
+        final repo = _FakeNotificationRepository();
+        repo.preferences = NotificationPreferences(
+          userId: 'user-1',
+          preferredSectorId: 'sector-x',
+          waterNotificationsEnabled: false,
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        );
+        final container = ProviderContainer(
+          overrides: [notificationRepositoryProvider.overrideWithValue(repo)],
+        );
+        addTearDown(container.dispose);
+
+        // Sin esperar la carga inicial
+        await container
+            .read(notificationPreferencesControllerProvider.notifier)
+            .setWaterNotificationsEnabled(true);
+
+        // El guard bloquea: ningún guardado con sectorId null
+        expect(repo.savedPreferences.where((p) => p.$1 == null), isEmpty);
+
+        // Esperar carga y verificar que el sector se conserva
+        await _waitForPreferences(container);
+        expect(
+          container
+              .read(notificationPreferencesControllerProvider)
+              .value
+              ?.preferredSectorId,
+          'sector-x',
+        );
+      },
+    );
+
+    test(
+      'el guard publica el estado y libera a los llamadores',
+      () async {
+        final repo = _FakeNotificationRepository();
+        final container = ProviderContainer(
+          overrides: [notificationRepositoryProvider.overrideWithValue(repo)],
+        );
+        addTearDown(container.dispose);
+
+        // Invocar selectSector antes de que la carga inicial complete
+        await container
+            .read(notificationPreferencesControllerProvider.notifier)
+            .selectSector('x');
+
+        // El estado cambió (ya no es AsyncLoading)
+        expect(
+          container
+              .read(notificationPreferencesControllerProvider)
+              .isLoading,
+          isFalse,
+        );
+        // El saveError es StateError
+        expect(
+          container
+              .read(notificationPreferencesControllerProvider.notifier)
+              .saveError,
+          isA<StateError>(),
+        );
+      },
+    );
+
+    test(
+      'el guardado conserva el valor previo en el estado',
+      () async {
+        final repo = _FakeNotificationRepository();
+        repo.preferences = NotificationPreferences(
+          userId: 'user-1',
+          preferredSectorId: 'sector-a',
+          waterNotificationsEnabled: false,
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        );
+        final container = ProviderContainer(
+          overrides: [notificationRepositoryProvider.overrideWithValue(repo)],
+        );
+        addTearDown(container.dispose);
+        await _waitForPreferences(container);
+
+        final states = <AsyncValue<NotificationPreferences?>>[];
+        container.listen(
+          notificationPreferencesControllerProvider,
+          (_, next) => states.add(next),
+        );
+
+        await container
+            .read(notificationPreferencesControllerProvider.notifier)
+            .selectSector('sector-b');
+
+        final refreshingState = states.firstWhere(
+          (s) => s.isLoading,
+          orElse: () => throw StateError('no se encontró estado de carga'),
+        );
+        expect(refreshingState.isRefreshing, isTrue);
+        expect(refreshingState.hasValue, isTrue);
+      },
+    );
+
+    testWidgets(
+      'el sector sigue visible mientras se guarda',
+      (tester) async {
+        final saveCompleter = Completer<NotificationPreferences>();
+        final repo = _BlockedSaveRepository(saveCompleter);
+        repo.preferences = NotificationPreferences(
+          userId: 'user-1',
+          preferredSectorId: 'sector-a',
+          waterNotificationsEnabled: true,
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              notificationRepositoryProvider.overrideWithValue(repo),
+              pushBootstrapProvider.overrideWith(
+                (ref) async => PushPermissionStatus.granted,
+              ),
+              sessionBootstrapProvider.overrideWith(
+                (ref) async => _sessionUserValue,
+              ),
+              sectorNameProvider('sector-a').overrideWith(
+                (ref) async => 'Sector A',
+              ),
+            ],
+            child: const MaterialApp(home: SettingsScreen()),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Sector A'), findsOneWidget);
+        expect(find.byType(LoadingView), findsNothing);
+
+        // Disparar el toggle para iniciar un guardado lento
+        await tester.tap(find.byType(SwitchListTile));
+        await tester.pump();
+
+        // El sector sigue visible durante el guardado (isRefreshing: true)
+        expect(find.text('Sector A'), findsOneWidget);
+        expect(find.byType(LoadingView), findsNothing);
+
+        // Completar el guardado
+        saveCompleter.complete(
+          NotificationPreferences(
+            userId: 'user-1',
+            preferredSectorId: 'sector-a',
+            waterNotificationsEnabled: false,
+            createdAt: DateTime(2026),
+            updatedAt: DateTime(2026),
+          ),
+        );
+        await tester.pumpAndSettle();
+      },
+    );
   });
 
   group('Push: registro de token y navegación', () {
