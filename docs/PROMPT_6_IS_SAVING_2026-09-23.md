@@ -2,9 +2,9 @@
 
 **Clasificación:** DEUDA TÉCNICA con riesgo de regresión silenciosa (no es BLOCKER de piloto; sí es
 BETA FIX de mantenibilidad) · **Modelo sugerido:** Sonnet · **Turnos:** 25-35
-**Base:** rama `fix/map-r5-r6` @ `bbef6ae` **+ los cambios ya verificados de la tanda 1** (`prompt 1`
-fotos y `prompt 4` preferencias), sin commitear. **Rama de trabajo:** la del worktree asignado
-(no commitear, no cambiar de rama).
+**Base:** `main` @ `125b0e4` — los cambios de la tanda 1 (prompts 1 y 4) **ya están commiteados** en `main`
+(la base `bbef6ae` + «sin commitear» citada antes quedó obsoleta). **Rama de trabajo:** la que asigne el
+orquestador (no commitear, no cambiar de rama).
 
 > Este prompt es autocontenido: no requiere leer el plan ni el informe de diagnóstico.
 
