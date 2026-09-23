@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,6 +8,8 @@ import '../../location/presentation/location_providers.dart';
 import '../domain/create_leak_report_outcome.dart';
 import '../domain/leak_errors.dart';
 import '../domain/leak_report_draft.dart';
+import '../data/draft_photo_store.dart';
+import '../data/draft_store.dart';
 import '../data/geolocator_location_service.dart';
 import '../data/leak_report_repository.dart';
 import '../data/location_service.dart';
@@ -33,6 +37,7 @@ class LeakReportState {
     this.suggestionLoading = false,
     this.suggestedMunicipalityId,
     this.suggestedSectorId,
+    this.hasDraftRestored = false,
   });
 
   final ReportStep currentStep;
@@ -53,6 +58,10 @@ class LeakReportState {
   /// coincide con [suggestedMunicipalityId].
   final String? suggestedSectorId;
 
+  /// `true` cuando se restauró un borrador de una sesión anterior; muestra
+  /// el banner "Recuperamos tu reporte sin enviar".
+  final bool hasDraftRestored;
+
   bool get canSubmit =>
       draft.location != null &&
       draft.photos.isNotEmpty &&
@@ -71,6 +80,7 @@ class LeakReportState {
     bool? suggestionLoading,
     String? suggestedMunicipalityId,
     String? suggestedSectorId,
+    bool? hasDraftRestored,
   }) => LeakReportState(
     currentStep: currentStep ?? this.currentStep,
     draft: draft ?? this.draft,
@@ -88,6 +98,7 @@ class LeakReportState {
     suggestedSectorId: clearLocationSuggestion
         ? null
         : (suggestedSectorId ?? this.suggestedSectorId),
+    hasDraftRestored: hasDraftRestored ?? this.hasDraftRestored,
   );
 }
 
@@ -96,6 +107,9 @@ class LeakReportController extends Notifier<LeakReportState> {
   /// CAP de configuración: máximo de fotos (fuente de verdad client-side
   /// hasta leerlo de `system_config`; la RPC vuelve a validar).
   static const photoMaxCount = kReportPhotoMaxCount;
+
+  /// TTL del borrador persistente (R4.5).
+  static const _draftTtl = Duration(hours: 24);
 
   LocationService get _locationService => ref.watch(locationServiceProvider);
   ReverseGeocodingService get _reverseGeocoder =>
@@ -107,7 +121,184 @@ class LeakReportController extends Notifier<LeakReportState> {
     // AUD-S2-12: municipios/sectores viven SOLO en municipalitiesProvider /
     // sectorsProvider (location_providers); el controller ya no duplica
     // la carga ni el estado.
+    //
+    // R4.5: la restauración del borrador es asíncrona; arrancamos con estado
+    // vacío y actualizamos cuando el store responde.
+    unawaited(_initFromDraft());
     return const LeakReportState();
+  }
+
+  // ---------- R4: Borrador persistente ----------
+
+  Future<void> _initFromDraft() async {
+    LeakDraftSnapshot? snapshot;
+    try {
+      snapshot = await ref.read(draftStoreProvider).read();
+    } catch (_) {
+      // Archivo corrupto: purgar y arrancar vacío.
+      unawaited(_clearDraft().catchError((_) {}));
+      return;
+    }
+
+    if (snapshot == null) {
+      // No hay borrador: solo verificar lost data (R4.6).
+      await _recoverLostData();
+      return;
+    }
+
+    if (!_isSnapshotValid(snapshot)) {
+      // Versión incompatible o TTL vencido.
+      unawaited(_clearDraft().catchError((_) {}));
+      await _recoverLostData();
+      return;
+    }
+
+    final photoStore = ref.read(draftPhotoStoreProvider);
+
+    // Filtrar fotos cuyo archivo durable ya no existe (R4.3).
+    final photos = <PreparedPhoto>[];
+    for (final p in snapshot.photos) {
+      if (await photoStore.exists(p.compressedPath)) {
+        photos.add(PreparedPhoto(
+          id: p.id,
+          originalPath: p.originalPath,
+          compressedPath: p.compressedPath,
+          mimeType: p.mimeType,
+          sizeBytes: p.sizeBytes,
+          width: p.width,
+          height: p.height,
+        ));
+      }
+      // Si el archivo ya no existe: silenciosamente descartado (R4.3: "se
+      // descarta del borrador"; la diferencia en el recuento es visible
+      // para el usuario en la grilla de fotos).
+    }
+
+    SelectedLocation? location;
+    final srcName = snapshot.locationSource;
+    if (snapshot.latitude != null &&
+        snapshot.longitude != null &&
+        srcName != null) {
+      final source = LocationSource.values.byName(srcName);
+      location = SelectedLocation(
+        latitude: snapshot.latitude!,
+        longitude: snapshot.longitude!,
+        source: source,
+        accuracyMeters: snapshot.accuracyMeters,
+      );
+    }
+
+    // No restaurar al paso de resultado (el reporte ya fue enviado o
+    // fue abortado sin limpiar el borrador en un crash previo).
+    final rawStep = snapshot.stepIndex < ReportStep.values.length
+        ? ReportStep.values[snapshot.stepIndex]
+        : ReportStep.location;
+    final restoredStep =
+        rawStep == ReportStep.result ? ReportStep.location : rawStep;
+
+    state = state.copyWith(
+      currentStep: restoredStep,
+      draft: LeakReportDraft(
+        location: location,
+        photos: photos,
+        municipalityId: snapshot.municipalityId,
+        sectorId: snapshot.sectorId,
+        description: snapshot.description,
+      ),
+      hasDraftRestored: true,
+    );
+
+    // Intentar recuperar lost data de la sesión que fue matada (R4.6).
+    await _recoverLostData();
+  }
+
+  /// Recupera fotos capturadas en una sesión anterior que fue matada por el
+  /// LMK mientras el picker estaba en primer plano (R4.6).
+  Future<void> _recoverLostData() async {
+    try {
+      final service = ref.read(photoServiceProvider);
+      final lostPaths = await service.retrieveLostData();
+      for (final lostPath in lostPaths) {
+        if (state.draft.photos.length >= photoMaxCount) break;
+        try {
+          final photo = await service.prepareFromFile(lostPath);
+          state = state.copyWith(
+            draft: state.draft.copyWith(
+              photos: [...state.draft.photos, photo],
+            ),
+          );
+        } catch (_) {
+          // Best-effort: ignorar errores al procesar una foto perdida.
+        }
+      }
+      if (lostPaths.isNotEmpty) {
+        unawaited(_saveDraft());
+      }
+    } catch (_) {
+      // Best-effort: no interrumpir el arranque por lost data fallida.
+    }
+  }
+
+  static bool _isSnapshotValid(LeakDraftSnapshot snapshot) {
+    if (snapshot.schemaVersion != LeakDraftSnapshot.currentSchemaVersion) {
+      return false;
+    }
+    final age = DateTime.now().difference(snapshot.savedAt);
+    return age <= _draftTtl;
+  }
+
+  Future<void> _saveDraft() async {
+    try {
+      final photoStore = ref.read(draftPhotoStoreProvider);
+      final store = ref.read(draftStoreProvider);
+
+      final durablePhotos = <PhotoSnapshot>[];
+      for (final photo in state.draft.photos) {
+        final durablePath = await photoStore.copyToDurable(
+          compressedPath: photo.compressedPath,
+          photoId: photo.id,
+        );
+        durablePhotos.add(PhotoSnapshot(
+          id: photo.id,
+          compressedPath: durablePath,
+          mimeType: photo.mimeType,
+          sizeBytes: photo.sizeBytes,
+          width: photo.width,
+          height: photo.height,
+          originalPath: photo.originalPath,
+        ));
+      }
+
+      final location = state.draft.location;
+      await store.write(LeakDraftSnapshot(
+        schemaVersion: LeakDraftSnapshot.currentSchemaVersion,
+        savedAt: DateTime.now(),
+        stepIndex: state.currentStep.index,
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+        locationSource: location?.source.name,
+        accuracyMeters: location?.accuracyMeters,
+        municipalityId: state.draft.municipalityId,
+        sectorId: state.draft.sectorId,
+        description: state.draft.description,
+        photos: durablePhotos,
+      ));
+    } catch (e, st) {
+      if (kDebugMode) debugPrint('_saveDraft falló: $e\n$st');
+      // Best-effort: no interrumpir el flujo del usuario.
+    }
+  }
+
+  Future<void> _clearDraft() async {
+    await ref.read(draftStoreProvider).clear();
+    await ref.read(draftPhotoStoreProvider).clearAll();
+  }
+
+  /// Descarta el borrador restaurado y reinicia el flujo (acción "Descartar"
+  /// del banner de reanudación).
+  Future<void> discardDraft() async {
+    await _clearDraft();
+    state = const LeakReportState();
   }
 
   // ---------- Ubicación ----------
@@ -129,6 +320,7 @@ class LeakReportController extends Notifier<LeakReportState> {
         clearLocationSuggestion: true,
         suggestionLoading: true,
       );
+      unawaited(_saveDraft());
       await _loadSuggestion(
         requestId: requestId,
         latitude: position.latitude,
@@ -255,6 +447,7 @@ class LeakReportController extends Notifier<LeakReportState> {
       clearLocationSuggestion: true,
       suggestionLoading: false,
     );
+    unawaited(_saveDraft());
   }
 
   Future<void> setAdjustedLocation({
@@ -274,6 +467,7 @@ class LeakReportController extends Notifier<LeakReportState> {
       clearLocationSuggestion: true,
       suggestionLoading: true,
     );
+    unawaited(_saveDraft());
     await _loadSuggestion(
       requestId: requestId,
       latitude: latitude,
@@ -290,6 +484,9 @@ class LeakReportController extends Notifier<LeakReportState> {
       );
       return;
     }
+    // R4.4: guardar ANTES de abrir el picker; si el proceso es matado por el
+    // LMK mientras el picker está en primer plano, el borrador sobrevive.
+    await _saveDraft();
     final service = ref.read(photoServiceProvider);
     try {
       final photo = await service.pickAndPrepare(fromCamera: fromCamera);
@@ -297,6 +494,7 @@ class LeakReportController extends Notifier<LeakReportState> {
         draft: state.draft.copyWith(photos: [...state.draft.photos, photo]),
         clearMessage: true,
       );
+      unawaited(_saveDraft());
     } on PhotoPickCanceledException {
       // AUD-S2-14: cancelar el picker no muestra banner de error.
       return;
@@ -320,6 +518,7 @@ class LeakReportController extends Notifier<LeakReportState> {
         photos: state.draft.photos.where((p) => p.id != photo.id).toList(),
       ),
     );
+    unawaited(_saveDraft());
   }
 
   /// SOLO para pruebas: inserta una foto ya preparada sin image_picker.
@@ -364,13 +563,18 @@ class LeakReportController extends Notifier<LeakReportState> {
       ),
       clearMessage: true,
     );
+    unawaited(_saveDraft());
   }
 
-  void selectSector(String id) =>
-      state = state.copyWith(draft: state.draft.copyWith(sectorId: id));
+  void selectSector(String id) {
+    state = state.copyWith(draft: state.draft.copyWith(sectorId: id));
+    unawaited(_saveDraft());
+  }
 
-  void setDescription(String value) =>
-      state = state.copyWith(draft: state.draft.copyWith(description: value));
+  void setDescription(String value) {
+    state = state.copyWith(draft: state.draft.copyWith(description: value));
+    unawaited(_saveDraft());
+  }
 
   // ---------- Navegación del flujo ----------
 
@@ -414,12 +618,16 @@ class LeakReportController extends Notifier<LeakReportState> {
   /// El usuario acepta usar el reporte existente: cierra el flujo sin
   /// duplicar (no se crea ningún reporte; la UI lo refleja como
   /// "dup-aceptado", nunca como "enviado" — FUNCTIONAL_SPEC §12).
-  void useExistingReport() => state = state.copyWith(
-    currentStep: ReportStep.result,
-    message:
-        'Usaste el reporte existente. Puedes validarlo en su '
-        'detalle.',
-  );
+  void useExistingReport() {
+    unawaited(_clearDraft().catchError((_) {}));
+    state = state.copyWith(
+      currentStep: ReportStep.result,
+      hasDraftRestored: false,
+      message:
+          'Usaste el reporte existente. Puedes validarlo en su '
+          'detalle.',
+    );
+  }
 
   // ---------- Envío ----------
 
@@ -436,14 +644,15 @@ class LeakReportController extends Notifier<LeakReportState> {
           .watch(leakReportRepositoryProvider)
           .createReport(state.draft, ignoreDuplicate: ignoreDuplicate);
       switch (outcome) {
-        case ReportCreated(:final reportId):
+        case ReportCreated():
+          // R3: el GUID no se muestra al usuario (se conserva en outcome).
+          unawaited(_clearDraft().catchError((_) {}));
           state = state.copyWith(
             submitState: ReportSubmitState.done,
             outcome: outcome,
             currentStep: ReportStep.result,
-            message:
-                '¡Reporte enviado! La fuga quedó registrada como '
-                'activa (ID $reportId).',
+            hasDraftRestored: false,
+            message: '¡Reporte enviado! La fuga quedó registrada como activa.',
           );
         case PossibleDuplicateFound(:final candidates):
           state = state.copyWith(

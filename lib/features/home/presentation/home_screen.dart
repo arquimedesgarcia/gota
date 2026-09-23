@@ -383,14 +383,6 @@ class _CommunitySummaryCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Resumen de hoy',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: AppColors.primaryDark,
-            ),
-          ),
-          SizedBox(height: AppSpacing.md),
           summaryAsync.when(
             loading: () => const Row(
               children: [

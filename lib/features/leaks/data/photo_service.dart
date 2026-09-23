@@ -22,6 +22,13 @@ abstract class PhotoService {
 
   /// Comprime y valida un archivo que ya está en disco.
   Future<PreparedPhoto> prepareFromFile(String path);
+
+  /// Recupera fotos capturadas en una sesión anterior interrumpida por el
+  /// sistema (p.ej. LMK kill de Android). Devuelve las rutas de los archivos
+  /// encontrados; lista vacía si no hay nada que recuperar.
+  ///
+  /// Implementación base no-op (solo Android / LMK tiene datos perdidos).
+  Future<List<String>> retrieveLostData() async => const [];
 }
 
 /// Firma del pase de compresión (envuelve al plugin nativo). Inyectable para
@@ -34,6 +41,22 @@ typedef PhotoCompressCall =
       required int minHeight,
       required int quality,
     });
+
+/// Firma de la llamada a `ImagePicker.retrieveLostData()`. Inyectable para
+/// tests: evita el canal de plataforma en pruebas unitarias.
+///
+/// Semántica verificada en image_picker 1.x (Android):
+/// - `LostDataResponse.isEmpty` = true si no hay datos perdidos.
+/// - `LostDataResponse.files` puede contener varias XFile cuando el picker
+///   permitía selección múltiple; `.file` es el primero o único.
+/// - El archivo ES reutilizable (está en disco, no es un buffer efímero).
+/// - En iOS siempre devuelve vacío (el sistema no mata procesos en segundo
+///   plano de la misma manera).
+typedef LostDataCall = Future<LostDataResponse> Function();
+
+/// Implementación por defecto del sondeo de datos perdidos.
+Future<LostDataResponse> retrieveLostDataWithPlugin() =>
+    ImagePicker().retrieveLostData();
 
 /// Implementación por defecto: `flutter_image_compress` a JPEG.
 ///
@@ -59,15 +82,22 @@ Future<String?> compressWithPlugin({
 }
 
 class ImagePickerPhotoService implements PhotoService {
-  ImagePickerPhotoService({ImagePicker? picker, PhotoCompressCall? compress})
-    : _picker = picker ?? ImagePicker(),
-      _compress = compress ?? compressWithPlugin;
+  ImagePickerPhotoService({
+    ImagePicker? picker,
+    PhotoCompressCall? compress,
+    LostDataCall? retrieveLostData,
+  })  : _picker = picker ?? ImagePicker(),
+        _compress = compress ?? compressWithPlugin,
+        _retrieveLostData = retrieveLostData ?? retrieveLostDataWithPlugin;
 
   final ImagePicker _picker;
 
   /// Pase de compresión nativo, inyectable para tests (sin él, el contrato de
   /// resolución/calidad solo se podría comprobar en device).
   final PhotoCompressCall _compress;
+
+  /// Sondeo de datos perdidos, inyectable para tests.
+  final LostDataCall _retrieveLostData;
 
   @override
   Future<PreparedPhoto> pickAndPrepare({required bool fromCamera}) async {
@@ -145,6 +175,20 @@ class ImagePickerPhotoService implements PhotoService {
       width: 0,
       height: 0,
     );
+  }
+
+  @override
+  Future<List<String>> retrieveLostData() async {
+    final response = await _retrieveLostData();
+    if (response.isEmpty || response.exception != null) return const [];
+    if (response.type != RetrieveType.image) return const [];
+    final files = response.files;
+    if (files != null && files.isNotEmpty) {
+      return files.map((f) => f.path).toList();
+    }
+    final file = response.file;
+    if (file != null) return [file.path];
+    return const [];
   }
 }
 

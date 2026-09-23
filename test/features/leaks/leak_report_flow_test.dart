@@ -705,6 +705,9 @@ class _ExplodingPhotoService implements PhotoService {
   Future<PreparedPhoto> prepareFromFile(String path) async {
     throw StateError('fallo nativo simulado');
   }
+
+  @override
+  Future<List<String>> retrieveLostData() async => const [];
 }
 
 class _FakeMunicipalityRepositoryMultiple implements MunicipalityRepository {

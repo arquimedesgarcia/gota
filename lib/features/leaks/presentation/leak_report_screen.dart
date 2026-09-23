@@ -60,13 +60,24 @@ class LeakReportScreen extends StatelessWidget {
         child: Consumer(
           builder: (context, ref, _) {
             final state = ref.watch(leakReportProvider);
-            return switch (state.currentStep) {
-              ReportStep.location => const LocationStepView(),
-              ReportStep.photos => const PhotosStepView(),
-              ReportStep.data => const DataStepView(),
-              ReportStep.review => const ReviewStepView(),
-              ReportStep.result => const ResultStepView(),
-            };
+            return Column(
+              children: [
+                if (state.hasDraftRestored)
+                  _DraftRestoredBanner(
+                    onDiscard: () =>
+                        ref.read(leakReportProvider.notifier).discardDraft(),
+                  ),
+                Expanded(
+                  child: switch (state.currentStep) {
+                    ReportStep.location => const LocationStepView(),
+                    ReportStep.photos => const PhotosStepView(),
+                    ReportStep.data => const DataStepView(),
+                    ReportStep.review => const ReviewStepView(),
+                    ReportStep.result => const ResultStepView(),
+                  },
+                ),
+              ],
+            );
           },
         ),
       ),
@@ -110,6 +121,46 @@ class StatusBanner extends StatelessWidget {
   }
 }
 
+/// Banner discreto que aparece cuando se restauró un borrador de sesión
+/// anterior (LMK kill o cierre inesperado).
+class _DraftRestoredBanner extends StatelessWidget {
+  const _DraftRestoredBanner({required this.onDiscard});
+
+  final VoidCallback onDiscard;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: AppColors.primary.withValues(alpha: 0.08),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        child: Row(
+          children: [
+            const Icon(Icons.restore, color: AppColors.primary, size: 18),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                'Recuperamos tu reporte sin enviar',
+                style: TextStyle(fontSize: 13, color: AppColors.primary),
+              ),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: onDiscard,
+              child: const Text('Descartar'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// ---------- Etapa 1: Ubicación ----------
 
 class LocationStepView extends ConsumerWidget {
@@ -130,15 +181,10 @@ class LocationStepView extends ConsumerWidget {
                 StatusBanner(message: state.message!),
                 const SizedBox(height: 12),
               ],
+              // R1: leyenda 'Usa tu GPS…' eliminada; solo queda el título.
               Text(
                 '¿Dónde está la fuga?',
                 style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Usa tu GPS o indica la zona manualmente. Esto ayuda a tus '
-                'vecinos a encontrarla en el mapa.',
-                style: TextStyle(fontSize: 13, color: AppColors.textMuted),
               ),
               const SizedBox(height: 16),
               FilledButton.icon(
@@ -159,98 +205,19 @@ class LocationStepView extends ConsumerWidget {
                 onPressed: () => _showManualLocationDialog(context, ref),
               ),
               const SizedBox(height: 24),
-              if (location != null)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              location.source == LocationSource.gps
-                                  ? Icons.gps_fixed
-                                  : Icons.pin_drop,
-                              color: location.isGps
-                                  ? AppColors.success
-                                  : AppColors.primary,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                location.source.label,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Lat: ${location.latitude.toStringAsFixed(5)}, '
-                          'Lng: ${location.longitude.toStringAsFixed(5)}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              else
-                const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text(
-                      'Sin ubicación todavía. Elige GPS o manual para continuar.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textMuted,
-                      ),
-                    ),
-                  ),
-                ),
-              if (location != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: SizedBox(
-                    height: 220,
-                    child: ref.watch(locationMapBuilderProvider)(
-                      latitude: location.latitude,
-                      longitude: location.longitude,
-                      onMapTapped: (point) => ref
-                          .read(leakReportProvider.notifier)
-                          .setAdjustedLocation(
-                            latitude: point.latitude,
-                            longitude: point.longitude,
-                          ),
-                    ),
-                  ),
-                ),
-              if (location != null && location.accuracyMeters != null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  location.accuracyMeters! <= 25
-                      ? 'Precisión aproximada: buena (${location.accuracyMeters!.round()} m)'
-                      : 'Precisión aproximada: ${location.accuracyMeters!.round()} m. Puedes continuar y confirmar el punto.',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textMuted,
-                  ),
-                ),
-              ],
+              // R2 — orden: dirección → coordenadas/precisión → mapa.
+              //
+              // 3. Tarjeta de dirección (reverse-geocode) + indicador de carga.
               if (state.suggestionLoading) ...[
-                const SizedBox(height: 12),
                 const LinearProgressIndicator(),
                 const SizedBox(height: 8),
                 const Text(
                   'Buscando una ubicación aproximada…',
                   style: TextStyle(fontSize: 13, color: AppColors.textMuted),
                 ),
+                const SizedBox(height: 12),
               ],
               if (state.locationSuggestion != null) ...[
-                const SizedBox(height: 12),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -292,7 +259,92 @@ class LocationStepView extends ConsumerWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 12),
               ],
+              // 4. Tarjeta de coordenadas/precisión.
+              if (location != null) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              location.source == LocationSource.gps
+                                  ? Icons.gps_fixed
+                                  : Icons.pin_drop,
+                              color: location.isGps
+                                  ? AppColors.success
+                                  : AppColors.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                location.source.label,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Lat: ${location.latitude.toStringAsFixed(5)}, '
+                          'Lng: ${location.longitude.toStringAsFixed(5)}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (location.accuracyMeters != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    location.accuracyMeters! <= 25
+                        ? 'Precisión aproximada: buena (${location.accuracyMeters!.round()} m)'
+                        : 'Precisión aproximada: ${location.accuracyMeters!.round()} m. Puedes continuar y confirmar el punto.',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                ],
+                // 5. Mapa de ajuste.
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: SizedBox(
+                    height: 220,
+                    child: ref.watch(locationMapBuilderProvider)(
+                      latitude: location.latitude,
+                      longitude: location.longitude,
+                      onMapTapped: (point) => ref
+                          .read(leakReportProvider.notifier)
+                          .setAdjustedLocation(
+                            latitude: point.latitude,
+                            longitude: point.longitude,
+                          ),
+                    ),
+                  ),
+                ),
+              ],
+              // 6. Sin ubicación todavía (cuando location == null).
+              if (location == null)
+                const Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text(
+                      'Sin ubicación todavía. Elige GPS o manual para continuar.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

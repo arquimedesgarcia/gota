@@ -125,11 +125,6 @@ class _WaterBody extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.xl),
-        Text(
-          WaterCopy.summaryTitle,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: AppSpacing.sm),
         const _StatisticsCard(),
         const SizedBox(height: AppSpacing.xl),
         Text(
