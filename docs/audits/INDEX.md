@@ -19,6 +19,7 @@
 | 07 | Security & Abuse Hardening (rate limits, RLS preferencias, helper SECURITY DEFINER) | 🔴 BLOCKED (DEF-01 crítico) | [2026-09-13_sprint07_security_abuse.md](2026-09-13_sprint07_security_abuse.md) |
 | 08 | Stabilization (regresión, rate limiting, concurrencia, UX de errores, higiene E2E, release Android) | ✅ CERRADO (re-auditoría final 2026-09-14) | [2026-09-14_sprint08_final_closure.md](2026-09-14_sprint08_final_closure.md) |
 | — | **Beta/Piloto E2E (RC readiness)** @ `679eb23` | ✅ READY CON 1 CONDICIÓN (H1: `notify-push` no desplegada en cloud piloto; UX en dispositivo NOT RUN) | [2026-09-19_beta-pilot-e2e.md](2026-09-19_beta-pilot-e2e.md) |
+| — | **RC final / Preparación piloto controlado** @ `fix/map-r5-r6` (`295f77d`→`525725c`) | ❌ NOT READY (4 BETA FIX; 0 REGRESSION; device smoke PASS; sin artefacto de piloto con el Home objetivo) | [2026-09-22_final_rc_pilot_readiness.md](2026-09-22_final_rc_pilot_readiness.md) |
 
 ## Estado global
 
@@ -103,3 +104,19 @@
 
 Para la validación de Sprints 01–06 no hay acciones pendientes; su deuda de diseño/operativa
 está documentada para el salto a producción.
+
+## RC final / piloto controlado (2026-09-22) → NOT READY
+
+Auditoría de solo lectura sobre `fix/map-r5-r6` (HEAD `525725c`) con **dispositivo físico**
+(SM-A245M, Android 16) contra el Supabase **cloud piloto**. Ver
+`2026-09-22_final_rc_pilot_readiness.md`.
+
+- **0 BLOCKER verificados** (1 declarado por el equipo sin reproducir: crash al tomar/elegir foto),
+  **4 BETA FIX**, **0 REGRESSION**, 5 POLISH, 3 INFO.
+- Gates de código en verde: `flutter analyze` PASS, `flutter test` 189/189, SQL 9/9, E2E 6/6,
+  seguridad (RLS/Storage/RPC-only/rate limiting) sin regresión, FCM recibido en el device.
+- **Bloqueo para el piloto:** no existe aún artefacto de build con el Home objetivo
+  (el APK release no lo incluye; el Home nuevo + migración `…29` no están en `main`).
+- Pendientes operativos listados en el informe (rama/build release, desmontaje de MapLibre con
+  resultado vacío, crash de fotos, guardas y localización del stepper de agua, avisos sin sector,
+  prueba FCM con app cerrada, limpieza de datos de prueba).
