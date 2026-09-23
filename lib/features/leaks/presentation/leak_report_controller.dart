@@ -64,7 +64,6 @@ class LeakReportState {
 
   bool get canSubmit =>
       draft.location != null &&
-      draft.photos.isNotEmpty &&
       draft.municipalityId != null &&
       draft.sectorId != null;
 

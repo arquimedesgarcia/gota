@@ -141,20 +141,24 @@ void main() {
     await tester.tap(find.text('Usar mi ubicación (GPS)'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Ubicación por GPS'), findsOneWidget);
+    expect(find.text('Ubicación por GPS', skipOffstage: false), findsOneWidget);
 
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
 
-    // Etapa 2: fotos. Sin fotos, continuar avisa mínimo 1.
-    // kReportPhotoMaxCount fue reducido a 2 (C1); las cadenas reflejan el nuevo límite.
-    expect(find.text('Agrega de 1 a 2 fotos de la fuga'), findsOneWidget);
+    // Etapa 2: fotos. Las fotos son opcionales — continuar sin fotos es permitido.
+    // kReportPhotoMaxCount = 2 (C1); el título refleja que son opcionales.
+    expect(
+      find.text('Fotos de la fuga (opcional, máx. 2)'),
+      findsOneWidget,
+    );
     expect(find.text('Fotos agregadas: 0 de 2'), findsOneWidget);
+    // Sin fotos el flujo avanza directamente al siguiente paso.
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
     expect(
       find.text('Necesitas al menos 1 foto para continuar.'),
-      findsOneWidget,
+      findsNothing,
     );
   });
 
@@ -217,7 +221,7 @@ void main() {
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Ubicación manual'), findsOneWidget);
+    expect(find.text('Ubicación manual', skipOffstage: false), findsOneWidget);
     expect(find.text('Ubicación por GPS'), findsNothing);
   });
 

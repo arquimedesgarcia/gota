@@ -176,9 +176,8 @@ class _WaterBody extends ConsumerWidget {
   }
 }
 
-/// Tarjeta de acción del ciclo de agua (patrón prototipo §agua):
-/// superficie blanca con borde sutil, icono teñido arriba y etiqueta
-/// semibold debajo. Target táctil >= 48dp (alto 96dp).
+/// Botón de acción del ciclo de agua: icono al lado del texto,
+/// borde con acento de color, lenguaje visual alineado con el Home.
 class WaterEventCard extends StatelessWidget {
   const WaterEventCard({
     super.key,
@@ -195,27 +194,46 @@ class WaterEventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(AppRadius.xl),
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        splashColor: tint.withValues(alpha: 0.12),
+        highlightColor: tint.withValues(alpha: 0.06),
         onTap: onTap,
         child: Container(
-          height: 96,
-          padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.lg,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.xl),
+            border: Border.all(color: tint.withValues(alpha: 0.38)),
+          ),
+          child: Row(
             children: [
-              GotaIconTile(icon: icon, color: tint),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.titleMedium
-                    ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
-                maxLines: 2,
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: tint.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Icon(icon, color: tint, size: 20),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryDark,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
