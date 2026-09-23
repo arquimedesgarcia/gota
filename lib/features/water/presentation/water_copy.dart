@@ -3,7 +3,6 @@
 /// poco texto.
 abstract final class WaterCopy {
   static const screenTitle = 'Agua';
-  static const summaryTitle = 'Resumen';
   static const historyTitle = 'Historial';
   static const emptyList = 'Sin datos todavía';
   static const retry = 'Reintentar';

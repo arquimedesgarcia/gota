@@ -189,7 +189,7 @@ void main() {
         ..resolved = 1;
       await _pumpHome(tester, summary: summary);
 
-      expect(find.text('Resumen de hoy'), findsOneWidget);
+      expect(find.text('Resumen de hoy'), findsNothing);
       expect(find.text('3'), findsOneWidget); // 2 reportadas + 1 validada
       expect(find.text('Fallas activas'), findsOneWidget);
       expect(find.text('2 reportadas · 1 validadas'), findsOneWidget);
@@ -203,7 +203,7 @@ void main() {
     ) async {
       await _pumpHome(tester, summary: _FakeSummaryRepository());
 
-      expect(find.text('Resumen de hoy'), findsOneWidget);
+      expect(find.text('Resumen de hoy'), findsNothing);
       expect(find.text('0'), findsNWidgets(2));
       // Sin eventos de agua, la fila de estado degrada honestamente.
       expect(find.text('Sin información del agua'), findsOneWidget);
@@ -221,7 +221,7 @@ void main() {
         preferences: _prefs(sectorId: 's1'),
       );
 
-      expect(find.text('Resumen de hoy'), findsOneWidget);
+      expect(find.text('Resumen de hoy'), findsNothing);
       expect(summary.lastSectorId, 's1');
     });
 
@@ -229,7 +229,7 @@ void main() {
       final summary = _FakeSummaryRepository();
       await _pumpHome(tester, summary: summary);
 
-      expect(find.text('Resumen de hoy'), findsOneWidget);
+      expect(find.text('Resumen de hoy'), findsNothing);
       expect(summary.lastSectorId, isNull);
     });
 

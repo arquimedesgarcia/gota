@@ -82,7 +82,7 @@ void main() {
       expect(find.byKey(waterArrivedButtonKey), findsOneWidget);
       expect(find.byKey(waterLeftButtonKey), findsOneWidget);
       expect(find.text(WaterEventType.arrived.label), findsWidgets);
-      expect(find.text(WaterCopy.summaryTitle), findsOneWidget);
+      expect(find.text('Resumen'), findsNothing);
       expect(find.text(WaterCopy.historyTitle), findsOneWidget);
 
       // Historial: tile con icono en caja (GotaIconTile) por evento.
