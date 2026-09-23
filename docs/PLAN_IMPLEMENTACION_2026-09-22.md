@@ -999,3 +999,45 @@ Los listeners que sí existen son dos (`sector_selection_screen.dart:34-52` y
 
 **Aprobaciones A3–A6 siguen intactas y sin ejecutar** (merge a `main`, rebuild del release, device,
 medición de `onCameraIdle`, limpieza de datos). La tanda 1 **no** desbloquea el gate de build por sí sola.
+
+---
+
+## Registro de revisión — v5 (2026-09-23, prompt del owner sobre Reportar/fotos/estado)
+
+El dueño del producto entregó un prompt paralelo («GOTA — Implementación: Reportar / UX, fotos y estado de
+ubicación»). Lo contrasté punto por punto contra lo ya ejecutado y verificado. Resultado:
+
+**Ya cubierto y verificado (6 de 10 puntos) — no se re-ejecuta nada:**
+
+| Punto del prompt del owner | Dónde quedó |
+|---|---|
+| 1 · quitar la leyenda bajo «¿Dónde está la fuga?» | prompt 5, C3 (`leak_report_screen.dart:137-142`) |
+| 3 · «Continuar» habilitado con municipio/sector preseleccionados, sin `onChanged` artificial, sin selección automática irreversible | prompt 3 (implementado y verificado; usa los valores efectivos y los escribe en el borrador **al pulsar**, sólo si están vacíos) |
+| 4 · sector de interés que desaparece | prompt 4 (guard + `copyWithPrevious`; deuda de la API `@internal` delegada al prompt 6) |
+| 5 · máximo 2 fotos con feedback y sin perder las existentes | prompt 1 (`kReportPhotoMaxCount = 2`; el guard publica mensaje, **no** lanza excepción) |
+| 7 · no silenciar con un `try/catch` genérico; error recuperable → estado de UI | prompt 1 (`PhotoValidationException` tipada + banner; el `catch` del controller traduce y `debugPrint` en modo debug, no silencia) |
+| 8 · no mostrar el GUID en la confirmación | prompt 5, C5 |
+
+**Adoptado (aporta valor nuevo): el punto 6 — presupuesto de resolución/calidad de foto.** Estaba
+implícito y sin cifra en el plan (que solo decía «la calidad ya es estándar y no se toca»). Se implementó
+como **prompt 7** (`docs/PROMPT_7_PRESUPUESTO_FOTO_2026-09-23.md`): `image_picker` 1920 → **1280**,
+compresión 1920×1080 @82 → **1280 @75**, con seam inyectable para poder testearlo. Ataca directamente la
+hipótesis de OOM del hallazgo 2 (menos memoria en el decode/reencode) y estabiliza la subida.
+
+**Rechazado / en conflicto (con motivo verificado):**
+
+1. **Punto 2 (orden de la tarjeta de ubicación):** pide «Ubicación/Dirección → tarjeta de
+   coordenadas/precisión → Municipio/Sector → resto». En `DataStepView` la única tarjeta de esa zona es la
+   de la **dirección sugerida** (`displayText`, `:601-633`); las coordenadas (`'Lat: …'`) están en
+   `LocationStepView` (`:190`). El orden pedido **es el actual**, así que no hay cambio; y **contradice**
+   el punto 5.4 del plan (que pedía mover esa tarjeta debajo del dropdown de sector). Se retira 5.4 del
+   prompt 5 y queda anotado que traer las coordenadas al paso de datos sería un cambio nuevo.
+2. **Punto 10 «crear un commit único»:** el plan exige commits `docs-only` separados de los de código, y
+   la tanda 1 son cuatro cambios independientes. Propuesta: **un commit de código** con el mensaje pedido
+   (`fix: stabilize leak report photos and form state`) sobre `fix/map-r5-r6`, manteniendo los docs en sus
+   commits propios ya existentes.
+3. **Punto 10 «probar físicamente en Android» (13 pasos):** **no ejecutable hoy** — A4 sigue pendiente y
+   `adb devices` está vacío. Sin device, esos 13 pasos quedan `NOT VERIFIED`; no se declaran PASS.
+
+**Sin cambios:** rama de trabajo (`fix/map-r5-r6`, nunca `main`), prohibiciones (RPC, RLS, Storage, FCM,
+mapa, Home, Water Events, esquema), y la exigencia de `flutter analyze` + `flutter test` como gate.
