@@ -182,6 +182,16 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
+          // B3: aviso cuando la fuga aún no fue validada.
+          if (!detail.isValidated && !detail.isResolved) ...[
+            SizedBox(height: AppSpacing.sm),
+            Text(
+              LeakCommunityCopy.confirmRequiresValidation,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: AppColors.textMuted),
+            ),
+          ],
           if (_running) ...[
             SizedBox(height: AppSpacing.md),
             const LinearProgressIndicator(

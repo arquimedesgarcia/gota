@@ -13,6 +13,8 @@ abstract final class LeakCommunityCopy {
   static const confirmButton = 'Sí, fue resuelta';
   static const alreadyConfirmed = 'Ya confirmaste la resolución';
   static const blocked = 'Tu acceso está bloqueado';
+  static const confirmRequiresValidation =
+      'La fuga debe ser validada por alguien antes de confirmar su resolución.';
   static const loadError = 'No pudimos cargar esta fuga. Intenta de nuevo.';
   static const actionError =
       'No pudimos completar la acción. Intenta de nuevo.';

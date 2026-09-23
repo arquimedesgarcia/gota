@@ -207,6 +207,17 @@ class LeakReportController extends Notifier<LeakReportState> {
       hasDraftRestored: true,
     );
 
+    // Restaurar la dirección GPS y las sugerencias de municipio/sector
+    // que no se persisten en el borrador (E: direccion GPS en Datos).
+    if (location != null) {
+      state = state.copyWith(suggestionLoading: true);
+      unawaited(_loadSuggestion(
+        requestId: _locationRequestId,
+        latitude: location.latitude,
+        longitude: location.longitude,
+      ));
+    }
+
     // Intentar recuperar lost data de la sesión que fue matada (R4.6).
     await _recoverLostData();
   }

@@ -204,10 +204,11 @@ class _FilterChipsBar extends ConsumerWidget {
 
   final MapFilterState filterState;
 
+  // H: Mi Sector | Recientes | Activas
   static const _directFilters = [
-    MapFilterType.all,
+    MapFilterType.mySector,
+    MapFilterType.recent,
     MapFilterType.active,
-    MapFilterType.resolved,
   ];
 
   @override
@@ -232,17 +233,7 @@ class _FilterChipsBar extends ConsumerWidget {
                 child: GotaFilterChip(
                   label: filter.label,
                   selected: filterState.filterType == filter,
-                  onSelected: () =>
-                      ref.read(mapFilterProvider.notifier).setFilter(filter),
-                ),
-              ),
-            if (filterState.filterType == MapFilterType.mySector)
-              const Padding(
-                padding: EdgeInsets.only(right: AppSpacing.sm),
-                child: GotaFilterChip(
-                  label: 'Mi sector',
-                  selected: true,
-                  onSelected: _noop,
+                  onSelected: () => _selectFilter(ref, filter),
                 ),
               ),
             Padding(
@@ -255,7 +246,21 @@ class _FilterChipsBar extends ConsumerWidget {
     );
   }
 
-  static void _noop() {}
+  // H: mySector necesita resolver el sectorId preferido igual que el menú.
+  Future<void> _selectFilter(WidgetRef ref, MapFilterType filter) async {
+    if (filter == MapFilterType.mySector) {
+      final preferences = ref.read(
+        notificationPreferencesControllerProvider,
+      ).value;
+      if (preferences?.preferredSectorId != null) {
+        ref
+            .read(mapFilterProvider.notifier)
+            .setSectorId(preferences!.preferredSectorId);
+        return;
+      }
+    }
+    ref.read(mapFilterProvider.notifier).setFilter(filter);
+  }
 }
 
 /// Botón de menú de filtros (§10). En AppBar usa icono; como chip de la
@@ -332,21 +337,27 @@ class _FilterMenuButton extends ConsumerWidget {
     );
   }
 
+  // H: excluir los filtros que ya son chips directos.
+  static const _chipFilters = _FilterChipsBar._directFilters;
+
   List<PopupMenuEntry<MapFilterType>> _items(BuildContext context) =>
-      MapFilterType.values.map((filter) {
-        final isSelected = filterState.filterType == filter;
-        return PopupMenuItem<MapFilterType>(
-          value: filter,
-          child: Row(
-            children: [
-              if (isSelected)
-                Icon(Icons.check, size: 18, color: AppColors.primary),
-              if (isSelected) const SizedBox(width: 8),
-              Text(filter.label),
-            ],
-          ),
-        );
-      }).toList();
+      MapFilterType.values
+          .where((f) => !_chipFilters.contains(f))
+          .map((filter) {
+            final isSelected = filterState.filterType == filter;
+            return PopupMenuItem<MapFilterType>(
+              value: filter,
+              child: Row(
+                children: [
+                  if (isSelected)
+                    Icon(Icons.check, size: 18, color: AppColors.primary),
+                  if (isSelected) const SizedBox(width: 8),
+                  Text(filter.label),
+                ],
+              ),
+            );
+          })
+          .toList();
 }
 
 /// Toggle Mapa ↔ Lista (§12).

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/loading_view.dart';
+import '../../contact/presentation/contact_screen.dart';
 import '../../location/presentation/location_providers.dart';
 import '../data/push_service.dart';
 import 'notification_providers.dart';
@@ -40,6 +41,62 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 12),
             const _PermissionDeniedCard(),
           ],
+          const SizedBox(height: 24),
+          Text('Información', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          // I: Contacto
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.mail_outline),
+              title: const Text('Contacto'),
+              subtitle: const Text('Escríbenos'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const ContactScreen()),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // J: Acerca de Gota
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.water_drop_outlined),
+              title: const Text('Acerca de Gota'),
+              subtitle: const Text('Nuestra misión'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _showAboutDialog(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAboutDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.water_drop, color: Color(0xFF1565C0)),
+            SizedBox(width: 8),
+            Text('Acerca de Gota'),
+          ],
+        ),
+        content: const SingleChildScrollView(
+          child: Text(
+            'Gota nació en Isla de Margarita con una idea simple: '
+            'que cada vecino pueda reportar una fuga de agua y que la comunidad '
+            'entera la convierta en una acción colectiva.\n\n'
+            'Cada reporte suma. Cada validación importa. '
+            'Juntos construimos una isla donde el agua se cuida entre todos.',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cerrar'),
+          ),
         ],
       ),
     );

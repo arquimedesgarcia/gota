@@ -211,10 +211,10 @@ void main() {
       isNull,
     );
     expect(find.text('No puedes validar tu propio reporte'), findsOneWidget);
-    // El creador sí puede confirmar la resolución.
+    // B3: sin validaciones previas, el botón de confirmar queda deshabilitado.
     expect(
       tester.widget<OutlinedButton>(find.byKey(leakConfirmButtonKey)).onPressed,
-      isNotNull,
+      isNull,
     );
   });
 

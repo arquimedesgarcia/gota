@@ -130,11 +130,16 @@ class LeakDetail {
 
   bool get isResolved => status == 'RESOLVED';
 
+  /// B3: la fuga está validada cuando al menos 1 persona la confirmó.
+  bool get isValidated => validationCount >= 1;
+
   /// Acciones disponibles según el estado devuelto por el servidor.
   bool get canValidate =>
       !isResolved && !isCreator && !alreadyValidated && !isBlocked;
+
+  /// B3: confirmar resolución requiere que la fuga esté validada primero.
   bool get canConfirmResolution =>
-      !isResolved && !alreadyConfirmed && !isBlocked;
+      !isResolved && !alreadyConfirmed && !isBlocked && isValidated;
 }
 
 /// Resultado real de `validate_leak` / `confirm_leak_resolution`.

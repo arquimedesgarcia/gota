@@ -222,8 +222,9 @@ void main() {
 
       expect(detail.isCreator, isTrue);
       expect(detail.canValidate, isFalse);
-      // El creador sí puede confirmar resolución (decisión REQ-051).
-      expect(detail.canConfirmResolution, isTrue);
+      // B3: sin validaciones previas (validation_count=0) nadie puede confirmar
+      // resolución, ni siquiera el creador.
+      expect(detail.canConfirmResolution, isFalse);
     });
 
     test('fuga resuelta: sin acciones disponibles', () async {

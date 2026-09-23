@@ -18,7 +18,10 @@ import 'leak_report_microcopy.dart';
 /// Pantalla raíz del flujo Reportar fuga: barra de progreso por etapa y
 /// la página de la etapa actual (UX_SPEC §4:
 /// Ubicación → Fotos → Datos → Revisar → Enviado).
-class LeakReportScreen extends StatelessWidget {
+///
+/// G: PopScope intercepta el botón físico de Android para navegar al paso
+/// anterior en lugar de cerrar la pantalla.
+class LeakReportScreen extends ConsumerWidget {
   const LeakReportScreen({super.key});
 
   static const _titles = {
@@ -30,55 +33,60 @@ class LeakReportScreen extends StatelessWidget {
   };
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 120,
-        title: Consumer(
-          builder: (context, ref, _) {
-            final step = ref.watch(
-              leakReportProvider.select((s) => s.currentStep),
-            );
-            final stepIndex = step.index; // 0-4 for location, photos, data, review, result
+  Widget build(BuildContext context, WidgetRef ref) {
+    final step = ref.watch(
+      leakReportProvider.select((s) => s.currentStep),
+    );
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _titles[step] ?? 'Reportar',
-                  style: Theme.of(context).appBarTheme.titleTextStyle
-                      ?.copyWith(color: Colors.white),
-                ),
-                SizedBox(height: AppSpacing.lg),
-                _StepIndicator(currentStep: stepIndex),
-              ],
-            );
-          },
-        ),
-      ),
-      body: SafeArea(
-        child: Consumer(
-          builder: (context, ref, _) {
-            final state = ref.watch(leakReportProvider);
-            return Column(
-              children: [
-                if (state.hasDraftRestored)
-                  _DraftRestoredBanner(
-                    onDiscard: () =>
-                        ref.read(leakReportProvider.notifier).discardDraft(),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        // En el primer paso y en resultado: cerrar la pantalla normalmente.
+        if (step == ReportStep.location || step == ReportStep.result) {
+          Navigator.of(context).maybePop(false);
+          return;
+        }
+        ref.read(leakReportProvider.notifier).goToPrevious();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 120,
+          title: Consumer(
+            builder: (context, ref, _) {
+              final s = ref.watch(
+                leakReportProvider.select((st) => st.currentStep),
+              );
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _titles[s] ?? 'Reportar',
+                    style: Theme.of(context).appBarTheme.titleTextStyle
+                        ?.copyWith(color: Colors.white),
                   ),
-                Expanded(
-                  child: switch (state.currentStep) {
-                    ReportStep.location => const LocationStepView(),
-                    ReportStep.photos => const PhotosStepView(),
-                    ReportStep.data => const DataStepView(),
-                    ReportStep.review => const ReviewStepView(),
-                    ReportStep.result => const ResultStepView(),
-                  },
-                ),
-              ],
-            );
-          },
+                  SizedBox(height: AppSpacing.lg),
+                  _StepIndicator(currentStep: s.index),
+                ],
+              );
+            },
+          ),
+        ),
+        body: SafeArea(
+          child: Consumer(
+            builder: (context, ref, _) {
+              final state = ref.watch(leakReportProvider);
+              // F: El banner de recuperación automática está deshabilitado
+              // para el piloto. La lógica de borrador persiste internamente.
+              return switch (state.currentStep) {
+                ReportStep.location => const LocationStepView(),
+                ReportStep.photos => const PhotosStepView(),
+                ReportStep.data => const DataStepView(),
+                ReportStep.review => const ReviewStepView(),
+                ReportStep.result => const ResultStepView(),
+              };
+            },
+          ),
         ),
       ),
     );
@@ -121,8 +129,7 @@ class StatusBanner extends StatelessWidget {
   }
 }
 
-/// Banner discreto que aparece cuando se restauró un borrador de sesión
-/// anterior (LMK kill o cierre inesperado).
+// ignore: unused_element
 class _DraftRestoredBanner extends StatelessWidget {
   const _DraftRestoredBanner({required this.onDiscard});
 
@@ -582,7 +589,17 @@ class PhotosStepView extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
+              // G: botón Atrás → paso Ubicación
               Expanded(
+                child: OutlinedButton(
+                  style: AppComponents.secondaryButtonStyle(),
+                  onPressed: () => controller.goToPrevious(),
+                  child: const Text('Atrás'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 2,
                 child: FilledButton(
                   style: AppComponents.primaryButtonStyle(),
                   onPressed: () => controller.goToNext(),
@@ -739,7 +756,6 @@ class _DataStepViewState extends ConsumerState<DataStepView> {
               const SizedBox(height: 12),
               TextField(
                 controller: _descController,
-                autofocus: true,
                 decoration: const InputDecoration(
                   labelText: 'Descripción (opcional)',
                   hintText: 'Ej: brocal roto frente a la panadería.',
@@ -755,7 +771,17 @@ class _DataStepViewState extends ConsumerState<DataStepView> {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
+              // G: botón Atrás → paso Fotos
               Expanded(
+                child: OutlinedButton(
+                  style: AppComponents.secondaryButtonStyle(),
+                  onPressed: () => controller.goToPrevious(),
+                  child: const Text('Atrás'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 2,
                 child: FilledButton(
                   style: AppComponents.primaryButtonStyle(),
                   onPressed: _buildContinueCallback(
@@ -1062,13 +1088,16 @@ class ReviewStepView extends ConsumerWidget {
                         ),
                       ),
                 const SizedBox(height: 8),
+                // G: Atrás regresa a Datos conservando todos los campos.
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
                     style: AppComponents.secondaryButtonStyle(),
-                    onPressed: () => ref
-                        .read(leakReportProvider.notifier)
-                        .goTo(ReportStep.data),
+                    onPressed: state.submitState == ReportSubmitState.submitting
+                        ? null
+                        : () => ref
+                            .read(leakReportProvider.notifier)
+                            .goTo(ReportStep.data),
                     child: const Text('Editar datos'),
                   ),
                 ),

@@ -285,17 +285,8 @@ void main() {
         ],
       );
 
-      await tester.tap(find.byKey(mapFilterMenuKey));
-      await tester.pumpAndSettle();
-
-      // Sprint 09-UI: los chips de la superficie y los ítems del popup
-      // comparten texto; el tap se limita al ítem del popup para desambiguar.
-      await tester.tap(
-        find.descendant(
-          of: find.byType(PopupMenuItem<MapFilterType>),
-          matching: find.text('Activas'),
-        ),
-      );
+      // H: "Activas" ahora es un chip directo, no un ítem de popup.
+      await tester.tap(find.text('Activas'));
       await tester.pumpAndSettle();
 
       // Verify the filter was applied by checking repository was called with status=ACTIVE
@@ -318,9 +309,7 @@ void main() {
       (tester) async {
         await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
 
-        await tester.tap(find.byKey(mapFilterMenuKey));
-        await tester.pumpAndSettle();
-
+        // H: "Mi sector" es ahora un chip directo en la barra superior.
         await tester.tap(find.text('Mi sector'));
         await tester.pumpAndSettle();
 
@@ -399,14 +388,8 @@ void main() {
         ),
       ).thenAnswer((_) async => [_summary(id: 'r1')]);
 
-      await tester.tap(find.byKey(mapFilterMenuKey));
-      await tester.pumpAndSettle();
-      await tester.tap(
-        find.descendant(
-          of: find.byType(PopupMenuItem<MapFilterType>),
-          matching: find.text('Recientes'),
-        ),
-      );
+      // H: "Recientes" es ahora un chip directo en la barra superior.
+      await tester.tap(find.text('Recientes'));
       await tester.pumpAndSettle();
 
       verify(
@@ -529,8 +512,7 @@ void main() {
       (tester) async {
         await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
 
-        await tester.tap(find.byKey(mapFilterMenuKey));
-        await tester.pumpAndSettle();
+        // H: "Mi sector" es ahora un chip directo en la barra superior.
         await tester.tap(find.text('Mi sector'));
         await tester.pumpAndSettle();
 
