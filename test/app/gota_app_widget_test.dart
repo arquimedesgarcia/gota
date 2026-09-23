@@ -13,6 +13,7 @@ import 'package:gota/shared/models/app_user.dart';
 import 'package:gota/shared/models/municipality.dart';
 import 'package:gota/shared/models/sector.dart';
 import 'package:gota/shared/services/auth_repository.dart';
+import 'package:gota/features/map/presentation/widgets/gota_map_view.dart';
 
 class FakeAuthRepository implements AuthRepository {
   @override
@@ -93,6 +94,17 @@ void main() {
             FakeNotificationRepository(),
           ),
           pushServiceProvider.overrideWithValue(const NoopPushService()),
+          mapWidgetBuilderProvider.overrideWithValue((
+            context, {
+            required leaks,
+            required selectedLeak,
+            required onMarkerTapped,
+            required initialLat,
+            required initialLng,
+            required onBoundsChanged,
+          }) {
+            return Container(color: Colors.grey.shade200);
+          }),
         ],
         child: const GotaApp(),
       ),
@@ -131,6 +143,17 @@ void main() {
             FakeNotificationRepository(),
           ),
           pushServiceProvider.overrideWithValue(const NoopPushService()),
+          mapWidgetBuilderProvider.overrideWithValue((
+            context, {
+            required leaks,
+            required selectedLeak,
+            required onMarkerTapped,
+            required initialLat,
+            required initialLng,
+            required onBoundsChanged,
+          }) {
+            return Container(color: Colors.grey.shade200);
+          }),
         ],
         child: const GotaApp(),
       ),

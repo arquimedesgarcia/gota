@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_theme.dart';
@@ -19,7 +22,7 @@ import 'map_providers.dart'
         mapReportsProvider,
         listReportsProvider,
         selectedMarkerProvider;
-import 'widgets/gota_map_view.dart';
+import 'widgets/gota_map_view.dart' show GotaMapView, LatLngBounds;
 
 /// Claves estables para pruebas de UI (§17).
 const mapScreenKey = Key('map-screen');
@@ -55,7 +58,6 @@ class MapScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final filterState = ref.watch(mapFilterProvider);
-    // Lista usa listReportsProvider (sin bbox); mapa usa mapReportsProvider (con bbox).
     final reportsAsync = filterState.viewMode == MapViewMode.list
         ? ref.watch(listReportsProvider)
         : ref.watch(mapReportsProvider);
@@ -74,75 +76,43 @@ class MapScreen extends ConsumerWidget {
         children: [
           _FilterChipsBar(filterState: filterState),
           Expanded(
-            child: reportsAsync.when(
-              skipLoadingOnReload: true,
-              loading: () => const _MapLoadingView(),
-              error: (error, _) => _MapErrorView(
-                message: _mapErrorMessage(error),
-                // El reintento debe refrescar el proveedor que está observando la
-                // pantalla en este modo (lista: sin bbox; mapa: con bbox).
-                onRetry: () => ref.invalidate(
-                  filterState.viewMode == MapViewMode.list
-                      ? listReportsProvider
-                      : mapReportsProvider,
-                ),
-              ),
-              data: (reports) {
-                // C2: Mi sector sin selección → vista de guía completa (no mapa).
-                if (_isMySectorWithoutSelection(filterState)) {
-                  return _MapEmptyView(filterState: filterState);
-                }
-
-                return switch (filterState.viewMode) {
-                  // C1: el mapa siempre está montado en modo mapa.
-                  MapViewMode.map => Stack(
-                    children: [
-                      _MapViewContent(
-                        leaks: reports,
-                        selectedLeak: selectedLeak,
-                        onMarkerTapped: (leak) {
-                          ref
-                              .read(selectedMarkerProvider.notifier)
-                              .select(leak);
-                        },
-                        centerLat: filterState.userLatitude,
-                        centerLng: filterState.userLongitude,
+            child: filterState.viewMode == MapViewMode.map
+                ? _buildMapWithOverlays(
+                    context,
+                    ref,
+                    reportsAsync,
+                    selectedLeak,
+                    filterState,
+                  )
+                : reportsAsync.when(
+                    skipLoadingOnReload: true,
+                    loading: () => const _MapLoadingView(),
+                    error: (error, _) => _MapErrorView(
+                      message: _mapErrorMessage(error),
+                      onRetry: () => ref.invalidate(
+                        filterState.viewMode == MapViewMode.list
+                            ? listReportsProvider
+                            : mapReportsProvider,
                       ),
-                      // C6: overlay sólo cuando la consulta terminó y el área está vacía.
-                      if (reports.isEmpty && !reportsAsync.isLoading)
-                        const _MapEmptyOverlay(),
-                      const _MapLegend(),
-                      if (selectedLeak != null)
-                        Positioned(
-                          left: AppSpacing.lg,
-                          right: AppSpacing.lg,
-                          bottom: AppSpacing.lg,
-                          child: _SelectedLeakCard(
-                            leak: selectedLeak,
-                            onViewDetail: () => Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) =>
-                                    LeakDetailScreen(reportId: selectedLeak.id),
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
+                    ),
+                    data: (reports) {
+                      if (_isMySectorWithoutSelection(filterState)) {
+                        return _MapEmptyView(filterState: filterState);
+                      }
+                      return reports.isEmpty
+                          ? _MapEmptyView(filterState: filterState)
+                          : _MapListView(
+                              leaks: reports,
+                              onLeakTapped: (leak) => Navigator.of(context)
+                                  .push(
+                                    MaterialPageRoute<void>(
+                                      builder: (_) =>
+                                          LeakDetailScreen(reportId: leak.id),
+                                    ),
+                                  ),
+                            );
+                    },
                   ),
-                  MapViewMode.list => reports.isEmpty
-                      ? _MapEmptyView(filterState: filterState)
-                      : _MapListView(
-                          leaks: reports,
-                          onLeakTapped: (leak) => Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) =>
-                                  LeakDetailScreen(reportId: leak.id),
-                            ),
-                          ),
-                        ),
-                };
-              },
-            ),
           ),
         ],
       ),
@@ -150,16 +120,79 @@ class MapScreen extends ConsumerWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
+}
 
-  String _mapErrorMessage(Object error) {
-    if (error is NetworkException) {
-      return 'Sin conexión. Verifica tu red e intenta de nuevo.';
-    }
-    if (error is QueryException) {
-      return 'No pudimos cargar el mapa. Intenta de nuevo.';
-    }
-    return 'Ocurrió un error inesperado. Intenta de nuevo.';
+String _mapErrorMessage(Object error) {
+  if (error is NetworkException) {
+    return 'Sin conexión. Verifica tu red e intenta de nuevo.';
   }
+  if (error is QueryException) {
+    return 'No pudimos cargar el mapa. Intenta de nuevo.';
+  }
+  return 'Ocurrió un error inesperado. Intenta de nuevo.';
+}
+
+Widget _buildMapWithOverlays(
+  BuildContext context,
+  WidgetRef ref,
+  AsyncValue<List<LeakSummary>> reportsAsync,
+  LeakSummary? selectedLeak,
+  MapFilterState filterState,
+) {
+  if (_isMySectorWithoutSelection(filterState)) {
+    return _MapEmptyView(filterState: filterState);
+  }
+
+  return Stack(
+    children: [
+      _MapViewContent(
+        leaks: reportsAsync.value ?? const [],
+        selectedLeak: selectedLeak,
+        onMarkerTapped: (leak) {
+          ref.read(selectedMarkerProvider.notifier).select(leak);
+        },
+        centerLat: filterState.userLatitude,
+        centerLng: filterState.userLongitude,
+        onBoundsChanged: (bounds) {
+          if (bounds != null) {
+            ref
+                .read(mapFilterProvider.notifier)
+                .setBounds(
+                  bounds.minLat,
+                  bounds.minLng,
+                  bounds.maxLat,
+                  bounds.maxLng,
+                );
+          }
+        },
+      ),
+      if (selectedLeak != null)
+        Positioned(
+          left: AppSpacing.lg,
+          right: AppSpacing.lg,
+          bottom: AppSpacing.lg,
+          child: _SelectedLeakCard(
+            leak: selectedLeak,
+            onViewDetail: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => LeakDetailScreen(reportId: selectedLeak.id),
+              ),
+            ),
+          ),
+        ),
+      if (reportsAsync.isLoading && !reportsAsync.hasValue)
+        const _MapLoadingView(),
+      if (reportsAsync.hasError)
+        _MapErrorView(
+          message: _mapErrorMessage(reportsAsync.error!),
+          onRetry: () => ref.invalidate(mapReportsProvider),
+        ),
+      if (reportsAsync.hasValue &&
+          reportsAsync.value!.isEmpty &&
+          !reportsAsync.isLoading)
+        const _MapEmptyOverlay(),
+    ],
+  );
 }
 
 /// Barra de chips de filtro (patrón prototipo §mapa). Chips directos para
@@ -233,12 +266,19 @@ class _FilterMenuButton extends ConsumerWidget {
   final MapFilterState filterState;
   final bool asChip;
 
-  Future<void> _handleFilterSelection(WidgetRef ref, MapFilterType filter) async {
+  Future<void> _handleFilterSelection(
+    WidgetRef ref,
+    MapFilterType filter,
+  ) async {
     if (filter == MapFilterType.mySector) {
-      final preferencesAsync = ref.read(notificationPreferencesControllerProvider);
+      final preferencesAsync = ref.read(
+        notificationPreferencesControllerProvider,
+      );
       final preferences = preferencesAsync.value;
       if (preferences?.preferredSectorId != null) {
-        ref.read(mapFilterProvider.notifier).setSectorId(preferences!.preferredSectorId);
+        ref
+            .read(mapFilterProvider.notifier)
+            .setSectorId(preferences!.preferredSectorId);
       } else {
         ref.read(mapFilterProvider.notifier).setFilter(filter);
       }
@@ -350,6 +390,82 @@ class _LocateButton extends ConsumerWidget {
   }
 }
 
+/// Contenido del mapa con markers (§11).
+class _MapViewContent extends ConsumerWidget {
+  const _MapViewContent({
+    required this.leaks,
+    required this.selectedLeak,
+    required this.onMarkerTapped,
+    this.centerLat,
+    this.centerLng,
+    this.onBoundsChanged,
+  });
+
+  final List<LeakSummary> leaks;
+  final LeakSummary? selectedLeak;
+  final ValueChanged<LeakSummary> onMarkerTapped;
+  final double? centerLat;
+  final double? centerLng;
+  final ValueChanged<LatLngBounds?>? onBoundsChanged;
+
+  /// Calcula el centro del bounding box de los reportes (para "Mi sector").
+  ({double lat, double lng})? _calculateSectorCenter() {
+    final leaksWithCoordinates = leaks.where((l) => l.hasCoordinates).toList();
+    if (leaksWithCoordinates.isEmpty) return null;
+
+    double minLat = leaksWithCoordinates[0].latitude!;
+    double maxLat = leaksWithCoordinates[0].latitude!;
+    double minLng = leaksWithCoordinates[0].longitude!;
+    double maxLng = leaksWithCoordinates[0].longitude!;
+
+    for (final leak in leaksWithCoordinates) {
+      minLat = leak.latitude! < minLat ? leak.latitude! : minLat;
+      maxLat = leak.latitude! > maxLat ? leak.latitude! : maxLat;
+      minLng = leak.longitude! < minLng ? leak.longitude! : minLng;
+      maxLng = leak.longitude! > maxLng ? leak.longitude! : maxLng;
+    }
+
+    return (lat: (minLat + maxLat) / 2, lng: (minLng + maxLng) / 2);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filterState = ref.watch(mapFilterProvider);
+    double? finalCenterLat;
+    double? finalCenterLng;
+    if (centerLat != null) {
+      finalCenterLat = centerLat;
+      finalCenterLng = centerLng;
+    } else if (filterState.filterType == MapFilterType.mySector) {
+      finalCenterLat = filterState.sectorCenterLat;
+      finalCenterLng = filterState.sectorCenterLng;
+      if (finalCenterLat == null) {
+        final center = _calculateSectorCenter();
+        if (center != null) {
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            ref
+                .read(mapFilterProvider.notifier)
+                .setSectorCenter(center.lat, center.lng);
+          });
+          finalCenterLat = center.lat;
+          finalCenterLng = center.lng;
+        }
+      }
+    }
+    finalCenterLat ??= 10.99;
+    finalCenterLng ??= -63.87;
+
+    return GotaMapView(
+      leaks: leaks,
+      selectedLeak: selectedLeak,
+      onMarkerTapped: onMarkerTapped,
+      centerLat: finalCenterLat,
+      centerLng: finalCenterLng,
+      onBoundsChanged: onBoundsChanged,
+    );
+  }
+}
+
 class _SelectedLeakCard extends StatelessWidget {
   const _SelectedLeakCard({required this.leak, required this.onViewDetail});
 
@@ -394,141 +510,6 @@ class _SelectedLeakCard extends StatelessWidget {
   }
 }
 
-/// Leyenda de tres estados sobre el mapa (patrón prototipo §mapa):
-/// color + texto, nunca color solo. Colores idénticos a los markers.
-class _MapLegend extends StatelessWidget {
-  const _MapLegend();
-
-  static const _dot = 9.0;
-
-  Widget _entry(Color color, String label) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Container(
-        width: _dot,
-        height: _dot,
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      ),
-      const SizedBox(width: 6),
-      Text(
-        label,
-        style: const TextStyle(
-          color: AppColors.textMuted,
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    ],
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: AppSpacing.lg,
-      bottom: AppSpacing.lg,
-      child: Container(
-        key: mapLegendKey,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: AppColors.surface.withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final status in LeakMapStatus.values) ...[
-              if (status != LeakMapStatus.reported)
-                const SizedBox(width: AppSpacing.lg),
-              _entry(
-                leakMapStatusColor(status),
-                leakMapStatusLabel(status),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Contenido del mapa con markers (§11).
-class _MapViewContent extends ConsumerWidget {
-  const _MapViewContent({
-    required this.leaks,
-    required this.selectedLeak,
-    required this.onMarkerTapped,
-    this.centerLat,
-    this.centerLng,
-  });
-
-  final List<LeakSummary> leaks;
-  final LeakSummary? selectedLeak;
-  final ValueChanged<LeakSummary> onMarkerTapped;
-  final double? centerLat;
-  final double? centerLng;
-
-  /// Calcula el centro del bounding box de los reportes (para "Mi sector").
-  ({double lat, double lng})? _calculateSectorCenter() {
-    final leaksWithCoordinates = leaks.where((l) => l.hasCoordinates).toList();
-    if (leaksWithCoordinates.isEmpty) return null;
-
-    double minLat = leaksWithCoordinates[0].latitude!;
-    double maxLat = leaksWithCoordinates[0].latitude!;
-    double minLng = leaksWithCoordinates[0].longitude!;
-    double maxLng = leaksWithCoordinates[0].longitude!;
-
-    for (final leak in leaksWithCoordinates) {
-      minLat = leak.latitude! < minLat ? leak.latitude! : minLat;
-      maxLat = leak.latitude! > maxLat ? leak.latitude! : maxLat;
-      minLng = leak.longitude! < minLng ? leak.longitude! : minLng;
-      maxLng = leak.longitude! > maxLng ? leak.longitude! : maxLng;
-    }
-
-    return (lat: (minLat + maxLat) / 2, lng: (minLng + maxLng) / 2);
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final filterState = ref.watch(mapFilterProvider);
-    final finalCenterLat = centerLat ??
-        (filterState.filterType == MapFilterType.mySector
-            ? _calculateSectorCenter()?.lat
-            : null) ??
-        10.99;
-    final finalCenterLng = centerLng ??
-        (filterState.filterType == MapFilterType.mySector
-            ? _calculateSectorCenter()?.lng
-            : null) ??
-        -63.87;
-
-    return GotaMapView(
-      leaks: leaks,
-      selectedLeak: selectedLeak,
-      onMarkerTapped: onMarkerTapped,
-      centerLat: finalCenterLat,
-      centerLng: finalCenterLng,
-      onBoundsChanged: (bounds) {
-        if (bounds != null) {
-          ref
-              .read(mapFilterProvider.notifier)
-              .setBounds(
-                bounds.minLat,
-                bounds.minLng,
-                bounds.maxLat,
-                bounds.maxLng,
-              );
-        }
-      },
-    );
-  }
-}
-
-/// Vista de lista sincronizada con los mismos filtros (§12).
-///
 /// Sprint 09-UI: patrón de tarjeta del prototipo — dot de estado + badge
 /// semántico y texto + validaciones acentuadas (texto + color, nunca solo
 /// color). Reutiliza [StatusBadgePresets] y tokens del Design System.

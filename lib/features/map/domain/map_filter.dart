@@ -47,6 +47,8 @@ class MapFilterState {
     this.minLng,
     this.maxLat,
     this.maxLng,
+    this.sectorCenterLat,
+    this.sectorCenterLng,
   });
 
   final MapFilterType filterType;
@@ -66,8 +68,15 @@ class MapFilterState {
   final double? maxLat;
   final double? maxLng;
 
+  /// Centro del sector calculado una vez por selección (§B2).
+  /// Se calcula desde el bounding box de leaks y se mantiene estable
+  /// mientras el sector no cambie.
+  final double? sectorCenterLat;
+  final double? sectorCenterLng;
+
   bool get hasUserLocation => userLatitude != null && userLongitude != null;
-  bool get hasBounds => minLat != null && minLng != null && maxLat != null && maxLng != null;
+  bool get hasBounds =>
+      minLat != null && minLng != null && maxLat != null && maxLng != null;
 
   MapFilterState copyWith({
     MapFilterType? filterType,
@@ -79,21 +88,32 @@ class MapFilterState {
     double? minLng,
     double? maxLat,
     double? maxLng,
-    bool clearSector = false,
-    bool clearBounds = false,
+    double? sectorCenterLat,
+    double? sectorCenterLng,
   }) {
     return MapFilterState(
       filterType: filterType ?? this.filterType,
       viewMode: viewMode ?? this.viewMode,
-      selectedSectorId: clearSector
-          ? null
-          : (selectedSectorId ?? this.selectedSectorId),
+      selectedSectorId: selectedSectorId ?? this.selectedSectorId,
       userLatitude: userLatitude ?? this.userLatitude,
       userLongitude: userLongitude ?? this.userLongitude,
-      minLat: clearBounds ? null : (minLat ?? this.minLat),
-      minLng: clearBounds ? null : (minLng ?? this.minLng),
-      maxLat: clearBounds ? null : (maxLat ?? this.maxLat),
-      maxLng: clearBounds ? null : (maxLng ?? this.maxLng),
+      minLat: minLat ?? this.minLat,
+      minLng: minLng ?? this.minLng,
+      maxLat: maxLat ?? this.maxLat,
+      maxLng: maxLng ?? this.maxLng,
+      sectorCenterLat: sectorCenterLat ?? this.sectorCenterLat,
+      sectorCenterLng: sectorCenterLng ?? this.sectorCenterLng,
     );
   }
+
+  MapFilterState clearSector() => MapFilterState(
+    filterType: MapFilterType.all,
+    viewMode: viewMode,
+    userLatitude: userLatitude,
+    userLongitude: userLongitude,
+    minLat: minLat,
+    minLng: minLng,
+    maxLat: maxLat,
+    maxLng: maxLng,
+  );
 }

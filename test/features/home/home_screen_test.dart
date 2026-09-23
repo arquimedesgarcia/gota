@@ -6,6 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:gota/app/theme/app_theme.dart';
 import 'package:gota/features/home/presentation/home_screen.dart';
 import 'package:gota/features/map/presentation/map_screen.dart';
+import 'package:gota/features/map/presentation/widgets/gota_map_view.dart';
 import 'package:gota/features/water/presentation/water_register_screen.dart';
 
 class _MockNavigatorObserver extends Mock implements NavigatorObserver {}
@@ -18,6 +19,19 @@ Future<void> _pumpHomeScreenWithObserver(
 ) async {
   await tester.pumpWidget(
     ProviderScope(
+      overrides: [
+        mapWidgetBuilderProvider.overrideWithValue((
+          context, {
+          required leaks,
+          required selectedLeak,
+          required onMarkerTapped,
+          required initialLat,
+          required initialLng,
+          required onBoundsChanged,
+        }) {
+          return Container(color: Colors.grey.shade200);
+        }),
+      ],
       child: MaterialApp(
         theme: AppTheme.light,
         home: const HomeScreen(),
@@ -58,24 +72,23 @@ void main() {
       expect(find.byType(MapScreen), findsOneWidget);
     });
 
-    testWidgets(
-      'tap en "Reportar agua" navega a WaterRegisterScreen',
-      (tester) async {
-        await _pumpHomeScreenWithObserver(tester, observer);
-        clearInteractions(observer);
+    testWidgets('tap en "Reportar agua" navega a WaterRegisterScreen', (
+      tester,
+    ) async {
+      await _pumpHomeScreenWithObserver(tester, observer);
+      clearInteractions(observer);
 
-        // Encuentra y toca el botón "Reportar agua"
-        await tester.tap(find.text('Reportar agua'));
-        await tester.pump();
+      // Encuentra y toca el botón "Reportar agua"
+      await tester.tap(find.text('Reportar agua'));
+      await tester.pump();
 
-        // Verifica que se hizo push a la navegación
-        verify(() => observer.didPush(any(), any())).called(1);
+      // Verifica que se hizo push a la navegación
+      verify(() => observer.didPush(any(), any())).called(1);
 
-        // Verifica que WaterRegisterScreen está ahora en la pantalla
-        await tester.pumpAndSettle();
-        expect(find.byType(WaterRegisterScreen), findsOneWidget);
-      },
-    );
+      // Verifica que WaterRegisterScreen está ahora en la pantalla
+      await tester.pumpAndSettle();
+      expect(find.byType(WaterRegisterScreen), findsOneWidget);
+    });
 
     testWidgets('HomeScreen muestra todas las acciones principales', (
       tester,

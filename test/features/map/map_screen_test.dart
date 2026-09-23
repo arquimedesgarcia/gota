@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,7 +25,6 @@ class _MockLeakCommunityRepository extends Mock
 class _MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 class _FakeRoute extends Fake implements Route<dynamic> {}
-
 
 /// Test widget builder that returns a simple widget instead of MapLibre.
 Widget _testMapBuilder(
@@ -215,6 +216,9 @@ void main() {
         ),
       );
 
+      // B1: el mapa queda montado también durante la carga inicial (el estado
+      // de carga es un overlay, no un reemplazo).
+      expect(find.byKey(gotaMapContainerKey), findsOneWidget);
       expect(find.byKey(mapLoadingStateKey), findsOneWidget);
       await tester.pumpAndSettle();
     });
@@ -447,10 +451,11 @@ void main() {
       },
     );
 
-
     // --- Tests nuevos PROMPT 2 ---
 
-    testWidgets('estado vacío en modo mapa no desmonta el mapa', (tester) async {
+    testWidgets('estado vacío en modo mapa no desmonta el mapa', (
+      tester,
+    ) async {
       await _pumpMapScreen(tester, repository, reports: []);
 
       // El mapa siempre debe estar montado (C1).
@@ -544,7 +549,9 @@ void main() {
       final container = ProviderScope.containerOf(element);
 
       // Simula que el viewport ya tenía bounds establecidos.
-      container.read(mapFilterProvider.notifier).setBounds(10.5, -64.0, 11.0, -63.5);
+      container
+          .read(mapFilterProvider.notifier)
+          .setBounds(10.5, -64.0, 11.0, -63.5);
       await tester.pumpAndSettle();
 
       // Los bounds deben conservarse: ningún render llama a clearBounds() (C4).
@@ -555,6 +562,185 @@ void main() {
       expect(state.maxLat, equals(11.0));
       expect(state.maxLng, equals(-63.5));
     });
+
+    // --- Mutation control tests B2-B5 ---
+
+    testWidgets('B2: cámara estable en Mi sector tras refetch', (tester) async {
+      await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
+
+      final element = tester.element(find.byType(MapScreen));
+      final container = ProviderScope.containerOf(element);
+      final notifier = container.read(mapFilterProvider.notifier);
+      notifier.setSectorId('sector-123');
+      await tester.pumpAndSettle();
+
+      final centerBefore = container.read(mapFilterProvider).sectorCenterLat;
+
+      // Refetch con datos distintos
+      final newReports = [_summary(id: 'r2', lat: 11.5, lng: -64.5)];
+      when(
+        () => repository.mapReports(
+          status: any(named: 'status'),
+          sectorId: any(named: 'sectorId'),
+          minLat: any(named: 'minLat'),
+          minLng: any(named: 'minLng'),
+          maxLat: any(named: 'maxLat'),
+          maxLng: any(named: 'maxLng'),
+          orderBy: any(named: 'orderBy'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer((_) async => newReports);
+
+      container.invalidate(mapReportsProvider);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final centerAfter = container.read(mapFilterProvider).sectorCenterLat;
+      expect(centerAfter, equals(centerBefore));
+    });
+    // MUTATION: revertir setSectorCenter → B2 → ROJO / restaurado → VERDE
+
+    testWidgets('B3: markers previos preservados durante refetch', (
+      tester,
+    ) async {
+      await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
+      expect(find.byKey(mapMarkerKey('r1')), findsOneWidget);
+
+      when(
+        () => repository.mapReports(
+          status: any(named: 'status'),
+          sectorId: any(named: 'sectorId'),
+          minLat: any(named: 'minLat'),
+          minLng: any(named: 'minLng'),
+          maxLat: any(named: 'maxLat'),
+          maxLng: any(named: 'maxLng'),
+          orderBy: any(named: 'orderBy'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer(
+        (_) => Future.delayed(
+          const Duration(milliseconds: 500),
+          () => [_summary(id: 'r2')],
+        ),
+      );
+
+      final element = tester.element(find.byType(MapScreen));
+      ProviderScope.containerOf(element).invalidate(mapReportsProvider);
+      await tester.pump();
+
+      expect(find.byKey(mapMarkerKey('r1')), findsOneWidget);
+      expect(find.byKey(mapEmptyStateKey), findsNothing);
+
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
+      expect(find.byKey(mapMarkerKey('r2')), findsOneWidget);
+    });
+    // MUTATION: quitar skipLoadingOnReload → B3 → ROJO / restaurado → VERDE
+
+    testWidgets('B4: respuesta fuera de orden usa la última', (tester) async {
+      // La primera consulta queda en vuelo (lenta); la segunda llega antes.
+      // La respuesta obsoleta NO debe pisar a la nueva.
+      final slow = Completer<List<LeakSummary>>();
+      final fast = Completer<List<LeakSummary>>();
+      var calls = 0;
+      when(
+        () => repository.mapReports(
+          status: any(named: 'status'),
+          sectorId: any(named: 'sectorId'),
+          minLat: any(named: 'minLat'),
+          minLng: any(named: 'minLng'),
+          maxLat: any(named: 'maxLat'),
+          maxLng: any(named: 'maxLng'),
+          orderBy: any(named: 'orderBy'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer((_) {
+        calls++;
+        return calls == 1 ? slow.future : fast.future;
+      });
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            leakCommunityRepositoryProvider.overrideWithValue(repository),
+            mapWidgetBuilderProvider.overrideWithValue(_testMapBuilder),
+          ],
+          child: MaterialApp(theme: AppTheme.light, home: const MapScreen()),
+        ),
+      );
+      await tester.pump();
+
+      final element = tester.element(find.byType(MapScreen));
+      ProviderScope.containerOf(element).invalidate(mapReportsProvider);
+      await tester.pump();
+      expect(calls, greaterThanOrEqualTo(2));
+
+      // Llega la consulta nueva (la segunda).
+      fast.complete([_summary(id: 'nueva')]);
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(mapMarkerKey('nueva')), findsOneWidget);
+
+      // Llega la vieja, ya obsoleta: no debe reemplazar a la nueva.
+      slow.complete([_summary(id: 'obsoleta')]);
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(mapMarkerKey('obsoleta')), findsNothing);
+      expect(find.byKey(mapMarkerKey('nueva')), findsOneWidget);
+    });
+    // MUTATION: si el provider dejara ganar a la respuesta obsoleta → B4 → ROJO.
+    // Leído: riverpod-3.4.3/lib/src/core/element.dart (handleFuture → running flag
+    // descarta el future anterior cuando la consulta se reemplaza).
+
+    testWidgets('B5: setBounds con temblor mínimo no dispara consulta', (
+      tester,
+    ) async {
+      await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
+
+      final element = tester.element(find.byType(MapScreen));
+      final container = ProviderScope.containerOf(element);
+      final notifier = container.read(mapFilterProvider.notifier);
+
+      notifier.setBounds(10.5, -64.0, 11.0, -63.5);
+      // Dejar que la reacción dispare y complete la consulta del primer bounds
+      // ANTES de limpiar el registro de llamadas.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      clearInteractions(repository);
+
+      notifier.setBounds(10.5 + 1e-6, -64.0 + 1e-6, 11.0 + 1e-6, -63.5 + 1e-6);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      verifyNever(
+        () => repository.mapReports(
+          status: any(named: 'status'),
+          sectorId: any(named: 'sectorId'),
+          minLat: any(named: 'minLat'),
+          minLng: any(named: 'minLng'),
+          maxLat: any(named: 'maxLat'),
+          maxLng: any(named: 'maxLng'),
+          orderBy: any(named: 'orderBy'),
+          limit: any(named: 'limit'),
+        ),
+      );
+
+      notifier.setBounds(10.6, -64.1, 11.1, -63.6);
+      await tester.pump();
+      verify(
+        () => repository.mapReports(
+          status: any(named: 'status'),
+          sectorId: any(named: 'sectorId'),
+          minLat: any(named: 'minLat'),
+          minLng: any(named: 'minLng'),
+          maxLat: any(named: 'maxLat'),
+          maxLng: any(named: 'maxLng'),
+          orderBy: any(named: 'orderBy'),
+          limit: any(named: 'limit'),
+        ),
+      ).called(1);
+    });
+    // MUTATION: quitar _boundsTolerance → B5 → ROJO / restaurado → VERDE
 
     // --- Fin tests nuevos PROMPT 2 ---
 
