@@ -20,6 +20,7 @@
 | 08 | Stabilization (regresión, rate limiting, concurrencia, UX de errores, higiene E2E, release Android) | ✅ CERRADO (re-auditoría final 2026-09-14) | [2026-09-14_sprint08_final_closure.md](2026-09-14_sprint08_final_closure.md) |
 | — | **Beta/Piloto E2E (RC readiness)** @ `679eb23` | ✅ READY CON 1 CONDICIÓN (H1: `notify-push` no desplegada en cloud piloto; UX en dispositivo NOT RUN) | [2026-09-19_beta-pilot-e2e.md](2026-09-19_beta-pilot-e2e.md) |
 | — | **RC final / Preparación piloto controlado** @ `fix/map-r5-r6` (`295f77d`→`525725c`) | ❌ NOT READY (4 BETA FIX; 0 REGRESSION; device smoke PASS; sin artefacto de piloto con el Home objetivo) | [2026-09-22_final_rc_pilot_readiness.md](2026-09-22_final_rc_pilot_readiness.md) |
+| — | **QA en device del build release de piloto** @ `fix/map-r5-r6` (`39485f5`, APK `fa5d37aa…`) | ⚠️ 8 PASS en device (mapa sin desmonte, tope 2 fotos, "Continuar" con preselección, flujo hasta Revisar) + **1 BLOCKER nuevo**: la ruta de cámara mata la app por LMK y pierde el borrador; FCM cerrada NOT VERIFIED | [2026-09-23_device_qa_build_piloto.md](2026-09-23_device_qa_build_piloto.md) |
 
 ## Estado global
 
