@@ -107,26 +107,26 @@ class SupabaseGotaWaterDatabase implements GotaWaterDatabase {
     int limit = 20,
     WaterEventCursor? cursor,
   }) async {
-    // Paginación keyset: cuando hay cursor, saltamos el evento especificado
-    // y todos posteriores ordenados inversamente (más recientes) hasta encontrar
-    // uno anterior en event_time o con event_time igual pero id menor.
-    //
-    // Para simplificar sin perder correctitud, usamos offset implícito:
-    // si el cliente quiere la siguiente página, trae limit+1 filas totales
-    // partiendo del cursor, y detectamos si hay más.
-    var query = _client
-        .from('water_events')
-        .select(_listColumns)
-        .order('event_time', ascending: false)
-        .order('id', ascending: false);
+    // Paginación keyset: cuando hay cursor (último evento de la página
+    // anterior), la siguiente página solo trae eventos con event_time igual
+    // o anterior al cursor, en el mismo orden del listado.
+    final filter = _client.from('water_events').select(_listColumns);
 
-    // Nota: cursor es un puntero al último evento de la página anterior.
-    // Aquí solo hacemos un listado directo sin filtro para mantener
-    // compatible con el cliente supabase_flutter (que no expone .or() en
-    // todas las versiones). Los tests usan este comportamiento.
-    query = query.limit(limit);
+    // El filtro va antes de order()/limit(): son PostgrestTransformBuilder,
+    // que no acepta más filtros.
+    final ordered = cursor != null
+        ? filter.lte('event_time', cursor.eventTimeIso)
+        : filter;
+
+    // Una fila extra para detectar si quedan más páginas (hasMore); el
+    // excedente se recorta antes de devolver el resultado.
+    final query = ordered
+        .order('event_time', ascending: false)
+        .order('id', ascending: false)
+        .limit(limit + 1);
 
     final rows = await query;
+    if (rows.length > limit) return rows.sublist(0, limit);
     return rows;
   }
 

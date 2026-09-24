@@ -14,6 +14,7 @@ import '../domain/water_event_type.dart';
 import 'water_copy.dart';
 import 'water_event_detail_screen.dart';
 import 'water_providers.dart';
+import 'water_register_controller.dart';
 import 'water_register_screen.dart';
 
 /// Claves estables para las pruebas de UI.
@@ -42,6 +43,10 @@ class WaterScreen extends ConsumerWidget {
     WidgetRef ref,
     WaterEventType? initialType,
   ) async {
+    // El flujo de registro siempre abre en limpio: el controller no es
+    // autoDispose y conservaría municipio, sector y hora de un registro
+    // anterior (H-01).
+    ref.invalidate(waterRegisterControllerProvider);
     final created = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => WaterRegisterScreen(initialType: initialType),

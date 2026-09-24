@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/network/gota_water_database.dart';
 import '../data/water_event_repository.dart';
 import '../domain/water_event.dart';
 import '../domain/water_event_detail.dart';
@@ -13,20 +14,27 @@ class WaterHistoryState {
     this.events = const AsyncValue.loading(),
     this.isLoadingMore = false,
     this.hasMore = false,
+    this.nextCursor,
   });
 
   final AsyncValue<List<WaterEventSummary>> events;
   final bool isLoadingMore;
   final bool hasMore;
 
+  /// Cursor keyset del último evento cargado: punto de partida de la
+  /// siguiente página. `null` cuando no hay más páginas.
+  final WaterEventCursor? nextCursor;
+
   WaterHistoryState copyWith({
     AsyncValue<List<WaterEventSummary>>? events,
     bool? isLoadingMore,
     bool? hasMore,
+    WaterEventCursor? nextCursor,
   }) => WaterHistoryState(
     events: events ?? this.events,
     isLoadingMore: isLoadingMore ?? this.isLoadingMore,
     hasMore: hasMore ?? this.hasMore,
+    nextCursor: nextCursor ?? this.nextCursor,
   );
 }
 
@@ -53,6 +61,7 @@ class WaterHistoryController extends Notifier<WaterHistoryState> {
       state = state.copyWith(
         events: AsyncValue.data(page.events),
         hasMore: page.hasMore,
+        nextCursor: page.nextCursor,
       );
     } catch (error, stackTrace) {
       state = state.copyWith(events: AsyncValue.error(error, stackTrace));
@@ -67,6 +76,7 @@ class WaterHistoryController extends Notifier<WaterHistoryState> {
       state = state.copyWith(
         events: AsyncValue.data(page.events),
         hasMore: page.hasMore,
+        nextCursor: page.nextCursor,
       );
     } catch (error, stackTrace) {
       state = state.copyWith(events: AsyncValue.error(error, stackTrace));
@@ -84,11 +94,10 @@ class WaterHistoryController extends Notifier<WaterHistoryState> {
     state = state.copyWith(isLoadingMore: true);
     try {
       final repository = ref.read(waterEventRepositoryProvider);
-      // Para la siguiente página, usamos el último evento de la página actual
-      // como punto de referencia (aunque actualmente la paginación es simple).
+      // Keyset: la siguiente página parte del último evento ya cargado.
       final page = await repository.recentEvents(
         limit: _pageSize,
-        cursor: null, // Implementación futura: keyset pagination con cursor
+        cursor: state.nextCursor,
       );
       final seen = events.map((e) => e.id).toSet();
       final merged = [
@@ -99,6 +108,7 @@ class WaterHistoryController extends Notifier<WaterHistoryState> {
         events: AsyncValue.data(merged),
         isLoadingMore: false,
         hasMore: page.hasMore,
+        nextCursor: page.nextCursor,
       );
     } catch (error, stackTrace) {
       state = state.copyWith(
