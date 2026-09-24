@@ -166,18 +166,28 @@ Widget _buildMapWithOverlays(
           }
         },
       ),
-      if (selectedLeak != null)
-        Positioned(
+          Positioned(
           left: AppSpacing.lg,
           right: AppSpacing.lg,
           bottom: AppSpacing.lg,
-          child: _SelectedLeakCard(
-            leak: selectedLeak,
-            onViewDetail: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => LeakDetailScreen(reportId: selectedLeak.id),
-              ),
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _MapLegend(),
+              if (selectedLeak != null) ...[
+                const SizedBox(height: AppSpacing.sm),
+                _SelectedLeakCard(
+                  leak: selectedLeak,
+                  onViewDetail: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) =>
+                          LeakDetailScreen(reportId: selectedLeak.id),
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
       if (reportsAsync.isLoading && !reportsAsync.hasValue)
@@ -187,10 +197,6 @@ Widget _buildMapWithOverlays(
           message: _mapErrorMessage(reportsAsync.error!),
           onRetry: () => ref.invalidate(mapReportsProvider),
         ),
-      if (reportsAsync.hasValue &&
-          reportsAsync.value!.isEmpty &&
-          !reportsAsync.isLoading)
-        const _MapEmptyOverlay(),
     ],
   );
 }
@@ -729,6 +735,66 @@ class _MapEmptyView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Leyenda de colores del mapa: punto rojo = Activa, punto verde = Resuelta.
+class _MapLegend extends StatelessWidget {
+  const _MapLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: mapLegendKey,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.surface.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const _LegendDot(color: AppColors.danger),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            'Activa',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: AppColors.textMuted,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          const _LegendDot(color: AppColors.success),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            'Resuelta',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: AppColors.textMuted,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  const _LegendDot({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 9,
+      height: 9,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }

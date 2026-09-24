@@ -105,7 +105,7 @@ final selectedMarkerProvider =
 
   switch (filterState.filterType) {
     case MapFilterType.all:
-      status = null;
+      status = 'ACTIVE';
       orderBy = 'recent';
     case MapFilterType.active:
       status = 'ACTIVE';

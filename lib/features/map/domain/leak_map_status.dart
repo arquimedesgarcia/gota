@@ -38,17 +38,21 @@ LeakMapStatus leakMapStatusOf(LeakSummary leak) {
   return LeakMapStatus.reported;
 }
 
-/// Color del marker/badge para cada estado visual:
-/// reportada=azul, validada=rojo, resuelta=verde.
+/// Color del marker: activas (reportada/validada)=rojo, resuelta=verde.
+/// Solo dos colores visibles en el mapa.
 Color leakMapStatusColor(LeakMapStatus status) => switch (status) {
-      LeakMapStatus.reported => AppColors.primary,
+      LeakMapStatus.reported => AppColors.danger,
       LeakMapStatus.validated => AppColors.danger,
       LeakMapStatus.resolved => AppColors.success,
     };
 
+/// Indica si el marker debe mostrar un halo animado (fugas confirmadas).
+bool leakMapHasHalo(LeakMapStatus status) =>
+    status == LeakMapStatus.validated;
+
 /// Etiqueta corta de la leyenda.
 String leakMapStatusLabel(LeakMapStatus status) => switch (status) {
       LeakMapStatus.reported => 'Reportada',
-      LeakMapStatus.validated => 'Validada',
+      LeakMapStatus.validated => 'Confirmada',
       LeakMapStatus.resolved => 'Resuelta',
     };
