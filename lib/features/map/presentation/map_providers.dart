@@ -50,17 +50,17 @@ class MapFilterNotifier extends Notifier<MapFilterState> {
         state.maxLat != null ||
         state.maxLng != null;
     if (hasExistingBounds) {
-      final dx = (state.minLat ?? minLat) - minLat;
-      final dy = (state.minLng ?? minLng) - minLng;
-      final dx2 = (state.maxLat ?? maxLat) - maxLat;
-      final dy2 = (state.maxLng ?? maxLng) - maxLng;
-      if (dx.abs() < _boundsTolerance &&
-          dy.abs() < _boundsTolerance &&
-          dx2.abs() < _boundsTolerance &&
-          dy2.abs() < _boundsTolerance) {
-        return;
-      }
-    }
+          final dMinLat = (state.minLat ?? minLat) - minLat;
+          final dMinLng = (state.minLng ?? minLng) - minLng;
+          final dMaxLat = (state.maxLat ?? maxLat) - maxLat;
+          final dMaxLng = (state.maxLng ?? maxLng) - maxLng;
+          if (dMinLat.abs() < _boundsTolerance &&
+              dMinLng.abs() < _boundsTolerance &&
+              dMaxLat.abs() < _boundsTolerance &&
+              dMaxLng.abs() < _boundsTolerance) {
+            return;
+          }
+        }
 
     state = state.copyWith(
       minLat: minLat,

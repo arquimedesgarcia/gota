@@ -82,7 +82,7 @@ void main() {
           appConfigProvider.overrideWithValue(
             const AppConfig(
               supabaseUrl: 'https://demo.supabase.co',
-              supabaseAnonKey: 'anon-key',
+              supabasePublishableKey: 'anon-key',
             ),
           ),
           authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
@@ -131,7 +131,7 @@ void main() {
           appConfigProvider.overrideWithValue(
             const AppConfig(
               supabaseUrl: 'https://demo.supabase.co',
-              supabaseAnonKey: 'anon-key',
+              supabasePublishableKey: 'anon-key',
             ),
           ),
           authRepositoryProvider.overrideWithValue(FakeAuthRepository()),

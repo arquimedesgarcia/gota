@@ -25,6 +25,7 @@ class WaterRegisterState {
     this.comment = '',
     this.submitStatus = WaterRegisterSubmitStatus.idle,
     this.errorMessage,
+    this.currentStep = 0,
   });
 
   final String? municipalityId;
@@ -36,6 +37,10 @@ class WaterRegisterState {
   final WaterRegisterSubmitStatus submitStatus;
   final String? errorMessage;
 
+  /// Paso actual del Stepper (0-3). Vive aquí y no en el widget para
+  /// sobrevivir a cambios de configuración (p. ej. rotación).
+  final int currentStep;
+
   WaterRegisterState copyWith({
     String? municipalityId,
     String? municipalityName,
@@ -45,6 +50,7 @@ class WaterRegisterState {
     String? comment,
     WaterRegisterSubmitStatus? submitStatus,
     String? errorMessage,
+    int? currentStep,
     bool clearError = false,
   }) => WaterRegisterState(
     municipalityId: municipalityId ?? this.municipalityId,
@@ -55,6 +61,7 @@ class WaterRegisterState {
     comment: comment ?? this.comment,
     submitStatus: submitStatus ?? this.submitStatus,
     errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+    currentStep: currentStep ?? this.currentStep,
   );
 }
 
@@ -85,6 +92,17 @@ class WaterRegisterController extends Notifier<WaterRegisterState> {
 
   void setComment(String comment) =>
       state = state.copyWith(comment: comment, clearError: true);
+
+  /// Navegación del Stepper (0 = tipo, 1 = municipio, 2 = sector, 3 = resumen).
+  void goToStep(int step) {
+    if (step >= 0 && step <= 3) {
+      state = state.copyWith(currentStep: step);
+    }
+  }
+
+  void nextStep() => goToStep(state.currentStep + 1);
+
+  void previousStep() => goToStep(state.currentStep - 1);
 
   /// Envía el evento. Devuelve true solo cuando el backend confirmó la
   /// creación (CREATED); cualquier otro resultado queda como estado de
