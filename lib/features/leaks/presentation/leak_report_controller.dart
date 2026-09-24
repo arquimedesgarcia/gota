@@ -372,6 +372,11 @@ class LeakReportController extends Notifier<LeakReportState> {
         message: e.userMessage,
         suggestionLoading: false,
       );
+    } catch (_) {
+      // Errores inesperados (Error de Dart, TypeError en fromJson, etc.) no
+      // deben dejar suggestionLoading en true de forma permanente.
+      if (requestId != _locationRequestId) return;
+      state = state.copyWith(suggestionLoading: false);
     }
   }
 

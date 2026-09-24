@@ -43,8 +43,10 @@ class LeakReportScreen extends ConsumerWidget {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
         // En el primer paso y en resultado: cerrar la pantalla normalmente.
+        // pop() en lugar de maybePop(): con canPop:false, maybePop volvería
+        // a disparar onPopInvokedWithResult generando recursión infinita.
         if (step == ReportStep.location || step == ReportStep.result) {
-          Navigator.of(context).maybePop(false);
+          Navigator.of(context).pop(false);
           return;
         }
         ref.read(leakReportProvider.notifier).goToPrevious();
@@ -76,15 +78,24 @@ class LeakReportScreen extends ConsumerWidget {
           child: Consumer(
             builder: (context, ref, _) {
               final state = ref.watch(leakReportProvider);
-              // F: El banner de recuperación automática está deshabilitado
-              // para el piloto. La lógica de borrador persiste internamente.
-              return switch (state.currentStep) {
+              final stepView = switch (state.currentStep) {
                 ReportStep.location => const LocationStepView(),
                 ReportStep.photos => const PhotosStepView(),
                 ReportStep.data => const DataStepView(),
                 ReportStep.review => const ReviewStepView(),
                 ReportStep.result => const ResultStepView(),
               };
+              if (!state.hasDraftRestored) return stepView;
+              return Column(
+                children: [
+                  _DraftRestoredBanner(
+                    onDiscard: () => ref
+                        .read(leakReportProvider.notifier)
+                        .discardDraft(),
+                  ),
+                  Expanded(child: stepView),
+                ],
+              );
             },
           ),
         ),
@@ -129,7 +140,6 @@ class StatusBanner extends StatelessWidget {
   }
 }
 
-// ignore: unused_element
 class _DraftRestoredBanner extends StatelessWidget {
   const _DraftRestoredBanner({required this.onDiscard});
 
@@ -1177,7 +1187,9 @@ class ResultStepView extends ConsumerWidget {
                   final created =
                       state.submitState == ReportSubmitState.done &&
                       outcome is ReportCreated;
-                  Navigator.of(context).maybePop(created);
+                  // pop() en lugar de maybePop() por la misma razón que en
+                  // PopScope.onPopInvokedWithResult: evita recursión infinita.
+                  Navigator.of(context).pop(created);
                 },
                 child: const Text('Volver al inicio'),
               ),
