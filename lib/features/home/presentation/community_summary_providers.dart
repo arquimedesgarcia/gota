@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/app_exception.dart';
 import '../../leaks/data/community_summary_repository.dart';
 import '../../leaks/domain/community_summary.dart';
 import '../../notifications/presentation/notification_providers.dart';
@@ -32,7 +36,11 @@ final sectorWaterStatusProvider =
     return await ref
         .watch(waterEventRepositoryProvider)
         .latestEvent(sectorId: prefs?.preferredSectorId);
-  } catch (_) {
+  } on AppException {
+    return null;
+  } on TimeoutException {
+    return null;
+  } on SocketException {
     return null;
   }
 });

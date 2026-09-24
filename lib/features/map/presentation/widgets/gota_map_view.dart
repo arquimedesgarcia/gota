@@ -151,17 +151,19 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
   double? _lastCenteredLng;
   bool _mapCreated = false;
   bool _styleLoaded = false;
+  void Function(Circle) _onCircleTappedCallback = (_) {};
 
   void _onMapCreated(MapLibreMapController controller) {
     _controller = controller;
     _mapCreated = false;
     _styleLoaded = false;
-    controller.onCircleTapped.add((circle) {
+    _onCircleTappedCallback = (circle) {
       final leak = _circleToLeak[circle];
       if (leak != null) {
         widget.onMarkerTapped(leak);
       }
-    });
+    };
+    controller.onCircleTapped.add(_onCircleTappedCallback);
     _mapCreated = true;
   }
 
@@ -278,6 +280,7 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
 
   @override
   void dispose() {
+    _controller?.onCircleTapped.remove(_onCircleTappedCallback);
     _mapCreated = false;
     _styleLoaded = false;
     super.dispose();

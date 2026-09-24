@@ -484,17 +484,18 @@ void main() {
             .read(notificationPreferencesControllerProvider.notifier)
             .selectSector('sector-b');
 
+        // C2-01: durante el guardado el estado es de carga pura (sin dato
+        // previo); el valor previo se restaura solo si falla.
         final refreshingState = states.firstWhere(
           (s) => s.isLoading,
           orElse: () => throw StateError('no se encontró estado de carga'),
         );
-        expect(refreshingState.isRefreshing, isTrue);
-        expect(refreshingState.hasValue, isTrue);
+        expect(refreshingState.hasValue, isFalse);
       },
     );
 
     testWidgets(
-      'el sector sigue visible mientras se guarda',
+      'durante el guardado se muestra carga pura (sin dato previo)',
       (tester) async {
         final saveCompleter = Completer<NotificationPreferences>();
         final repo = _BlockedSaveRepository(saveCompleter);
@@ -532,9 +533,10 @@ void main() {
         await tester.tap(find.byType(SwitchListTile));
         await tester.pump();
 
-        // El sector sigue visible durante el guardado (isRefreshing: true)
-        expect(find.text('Sector A'), findsOneWidget);
-        expect(find.byType(LoadingView), findsNothing);
+        // Durante el guardado se muestra carga pura (C2-01: spinner sin dato
+        // previo; el dato se restaura si falla).
+        expect(find.byType(LoadingView), findsWidgets);
+        expect(find.text('Sector A'), findsNothing);
 
         // Completar el guardado
         saveCompleter.complete(
@@ -547,6 +549,7 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
+        expect(find.text('Sector A'), findsOneWidget);
       },
     );
   });

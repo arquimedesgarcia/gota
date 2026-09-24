@@ -65,8 +65,7 @@ class NotificationPreferencesController
     }
     final current = previousState.value;
     _saveError = null;
-    state = const AsyncValue<NotificationPreferences?>.loading()
-        .copyWithPrevious(previousState, isRefresh: true); // ignore: invalid_use_of_internal_member
+    state = const AsyncValue<NotificationPreferences?>.loading();
     try {
       final saved = await ref
           .read(notificationRepositoryProvider)
