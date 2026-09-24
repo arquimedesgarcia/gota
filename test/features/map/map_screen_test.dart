@@ -372,7 +372,7 @@ void main() {
       ).called(1);
     });
 
-    testWidgets('filtro Recientes usa orderBy recent sin filtro de estado', (
+    testWidgets('filtro Recientes usa orderBy recent con status ACTIVE', (
       tester,
     ) async {
       await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
@@ -411,7 +411,7 @@ void main() {
 
       verify(
         () => repository.mapReports(
-          status: null,
+          status: 'ACTIVE',
           sectorId: any(named: 'sectorId'),
           minLat: any(named: 'minLat'),
           minLng: any(named: 'minLng'),

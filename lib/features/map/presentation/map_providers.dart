@@ -114,12 +114,13 @@ final selectedMarkerProvider =
       status = 'RESOLVED';
       orderBy = 'recent';
     case MapFilterType.recent:
-      status = null;
+      status = 'ACTIVE';
       orderBy = 'recent';
     case MapFilterType.mostValidated:
-      status = null;
+      status = 'ACTIVE';
       orderBy = 'validated';
     case MapFilterType.mySector:
+      status = 'ACTIVE';
       sectorId = filterState.selectedSectorId;
   }
 

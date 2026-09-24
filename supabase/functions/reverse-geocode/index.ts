@@ -1,4 +1,5 @@
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/reverse";
+const BDC_URL = "https://api.bigdatacloud.net/data/reverse-geocode-client";
 
 interface ReverseRequest {
   latitude: number;
@@ -26,33 +27,108 @@ Deno.serve(async (request) => {
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 7000);
+
   try {
-    const url = new URL(NOMINATIM_URL);
-    url.searchParams.set("lat", String(body.latitude));
-    url.searchParams.set("lon", String(body.longitude));
-    url.searchParams.set("format", "jsonv2");
-    url.searchParams.set("addressdetails", "1");
-    url.searchParams.set("zoom", "18");
-
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        "Accept": "application/json",
-        "User-Agent": "Gota/0.2 reverse-geocoding",
+    // Primary: Nominatim (3.5s window).
+    const nominatimRaw = await tryFetch(
+      buildNominatimUrl(body.latitude, body.longitude),
+      {
+        signal: controller.signal,
+        headers: {
+          "Accept": "application/json",
+          "User-Agent": "Gota/0.2 reverse-geocoding",
+        },
       },
-    });
-    if (!response.ok) return json({ error: "provider_unavailable" }, 502);
+      3500,
+    );
+    if (nominatimRaw) {
+      return json(normalizeNominatim(nominatimRaw, body));
+    }
 
-    const raw = await response.json();
-    return json(normalize(raw, body));
+    // Fallback: BigDataCloud (remaining time up to abort).
+    const bdcRaw = await tryFetch(
+      buildBdcUrl(body.latitude, body.longitude),
+      { signal: controller.signal },
+    );
+    if (bdcRaw) {
+      return json(normalizeBDC(bdcRaw, body));
+    }
+
+    // All providers failed — return 200 with incomplete flag so the Flutter
+    // client does not throw FunctionException and shows no error message.
+    return json({
+      latitude: body.latitude,
+      longitude: body.longitude,
+      provider: "none",
+      incomplete: true,
+    });
   } catch {
-    return json({ error: "provider_unavailable" }, 502);
+    return json({
+      latitude: body.latitude,
+      longitude: body.longitude,
+      provider: "none",
+      incomplete: true,
+    });
   } finally {
     clearTimeout(timeout);
   }
 });
 
-function normalize(raw: Record<string, unknown>, request: ReverseRequest) {
+// ---------- URL builders ----------
+
+function buildNominatimUrl(lat: number, lon: number): URL {
+  const url = new URL(NOMINATIM_URL);
+  url.searchParams.set("lat", String(lat));
+  url.searchParams.set("lon", String(lon));
+  url.searchParams.set("format", "jsonv2");
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("zoom", "18");
+  return url;
+}
+
+function buildBdcUrl(lat: number, lon: number): URL {
+  const url = new URL(BDC_URL);
+  url.searchParams.set("latitude", String(lat));
+  url.searchParams.set("longitude", String(lon));
+  url.searchParams.set("localityLanguage", "es");
+  return url;
+}
+
+// ---------- Generic fetch helper ----------
+
+/** Fetches a URL and returns its JSON body, or null on any failure.
+ *  An optional `maxMs` cap races a timer against the fetch so that a slow
+ *  provider doesn't consume the entire budget before the fallback runs.
+ */
+async function tryFetch(
+  url: URL | string,
+  options: RequestInit,
+  maxMs?: number,
+): Promise<Record<string, unknown> | null> {
+  try {
+    const fetchPromise = fetch(url, options).then(async (r) => {
+      if (!r.ok) return null;
+      const data = await r.json();
+      return isRecord(data) ? data : null;
+    });
+
+    if (maxMs === undefined) return await fetchPromise;
+
+    const cap = new Promise<null>((resolve) =>
+      setTimeout(() => resolve(null), maxMs)
+    );
+    return await Promise.race([fetchPromise, cap]);
+  } catch {
+    return null;
+  }
+}
+
+// ---------- Normalizers ----------
+
+function normalizeNominatim(
+  raw: Record<string, unknown>,
+  request: ReverseRequest,
+) {
   const address = isRecord(raw.address) ? raw.address : {};
   const locality = text(address.neighbourhood) ?? text(address.quarter);
   const city = text(address.city) ?? text(address.town) ?? text(address.village);
@@ -70,9 +146,42 @@ function normalize(raw: Record<string, unknown>, request: ReverseRequest) {
     municipality,
     state,
     provider: "nominatim",
-    incomplete: display == null && locality == null && city == null && municipality == null,
+    incomplete:
+      display == null &&
+      locality == null &&
+      city == null &&
+      municipality == null,
   };
 }
+
+function normalizeBDC(
+  raw: Record<string, unknown>,
+  request: ReverseRequest,
+) {
+  const locality = text(raw.locality);
+  const city = text(raw.city);
+  const state = text(raw.principalSubdivision);
+  // In Venezuela, BDC 'city' typically matches the municipality name.
+  const municipality = city;
+
+  const parts = [locality, city, state].filter((v): v is string => v !== null);
+  const display = parts.length > 0 ? parts.join(", ") : null;
+
+  return {
+    latitude: request.latitude,
+    longitude: request.longitude,
+    display_text: display,
+    locality,
+    neighborhood: locality,
+    city,
+    municipality,
+    state,
+    provider: "bigdatacloud",
+    incomplete: display == null,
+  };
+}
+
+// ---------- Utilities ----------
 
 function validCoordinate(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
@@ -89,7 +198,8 @@ function text(value: unknown): string | null {
 function corsHeaders(): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type",
   };
 }
 
