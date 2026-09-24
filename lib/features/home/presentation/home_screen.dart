@@ -7,6 +7,7 @@ import '../../leaks/presentation/leak_report_controller.dart';
 import '../../leaks/presentation/leak_report_screen.dart';
 import '../../leaks/presentation/recent_activity_card.dart';
 import '../../leaks/presentation/recent_activity_providers.dart';
+import '../../map/presentation/map_providers.dart';
 import '../../map/presentation/map_screen.dart';
 import '../../water/domain/water_event_type.dart';
 import '../../water/presentation/water_register_screen.dart';
@@ -38,6 +39,7 @@ class HomeScreen extends StatelessWidget {
       container.invalidate(recentLeaksProvider);
       container.invalidate(communitySummaryProvider);
       container.invalidate(latestActivityProvider);
+      container.invalidate(mapReportsProvider);
     }
   }
 

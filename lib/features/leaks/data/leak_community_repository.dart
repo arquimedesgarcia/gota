@@ -8,6 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../../../core/errors/app_exception.dart';
 import '../../../core/network/gota_community_database.dart';
 import '../../../core/network/network_providers.dart';
+import '../../../core/utils/rate_limit.dart';
+import '../../../core/utils/rpc_helper.dart';
 import '../domain/community_activity.dart';
 import '../domain/leak_community.dart';
 import '../domain/leak_community_errors.dart';
@@ -127,7 +129,7 @@ class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
 
   @override
   Future<LeakDetail> reportDetail(String reportId) async {
-    final data = await _rpc(() => _database.rpcLeakReportDetail(reportId));
+    final data = await callRpc(() => _database.rpcLeakReportDetail(reportId));
 
     switch (data['status_code']) {
       case 'OK':
@@ -143,13 +145,13 @@ class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
 
   @override
   Future<CommunityActionResult> validateLeak(String reportId) async {
-    final data = await _rpc(() => _database.rpcValidateLeak(reportId));
+    final data = await callRpc(() => _database.rpcValidateLeak(reportId));
     return _parseAction(data, duplicateFallback: 'Ya validaste este reporte.');
   }
 
   @override
   Future<CommunityActionResult> confirmResolution(String reportId) async {
-    final data = await _rpc(() => _database.rpcConfirmLeakResolution(reportId));
+    final data = await callRpc(() => _database.rpcConfirmLeakResolution(reportId));
     return _parseAction(
       data,
       duplicateFallback: 'Ya confirmaste la resolución de esta fuga.',
@@ -189,7 +191,12 @@ class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
       case 'UNAUTHORIZED':
         throw const LeakCommunityUnauthorizedException();
       case 'RATE_LIMIT_EXCEEDED':
-        throw LeakCommunityRateLimitException(_rateLimitMessage(data));
+        throw LeakCommunityRateLimitException(
+          formatRateLimitMessage(
+            data,
+            defaultMessage: 'Has alcanzado el límite de acciones por hora.',
+          ),
+        );
       default:
         throw const QueryException(
           'No pudimos completar la acción. Intenta de nuevo.',
@@ -197,42 +204,6 @@ class SupabaseLeakCommunityRepository implements LeakCommunityRepository {
     }
   }
 
-  /// Mensaje de límite de frecuencia (`RATE_LIMIT_EXCEEDED`): usa el mensaje
-  /// del backend y, si viene `reset_at`, añade la hora local de reintento.
-  String _rateLimitMessage(Map<String, dynamic> data) {
-    final base =
-        data['message'] as String? ??
-        'Has alcanzado el límite de acciones por hora.';
-    final rawResetAt = data['reset_at'];
-    final resetAt = rawResetAt is String ? DateTime.tryParse(rawResetAt) : null;
-    if (resetAt == null) return base;
-    final local = resetAt.toLocal();
-    final hh = local.hour.toString().padLeft(2, '0');
-    final mm = local.minute.toString().padLeft(2, '0');
-    return '$base Intenta de nuevo después de las $hh:$mm.';
-  }
-
-  Future<Map<String, dynamic>> _rpc(
-    Future<Map<String, dynamic>> Function() action,
-  ) async {
-    try {
-      return await action();
-    } on TimeoutException {
-      throw const NetworkException();
-    } on SocketException {
-      throw const NetworkException();
-    } on http.ClientException {
-      throw const NetworkException();
-    } on supabase.PostgrestException {
-      throw const QueryException(
-        'No pudimos completar la acción. Intenta de nuevo.',
-      );
-    } on supabase.AuthException {
-      throw const QueryException(
-        'No pudimos completar la acción. Cierra y abre la app de nuevo.',
-      );
-    }
-  }
 }
 
 final leakCommunityRepositoryProvider = Provider<LeakCommunityRepository>(

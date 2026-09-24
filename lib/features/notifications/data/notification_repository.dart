@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../../../core/errors/app_exception.dart';
 import '../../../core/network/gota_notifications_database.dart';
 import '../../../core/network/network_providers.dart';
+import '../../../core/utils/rpc_helper.dart';
 import '../domain/notification_errors.dart';
 import '../domain/notification_page.dart';
 import '../domain/notification_preferences.dart';
@@ -72,7 +73,7 @@ class SupabaseNotificationRepository implements NotificationRepository {
     String? sectorId,
     required bool enabled,
   }) async {
-    final data = await _rpc(
+    final data = await callRpc(
       () => _database.rpcSavePreferences(sectorId: sectorId, enabled: enabled),
     );
 
@@ -146,7 +147,7 @@ class SupabaseNotificationRepository implements NotificationRepository {
 
   @override
   Future<void> registerToken(String token, String platform) async {
-    final data = await _rpc(
+    final data = await callRpc(
       () => _database.rpcRegisterToken(token: token, platform: platform),
     );
     _mapTokenRpcResult(data, 'No pudimos registrar el dispositivo.');
@@ -154,7 +155,7 @@ class SupabaseNotificationRepository implements NotificationRepository {
 
   @override
   Future<void> unregisterToken(String token) async {
-    final data = await _rpc(() => _database.rpcUnregisterToken(token));
+    final data = await callRpc(() => _database.rpcUnregisterToken(token));
     _mapTokenRpcResult(data, 'No pudimos desactivar el dispositivo.');
   }
 
@@ -179,26 +180,6 @@ class SupabaseNotificationRepository implements NotificationRepository {
         throw const AuthException();
       default:
         throw QueryException(fallbackMessage);
-    }
-  }
-
-  Future<Map<String, dynamic>> _rpc(
-    Future<Map<String, dynamic>> Function() action,
-  ) async {
-    try {
-      return await action();
-    } on SocketException {
-      throw const NetworkException();
-    } on http.ClientException {
-      throw const NetworkException();
-    } on supabase.PostgrestException {
-      throw const QueryException(
-        'No pudimos completar la acción. Intenta de nuevo.',
-      );
-    } on supabase.AuthException {
-      throw const QueryException(
-        'No pudimos completar la acción. Cierra y abre la app de nuevo.',
-      );
     }
   }
 }

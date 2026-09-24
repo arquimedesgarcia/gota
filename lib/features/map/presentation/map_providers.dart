@@ -102,52 +102,25 @@ final mapReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
   final filterState = ref.watch(mapFilterProvider);
   final repository = ref.watch(leakCommunityRepositoryProvider);
 
-  String? status;
-  String? sectorId;
-  String orderBy = 'recent';
-
-  switch (filterState.filterType) {
-    case MapFilterType.all:
-      status = null;
-      orderBy = 'recent';
-      break;
-    case MapFilterType.active:
-      status = 'ACTIVE';
-      orderBy = 'recent';
-      break;
-    case MapFilterType.resolved:
-      status = 'RESOLVED';
-      orderBy = 'recent';
-      break;
-    case MapFilterType.recent:
-      status = null;
-      orderBy = 'recent';
-      break;
-    case MapFilterType.mostValidated:
-      status = null;
-      orderBy = 'validated';
-      break;
-    case MapFilterType.mySector:
-      // "Mi sector" requiere selección explícita del sector vía setSectorId().
-      // No se infiere el sector desde GPS porque no existe un modelo de
-      // "sector del usuario" en Sprint 05; esa cadena (usuario → sector de
-      // interés → notificación) pertenece a Sprint 06. Documentado en
-      // MIGRATION_NOTES.md §Sprint-05-decisiones.
-      sectorId = filterState.selectedSectorId;
-      if (sectorId == null) {
-        return const <LeakSummary>[];
-      }
-      break;
+  final params = _buildFilterParams(filterState);
+  if (filterState.filterType == MapFilterType.mySector &&
+      params.sectorId == null) {
+    // "Mi sector" requiere selección explícita del sector vía setSectorId().
+    // No se infiere el sector desde GPS porque no existe un modelo de
+    // "sector del usuario" en Sprint 05; esa cadena (usuario → sector de
+    // interés → notificación) pertenece a Sprint 06. Documentado en
+    // MIGRATION_NOTES.md §Sprint-05-decisiones.
+    return const <LeakSummary>[];
   }
 
   return repository.mapReports(
-    status: status,
-    sectorId: sectorId,
+    status: params.status,
+    sectorId: params.sectorId,
     minLat: filterState.minLat,
     minLng: filterState.minLng,
     maxLat: filterState.maxLat,
     maxLng: filterState.maxLng,
-    orderBy: orderBy,
+    orderBy: params.orderBy,
     limit: 100,
   );
 });
@@ -161,6 +134,30 @@ final listReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
   final filterState = ref.watch(mapFilterProvider);
   final repository = ref.watch(leakCommunityRepositoryProvider);
 
+  final params = _buildFilterParams(filterState);
+  if (filterState.filterType == MapFilterType.mySector &&
+      params.sectorId == null) {
+    return const <LeakSummary>[];
+  }
+
+  return repository.mapReports(
+    status: params.status,
+    sectorId: params.sectorId,
+    // No se aplican límites de bbox a la vista de lista
+    minLat: null,
+    minLng: null,
+    maxLat: null,
+    maxLng: null,
+    orderBy: params.orderBy,
+    limit: 100,
+  );
+});
+
+/// Parámetros de filtro derivados de [MapFilterState], compartidos por
+/// `mapReportsProvider` y `listReportsProvider` (§9/§12).
+({String? status, String? sectorId, String orderBy}) _buildFilterParams(
+  MapFilterState filterState,
+) {
   String? status;
   String? sectorId;
   String orderBy = 'recent';
@@ -169,43 +166,24 @@ final listReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
     case MapFilterType.all:
       status = null;
       orderBy = 'recent';
-      break;
     case MapFilterType.active:
       status = 'ACTIVE';
       orderBy = 'recent';
-      break;
     case MapFilterType.resolved:
       status = 'RESOLVED';
       orderBy = 'recent';
-      break;
     case MapFilterType.recent:
       status = null;
       orderBy = 'recent';
-      break;
     case MapFilterType.mostValidated:
       status = null;
       orderBy = 'validated';
-      break;
     case MapFilterType.mySector:
       sectorId = filterState.selectedSectorId;
-      if (sectorId == null) {
-        return const <LeakSummary>[];
-      }
-      break;
   }
 
-  return repository.mapReports(
-    status: status,
-    sectorId: sectorId,
-    // No se aplican límites de bbox a la vista de lista
-    minLat: null,
-    minLng: null,
-    maxLat: null,
-    maxLng: null,
-    orderBy: orderBy,
-    limit: 100,
-  );
-});
+  return (status: status, sectorId: sectorId, orderBy: orderBy);
+}
 
 /// Servicio de ubicación bajo demanda para el mapa (§13).
 ///
