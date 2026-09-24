@@ -8,6 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../../../core/errors/app_exception.dart';
 import '../../../core/network/gota_water_database.dart';
 import '../../../core/network/network_providers.dart';
+import '../../../core/utils/rate_limit.dart';
+import '../../../core/utils/rpc_helper.dart';
 import '../domain/water_errors.dart';
 import '../domain/water_event.dart';
 import '../domain/water_event_detail.dart';
@@ -65,7 +67,7 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
         ? null
         : trimmed;
 
-    final data = await _rpc(
+    final data = await callRpc(
       () => _database.rpcRegisterWaterEvent(
         municipalityId: municipalityId,
         sectorId: sectorId,
@@ -101,7 +103,12 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
       case 'UNAUTHORIZED':
         throw const AuthException();
       case 'RATE_LIMIT_EXCEEDED':
-        throw WaterRateLimitException(_rateLimitMessage(data));
+        throw WaterRateLimitException(
+          formatRateLimitMessage(
+            data,
+            defaultMessage: 'Has alcanzado el límite de eventos de agua por hora.',
+          ),
+        );
       default:
         throw const QueryException('No pudimos registrar el evento.');
     }
@@ -109,7 +116,7 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
 
   @override
   Future<int> validate(String eventId) async {
-    final data = await _rpc(() => _database.rpcValidateWaterEvent(eventId));
+    final data = await callRpc(() => _database.rpcValidateWaterEvent(eventId));
 
     switch (data['status_code']) {
       case 'VALIDATED':
@@ -129,7 +136,12 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
       case 'UNAUTHORIZED':
         throw const AuthException();
       case 'RATE_LIMIT_EXCEEDED':
-        throw WaterRateLimitException(_rateLimitMessage(data));
+        throw WaterRateLimitException(
+          formatRateLimitMessage(
+            data,
+            defaultMessage: 'Has alcanzado el límite de eventos de agua por hora.',
+          ),
+        );
       default:
         throw const QueryException('No pudimos completar la acción.');
     }
@@ -137,7 +149,7 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
 
   @override
   Future<WaterEventDetail> detail(String eventId) async {
-    final data = await _rpc(() => _database.rpcWaterEventDetail(eventId));
+    final data = await callRpc(() => _database.rpcWaterEventDetail(eventId));
 
     switch (data['status_code']) {
       case 'OK':
@@ -206,47 +218,11 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
     }
   }
 
-  Future<Map<String, dynamic>> _rpc(
-    Future<Map<String, dynamic>> Function() action,
-  ) async {
-    try {
-      return await action();
-    } on TimeoutException {
-      throw const NetworkException();
-    } on SocketException {
-      throw const NetworkException();
-    } on http.ClientException {
-      throw const NetworkException();
-    } on supabase.PostgrestException {
-      throw const QueryException(
-        'No pudimos completar la acción. Intenta de nuevo.',
-      );
-    } on supabase.AuthException {
-      throw const QueryException(
-        'No pudimos completar la acción. Cierra y abre la app de nuevo.',
-      );
-    }
-  }
 }
 
 DateTime? _parseDate(Object? value) {
   if (value is! String || value.isEmpty) return null;
   return DateTime.tryParse(value);
-}
-
-/// Mensaje de límite de frecuencia (`RATE_LIMIT_EXCEEDED`): usa el mensaje
-/// del backend y, si viene `reset_at`, añade la hora local de reintento.
-String _rateLimitMessage(Map<String, dynamic> data) {
-  final base =
-      data['message'] as String? ??
-      'Has alcanzado el límite de eventos de agua por hora.';
-  final rawResetAt = data['reset_at'];
-  final resetAt = rawResetAt is String ? DateTime.tryParse(rawResetAt) : null;
-  if (resetAt == null) return base;
-  final local = resetAt.toLocal();
-  final hh = local.hour.toString().padLeft(2, '0');
-  final mm = local.minute.toString().padLeft(2, '0');
-  return '$base Intenta de nuevo después de las $hh:$mm.';
 }
 
 final waterEventRepositoryProvider = Provider<WaterEventRepository>(

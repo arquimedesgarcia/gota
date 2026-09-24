@@ -50,17 +50,17 @@ class MapFilterNotifier extends Notifier<MapFilterState> {
         state.maxLat != null ||
         state.maxLng != null;
     if (hasExistingBounds) {
-          final dMinLat = (state.minLat ?? minLat) - minLat;
-          final dMinLng = (state.minLng ?? minLng) - minLng;
-          final dMaxLat = (state.maxLat ?? maxLat) - maxLat;
-          final dMaxLng = (state.maxLng ?? maxLng) - maxLng;
-          if (dMinLat.abs() < _boundsTolerance &&
-              dMinLng.abs() < _boundsTolerance &&
-              dMaxLat.abs() < _boundsTolerance &&
-              dMaxLng.abs() < _boundsTolerance) {
-            return;
-          }
-        }
+      final dMinLat = (state.minLat ?? minLat) - minLat;
+      final dMinLng = (state.minLng ?? minLng) - minLng;
+      final dMaxLat = (state.maxLat ?? maxLat) - maxLat;
+      final dMaxLng = (state.maxLng ?? maxLng) - maxLng;
+      if (dMinLat.abs() < _boundsTolerance &&
+          dMinLng.abs() < _boundsTolerance &&
+          dMaxLat.abs() < _boundsTolerance &&
+          dMaxLng.abs() < _boundsTolerance) {
+        return;
+      }
+    }
 
     state = state.copyWith(
       minLat: minLat,
@@ -94,14 +94,11 @@ final selectedMarkerProvider =
       SelectedMarkerNotifier.new,
     );
 
-/// Provider de reportes para el mapa (§9): incluye filtros + bbox del viewport.
-///
-/// La vista de mapa consume este provider para mostrar solo fugas dentro
-/// del área visible (optimización PostGIS).
-final mapReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
-  final filterState = ref.watch(mapFilterProvider);
-  final repository = ref.watch(leakCommunityRepositoryProvider);
-
+/// Traduce [MapFilterState.filterType] a los parámetros de consulta compartidos
+/// por [mapReportsProvider] y [listReportsProvider].
+({String? status, String? sectorId, String orderBy}) _buildFilterParams(
+  MapFilterState filterState,
+) {
   String? status;
   String? sectorId;
   String orderBy = 'recent';
@@ -110,44 +107,52 @@ final mapReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
     case MapFilterType.all:
       status = null;
       orderBy = 'recent';
-      break;
     case MapFilterType.active:
       status = 'ACTIVE';
       orderBy = 'recent';
-      break;
     case MapFilterType.resolved:
       status = 'RESOLVED';
       orderBy = 'recent';
-      break;
     case MapFilterType.recent:
       status = null;
       orderBy = 'recent';
-      break;
     case MapFilterType.mostValidated:
       status = null;
       orderBy = 'validated';
-      break;
     case MapFilterType.mySector:
-      // "Mi sector" requiere selección explícita del sector vía setSectorId().
-      // No se infiere el sector desde GPS porque no existe un modelo de
-      // "sector del usuario" en Sprint 05; esa cadena (usuario → sector de
-      // interés → notificación) pertenece a Sprint 06. Documentado en
-      // MIGRATION_NOTES.md §Sprint-05-decisiones.
       sectorId = filterState.selectedSectorId;
-      if (sectorId == null) {
-        return const <LeakSummary>[];
-      }
-      break;
+  }
+
+  return (status: status, sectorId: sectorId, orderBy: orderBy);
+}
+
+/// Provider de reportes para el mapa (§9): incluye filtros + bbox del viewport.
+///
+/// La vista de mapa consume este provider para mostrar solo fugas dentro
+/// del área visible (optimización PostGIS).
+final mapReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
+  final filterState = ref.watch(mapFilterProvider);
+  final repository = ref.watch(leakCommunityRepositoryProvider);
+
+  final params = _buildFilterParams(filterState);
+  // "Mi sector" requiere selección explícita del sector vía setSectorId().
+  // No se infiere el sector desde GPS porque no existe un modelo de
+  // "sector del usuario" en Sprint 05; esa cadena (usuario → sector de
+  // interés → notificación) pertenece a Sprint 06. Documentado en
+  // MIGRATION_NOTES.md §Sprint-05-decisiones.
+  if (filterState.filterType == MapFilterType.mySector &&
+      params.sectorId == null) {
+    return const <LeakSummary>[];
   }
 
   return repository.mapReports(
-    status: status,
-    sectorId: sectorId,
+    status: params.status,
+    sectorId: params.sectorId,
     minLat: filterState.minLat,
     minLng: filterState.minLng,
     maxLat: filterState.maxLat,
     maxLng: filterState.maxLng,
-    orderBy: orderBy,
+    orderBy: params.orderBy,
     limit: 100,
   );
 });
@@ -161,48 +166,21 @@ final listReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
   final filterState = ref.watch(mapFilterProvider);
   final repository = ref.watch(leakCommunityRepositoryProvider);
 
-  String? status;
-  String? sectorId;
-  String orderBy = 'recent';
-
-  switch (filterState.filterType) {
-    case MapFilterType.all:
-      status = null;
-      orderBy = 'recent';
-      break;
-    case MapFilterType.active:
-      status = 'ACTIVE';
-      orderBy = 'recent';
-      break;
-    case MapFilterType.resolved:
-      status = 'RESOLVED';
-      orderBy = 'recent';
-      break;
-    case MapFilterType.recent:
-      status = null;
-      orderBy = 'recent';
-      break;
-    case MapFilterType.mostValidated:
-      status = null;
-      orderBy = 'validated';
-      break;
-    case MapFilterType.mySector:
-      sectorId = filterState.selectedSectorId;
-      if (sectorId == null) {
-        return const <LeakSummary>[];
-      }
-      break;
+  final params = _buildFilterParams(filterState);
+  if (filterState.filterType == MapFilterType.mySector &&
+      params.sectorId == null) {
+    return const <LeakSummary>[];
   }
 
   return repository.mapReports(
-    status: status,
-    sectorId: sectorId,
+    status: params.status,
+    sectorId: params.sectorId,
     // No se aplican límites de bbox a la vista de lista
     minLat: null,
     minLng: null,
     maxLat: null,
     maxLng: null,
-    orderBy: orderBy,
+    orderBy: params.orderBy,
     limit: 100,
   );
 });

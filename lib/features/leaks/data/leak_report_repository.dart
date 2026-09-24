@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/network/gota_auth.dart';
+import '../../../core/utils/rate_limit.dart';
 import '../../../core/network/gota_database.dart';
 import '../../../core/network/gota_storage.dart';
 import '../../../core/network/network_providers.dart';
@@ -181,7 +182,12 @@ class SupabaseLeakReportRepository implements LeakReportRepository {
               'Tu cuenta no puede publicar reportes ahora mismo.',
         );
       case 'RATE_LIMIT_EXCEEDED':
-        throw ReportRateLimitException(_rateLimitMessage(data));
+        throw ReportRateLimitException(
+          formatRateLimitMessage(
+            data,
+            defaultMessage: 'Has alcanzado el límite de reportes por hora.',
+          ),
+        );
       default:
         // VALIDATION_ERROR / INVALID_LOCATION / INVALID_SECTOR /
         // STORAGE_ERROR: el mensaje del backend ya viene en español y es
@@ -227,21 +233,6 @@ class SupabaseLeakReportRepository implements LeakReportRepository {
       'No pudimos borrar las fotos temporales de este intento. '
       'Intenta de nuevo.',
     );
-  }
-
-  /// Mensaje de límite de frecuencia (`RATE_LIMIT_EXCEEDED`): usa el mensaje
-  /// del backend y, si viene `reset_at`, añade la hora local de reintento.
-  String _rateLimitMessage(Map<String, dynamic> data) {
-    final base =
-        data['message'] as String? ??
-        'Has alcanzado el límite de reportes por hora.';
-    final rawResetAt = data['reset_at'];
-    final resetAt = rawResetAt is String ? DateTime.tryParse(rawResetAt) : null;
-    if (resetAt == null) return base;
-    final local = resetAt.toLocal();
-    final hh = local.hour.toString().padLeft(2, '0');
-    final mm = local.minute.toString().padLeft(2, '0');
-    return '$base Intenta de nuevo después de las $hh:$mm.';
   }
 
   String _userMessageOf(Object error) {
