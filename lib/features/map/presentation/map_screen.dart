@@ -128,7 +128,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
         ],
       ),
-      floatingActionButton: _LocateButton(),
+      // En modo lista el botón de ubicación es un FAB; en modo mapa vive
+      // dentro del overlay del mapa debajo de los botones +/−.
+      floatingActionButton: filterState.viewMode == MapViewMode.list
+          ? const _LocateButton()
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
@@ -178,29 +182,37 @@ Widget _buildMapWithOverlays(
           }
         },
       ),
-          // Leyenda de colores: bottom-left, siempre visible.
+          // Botón de localizar debajo de los botones +/−: top:12 + 40 + 8 + 40 + 8 = 108.
       const Positioned(
-        left: AppSpacing.lg,
-        bottom: AppSpacing.lg,
-        child: _MapLegend(),
+        right: AppSpacing.md,
+        top: 108.0,
+        child: _LocateButton(),
       ),
-      // Tarjeta de fuga seleccionada: top-right, debajo de los botones +/-.
-      // Los botones +/- ocupan top:12, 40px + 8px + 40px = 100px → card top:108.
-      if (selectedLeak != null)
-        Positioned(
-          left: AppSpacing.lg,
-          right: AppSpacing.lg,
-          top: 108.0,
-          child: _SelectedLeakCard(
-            leak: selectedLeak,
-            onViewDetail: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) =>
-                    LeakDetailScreen(reportId: selectedLeak.id),
+      // Leyenda y tarjeta en la parte inferior.
+      Positioned(
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        bottom: AppSpacing.lg,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _MapLegend(),
+            if (selectedLeak != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              _SelectedLeakCard(
+                leak: selectedLeak,
+                onViewDetail: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) =>
+                        LeakDetailScreen(reportId: selectedLeak.id),
+                  ),
+                ),
               ),
-            ),
-          ),
+            ],
+          ],
         ),
+      ),
       if (reportsAsync.isLoading && !reportsAsync.hasValue)
         const _MapLoadingView(),
       if (reportsAsync.hasError)
@@ -399,21 +411,31 @@ class _ViewModeToggle extends ConsumerWidget {
 }
 
 /// Botón para centrar en la ubicación del usuario (§13).
+/// Estilo círculo consistente con los botones de zoom; funciona como FAB
+/// en modo lista y como overlay en modo mapa.
 class _LocateButton extends ConsumerWidget {
   const _LocateButton();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FloatingActionButton.small(
+    return Material(
       key: mapLocateButtonKey,
-      tooltip: 'Mi ubicación',
-      backgroundColor: AppColors.surface,
-      foregroundColor: AppColors.primary,
-      onPressed: () async {
-        final action = ref.read(mapLocationActionProvider);
-        await action.locateUser();
-      },
-      child: const Icon(Icons.my_location),
+      color: AppColors.surface.withValues(alpha: 0.95),
+      shape: const CircleBorder(side: BorderSide(color: AppColors.border)),
+      elevation: 2,
+      shadowColor: AppColors.text.withValues(alpha: 0.12),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: () => ref.read(mapLocationActionProvider).locateUser(),
+        child: const SizedBox(
+          width: 40,
+          height: 40,
+          child: Tooltip(
+            message: 'Mi ubicación',
+            child: Icon(Icons.my_location, size: 20, color: AppColors.primary),
+          ),
+        ),
+      ),
     );
   }
 }

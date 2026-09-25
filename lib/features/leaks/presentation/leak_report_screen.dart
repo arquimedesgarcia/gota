@@ -54,6 +54,14 @@ class LeakReportScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: 120,
+          // X siempre cierra el reporte sin pasar por el PopScope de pasos.
+          // Navigator.pop() bypasea canPop:false; el botón físico de Android
+          // sigue navegando hacia atrás paso a paso.
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            tooltip: 'Cerrar',
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
           title: Consumer(
             builder: (context, ref, _) {
               final s = ref.watch(

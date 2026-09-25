@@ -158,7 +158,7 @@ class _GotaHeader extends StatelessWidget {
               ),
               SizedBox(width: AppSpacing.md),
               Text(
-                'GOTA',
+                'Gota',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,

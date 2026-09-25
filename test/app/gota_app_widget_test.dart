@@ -112,7 +112,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Header y acciones principales del home.
-    expect(find.text('GOTA'), findsOneWidget);
+    expect(find.text('Gota'), findsOneWidget);
     expect(find.text('Reportar fuga'), findsOneWidget);
     expect(find.text('Reportar agua'), findsOneWidget);
 
