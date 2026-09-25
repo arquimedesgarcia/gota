@@ -10,8 +10,9 @@ terceros.
 
 ## Estado actual (verificado en código)
 
-- Fotos: máx 2/reporte (nota: `kReportPhotoMaxCount = 2` cliente, servidor
-  autoridad; `photoPayload` admite hasta 3 — aclarar con dueño), JPEG 1280px
+- Fotos: **máx 2/reporte — decidido por dueño (2026-09-25)**; el repositorio
+  admite hasta 3 en `photoPayload` (bypass accidental): alinear en esta
+  implementación. JPEG 1280px
   q75, EXIF borrado, ~150-250 KB/foto.
 - Bucket privado `report-photos`, RLS solo carpeta propia
   `report_photos/{auth.uid()}/...`.
