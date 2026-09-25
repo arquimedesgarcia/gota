@@ -37,16 +37,19 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
   }
 
   Future<void> _submit() async {
-    final success = await ref
+    final outcome = await ref
         .read(waterRegisterControllerProvider.notifier)
         .submit(_currentType);
 
     if (!mounted) return;
 
-    if (success) {
+    if (outcome != null) {
+      final message = outcome == WaterSubmitOutcome.confirmed
+          ? WaterCopy.confirmedSnack
+          : WaterCopy.registeredSnack;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(WaterCopy.registeredSnack),
+          content: Text(message),
           behavior: SnackBarBehavior.floating,
         ),
       );

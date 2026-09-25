@@ -37,6 +37,7 @@ abstract final class WaterCopy {
   static const blocked = 'Tu acceso está bloqueado.';
   static const validatedSnack = 'Validación registrada.';
   static const registeredSnack = 'Evento registrado.';
+  static const confirmedSnack = 'Ya había un reporte similar. ¡Tu confirmación suma!';
   static const registeredSnackBody =
       'Gracias por compartirlo con tu comunidad.';
 

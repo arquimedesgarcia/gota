@@ -22,8 +22,10 @@ import '../domain/water_event_type.dart';
 /// las RPC protegidas y se traduce la respuesta real a resultados o errores
 /// con mensaje para el usuario.
 abstract class WaterEventRepository {
-  /// Registra un evento de agua y devuelve el resumen creado.
-  Future<WaterEventSummary> register({
+  /// Registra un evento de agua. Devuelve el resumen y un flag que indica si
+  /// fue una confirmación de un evento existente (`true`) o una creación nueva
+  /// (`false`). Las reglas las decide el backend (status CREATED / CONFIRMED).
+  Future<(WaterEventSummary, bool isConfirmation)> register({
     required String municipalityId,
     required String sectorId,
     required WaterEventType type,
@@ -55,7 +57,7 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
   final GotaWaterDatabase _database;
 
   @override
-  Future<WaterEventSummary> register({
+  Future<(WaterEventSummary, bool isConfirmation)> register({
     required String municipalityId,
     required String sectorId,
     required WaterEventType type,
@@ -79,28 +81,32 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
 
     switch (data['status_code']) {
       case 'CREATED':
-        return WaterEventSummary(
-          id: data['event_id'] as String? ?? '',
-          type: type,
-          eventTime: _parseDate(data['event_time']) ?? eventTime,
-          comment: normalizedComment,
-          validationCount: 0,
-          createdAt: _parseDate(data['created_at']) ?? DateTime.now(),
-          municipalityId: municipalityId,
-          sectorId: sectorId,
+        return (
+          WaterEventSummary(
+            id: data['event_id'] as String? ?? '',
+            type: type,
+            eventTime: _parseDate(data['event_time']) ?? eventTime,
+            comment: normalizedComment,
+            validationCount: 0,
+            createdAt: _parseDate(data['created_at']) ?? DateTime.now(),
+            municipalityId: municipalityId,
+            sectorId: sectorId,
+          ),
+          false,
         );
       case 'CONFIRMED':
-        // Evento duplicado detectado: se confirmó el existente en vez de
-        // crear uno nuevo. Se devuelve el resumen del evento confirmado.
-        return WaterEventSummary(
-          id: data['event_id'] as String? ?? '',
-          type: type,
-          eventTime: _parseDate(data['event_time']) ?? eventTime,
-          comment: normalizedComment,
-          validationCount: (data['validation_count'] as num?)?.toInt() ?? 1,
-          createdAt: _parseDate(data['created_at']) ?? DateTime.now(),
-          municipalityId: municipalityId,
-          sectorId: sectorId,
+        return (
+          WaterEventSummary(
+            id: data['event_id'] as String? ?? '',
+            type: type,
+            eventTime: _parseDate(data['event_time']) ?? eventTime,
+            comment: normalizedComment,
+            validationCount: (data['validation_count'] as num?)?.toInt() ?? 1,
+            createdAt: _parseDate(data['created_at']) ?? DateTime.now(),
+            municipalityId: municipalityId,
+            sectorId: sectorId,
+          ),
+          true,
         );
       case 'ALREADY_REPORTED':
         throw AlreadyReportedException(
