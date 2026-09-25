@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_theme.dart';
-import '../../../shared/widgets/gota_status_badge.dart';
 import '../domain/leak_age.dart';
 import '../domain/leak_community.dart';
 import 'leak_community_microcopy.dart';
@@ -59,9 +58,16 @@ class LeakSummaryTile extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
-                        leak.isResolved
-                            ? StatusBadgePresets.resolved(context)
-                            : StatusBadgePresets.active(context),
+                        Text(
+                          leak.isResolved ? 'Resuelta' : 'Activa',
+                          style: TextStyle(
+                            color: leak.isResolved
+                                ? AppColors.success
+                                : AppColors.danger,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
                         const Spacer(),
                         Text(
                           describeLeakAge(leak.createdAt),
@@ -105,14 +111,18 @@ class _LeakThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = leak.isResolved ? AppColors.success : AppColors.accent;
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: color.withValues(alpha: 0.22)),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Icon(
+        leak.isResolved ? Icons.check_circle_outline : Icons.water_drop_outlined,
+        size: size * 0.45,
+        color: AppColors.textMuted,
       ),
     );
   }

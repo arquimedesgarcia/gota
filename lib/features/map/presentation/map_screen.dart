@@ -12,7 +12,6 @@ import '../../../../features/leaks/presentation/leak_detail_screen.dart';
 import '../../../../features/notifications/presentation/notification_providers.dart';
 import '../../../../shared/widgets/gota_filter_chip.dart';
 import '../../../../shared/widgets/gota_icon_tile.dart';
-import '../../../../shared/widgets/gota_status_badge.dart';
 import '../domain/map_filter.dart';
 import '../domain/leak_map_status.dart';
 import 'map_providers.dart'
@@ -540,75 +539,73 @@ class _SelectedLeakCard extends StatelessWidget {
           margin: EdgeInsets.zero,
           elevation: 8,
           shadowColor: AppColors.text.withValues(alpha: 0.12),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _LeakPhotoThumbnail(leak: leak),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          leak.isResolved
-                              ? StatusBadgePresets.resolved(context)
-                              : StatusBadgePresets.active(context),
-                          const Spacer(),
-                          Text(
-                            describeLeakAge(leak.createdAt),
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: AppColors.textMuted),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        place.isEmpty ? 'Reporte de fuga' : place,
-                        style: Theme.of(context).textTheme.titleMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.check_circle_outline,
-                            size: 13,
-                            color: AppColors.primary,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            leak.validationCount == 1
-                                ? '1 validación'
-                                : '${leak.validationCount} validaciones',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                          ),
-                          const Spacer(),
-                          TextButton(
-                            key: const Key('map-view-detail-button'),
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.sm,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            onTap: onViewDetail,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _LeakPhotoThumbnail(leak: leak),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              leak.isResolved ? 'Resuelta' : 'Activa',
+                              style: TextStyle(
+                                color: leak.isResolved
+                                    ? AppColors.success
+                                    : AppColors.danger,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
                               ),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
-                            onPressed: onViewDetail,
-                            child: const Text('Ver detalle'),
-                          ),
-                        ],
-                      ),
-                    ],
+                            const Spacer(),
+                            Text(
+                              describeLeakAge(leak.createdAt),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: AppColors.textMuted),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          place.isEmpty ? 'Reporte de fuga' : place,
+                          style: Theme.of(context).textTheme.titleMedium,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.check_circle_outline,
+                              size: 13,
+                              color: AppColors.primary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              leak.validationCount == 1
+                                  ? '1 validación'
+                                  : '${leak.validationCount} validaciones',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -692,9 +689,16 @@ class _MapListView extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: AppSpacing.sm),
-                            leak.isResolved
-                                ? StatusBadgePresets.resolved(context)
-                                : StatusBadgePresets.active(context),
+                            Text(
+                              leak.isResolved ? 'Resuelta' : 'Activa',
+                              style: TextStyle(
+                                color: leak.isResolved
+                                    ? AppColors.success
+                                    : AppColors.danger,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
                             const Spacer(),
                             Text(
                               describeLeakAge(leak.createdAt),
@@ -745,15 +749,18 @@ class _LeakPhotoThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final status = leakMapStatusOf(leak);
-    final color = leakMapStatusColor(status);
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: color.withValues(alpha: 0.22)),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Icon(
+        leak.isResolved ? Icons.check_circle_outline : Icons.water_drop_outlined,
+        size: size * 0.45,
+        color: AppColors.textMuted,
       ),
     );
   }

@@ -755,10 +755,10 @@ void main() {
       await tester.tap(find.byKey(mapMarkerKey('r1')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('map-selection-card')), findsOneWidget);
-      expect(find.text('Ver detalle'), findsOneWidget);
+      expect(find.text('Ver detalle'), findsNothing);
       verifyNever(() => observer.didPush(any(), any()));
 
-      await tester.tap(find.byKey(const Key('map-view-detail-button')));
+      await tester.tap(find.byKey(const Key('map-selection-card')));
       await tester.pump();
       verify(() => observer.didPush(any(), any())).called(1);
     });
