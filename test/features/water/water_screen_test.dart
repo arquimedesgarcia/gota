@@ -21,14 +21,13 @@ class _FakeWaterRepository implements WaterEventRepository {
   Future<WaterEventDetail> detail(String eventId) => throw UnimplementedError();
 
   @override
-  Future<WaterEventSummary> register({
+  Future<(WaterEventSummary, bool isConfirmation)> register({
     required String municipalityId,
     required String sectorId,
     required WaterEventType type,
     required DateTime eventTime,
     String? comment,
   }) => throw UnimplementedError();
-
   @override
   Future<int> validate(String eventId) async {
     validatedIds.add(eventId);

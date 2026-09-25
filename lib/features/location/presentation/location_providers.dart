@@ -7,7 +7,8 @@ import '../data/municipality_repository.dart'
 import '../data/sector_repository.dart' show sectorRepositoryProvider;
 
 final municipalitiesProvider = FutureProvider<List<Municipality>>((ref) async {
-  final list = await ref.watch(municipalityRepositoryProvider).getActive();
+  final list =
+      List<Municipality>.of(await ref.watch(municipalityRepositoryProvider).getActive());
   return list..sort((a, b) => a.name.compareTo(b.name));
 });
 
@@ -26,9 +27,9 @@ class SelectedMunicipality extends Notifier<String?> {
 
 final sectorsProvider = FutureProvider.autoDispose
     .family<List<Sector>, String>((ref, municipalityId) async {
-  final list = await ref
+  final list = List<Sector>.of(await ref
       .watch(sectorRepositoryProvider)
-      .getByMunicipality(municipalityId);
+      .getByMunicipality(municipalityId));
   return list..sort((a, b) => a.name.compareTo(b.name));
 });
 
