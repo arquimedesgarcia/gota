@@ -165,7 +165,7 @@ class _DraftRestoredBanner extends StatelessWidget {
             const SizedBox(width: 8),
             const Expanded(
               child: Text(
-                'Recuperamos tu reporte sin enviar',
+                'Reporte previo sin enviar',
                 style: TextStyle(fontSize: 13, color: AppColors.primary),
               ),
             ),
@@ -229,8 +229,8 @@ class LocationStepView extends ConsumerWidget {
                 label: const Text('Indicar ubicación manual'),
                 onPressed: () => _showManualLocationDialog(context, ref),
               ),
-              const SizedBox(height: 24),
-              // Indicador de carga mientras se resuelve el reverse-geocode.
+              const SizedBox(height: 16),
+              // Indicador de carga del reverse-geocode.
               if (state.suggestionLoading) ...[
                 const LinearProgressIndicator(),
                 const SizedBox(height: 8),
@@ -238,9 +238,51 @@ class LocationStepView extends ConsumerWidget {
                   'Buscando una ubicación aproximada…',
                   style: TextStyle(fontSize: 13, color: AppColors.textMuted),
                 ),
+                const SizedBox(height: 8),
+              ],
+              // Tarjeta "Ubicación aproximada" — antes del mapa para lectura
+              // rápida sin tener que hacer scroll.
+              if (state.locationSuggestion != null) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Ubicación aproximada',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          state.locationSuggestion!.displayText ??
+                              'No hay una descripción disponible.',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        if (state.locationSuggestion!.municipality != null ||
+                            state.locationSuggestion!.state != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            [
+                              state.locationSuggestion!.municipality,
+                              state.locationSuggestion!.state,
+                            ].whereType<String>().join(' · '),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textMuted,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 12),
               ],
-              // 2. Mapa de ajuste (visible cuando hay ubicación).
+              // Mapa de ajuste (visible cuando hay ubicación).
               if (location != null) ...[
                 SizedBox(
                   height: 220,
@@ -257,52 +299,7 @@ class LocationStepView extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
               ],
-              // 3. Tarjeta "Ubicación aproximada" (reverse-geocode).
-              if (state.locationSuggestion != null) ...[
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Ubicación aproximada',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          state.locationSuggestion!.displayText ??
-                              'No hay una descripción disponible.',
-                        ),
-                        if (state.locationSuggestion!.municipality != null ||
-                            state.locationSuggestion!.state != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            [
-                              state.locationSuggestion!.municipality,
-                              state.locationSuggestion!.state,
-                            ].whereType<String>().join(' · '),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textMuted,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Es una referencia aproximada. Municipio y sector se confirman por separado.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-              // 4. Leyenda "Precisión aproximada".
+              // Leyenda "Precisión aproximada".
               if (location?.accuracyMeters != null) ...[
                 Text(
                   location!.accuracyMeters! <= 25

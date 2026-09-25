@@ -2,10 +2,8 @@
 ///
 /// El backend solo mantiene `ACTIVE`/`RESOLVED` (migración 00007); el estado
 /// "Validada" se deriva en el cliente cuando `validation_count` alcanza el
-/// mismo umbral configurado para la resolución comunitaria en
-/// `system_config.resolution.threshold` (= 3, migración 00013).
-/// Decisión documentada en `docs/MIGRATION_NOTES.md`: no introduce un cuarto
-/// status de backend ni altera las reglas de validación/resolución.
+/// umbral configurado aquí. Valor piloto = 1; para volver a 2 o 3 solo
+/// hay que cambiar esta constante.
 library;
 
 import 'package:flutter/material.dart';
@@ -13,9 +11,9 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_theme.dart';
 import '../../leaks/domain/leak_community.dart';
 
-/// Umbral de validaciones comunitarias para considerar "Validada" un reporte
-/// ACTIVE. Debe coincidir con `system_config.resolution.threshold` (00013).
-const kValidatedCountThreshold = 3;
+/// Umbral de validaciones para considerar "Validada" un reporte ACTIVE.
+/// Piloto: 1 validación es suficiente. Ajustable para etapas posteriores.
+const kValidatedCountThreshold = 1;
 
 /// Estados visuales del marker en el mapa (exactamente tres).
 enum LeakMapStatus {

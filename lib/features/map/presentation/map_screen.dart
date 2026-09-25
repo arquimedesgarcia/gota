@@ -128,12 +128,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
         ],
       ),
-      // En modo lista el botón de ubicación es un FAB; en modo mapa vive
-      // dentro del overlay del mapa debajo de los botones +/−.
-      floatingActionButton: filterState.viewMode == MapViewMode.list
-          ? const _LocateButton()
-          : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      // El botón de ubicación vive en el overlay del mapa (debajo de +/−).
+      // No se muestra como FAB en ningún modo.
     );
   }
 }
@@ -208,6 +204,8 @@ Widget _buildMapWithOverlays(
                         LeakDetailScreen(reportId: selectedLeak.id),
                   ),
                 ),
+                onDismiss: () =>
+                    ref.read(selectedMarkerProvider.notifier).clear(),
               ),
             ],
           ],
@@ -517,10 +515,15 @@ class _MapViewContent extends ConsumerWidget {
 }
 
 class _SelectedLeakCard extends StatelessWidget {
-  const _SelectedLeakCard({required this.leak, required this.onViewDetail});
+  const _SelectedLeakCard({
+    required this.leak,
+    required this.onViewDetail,
+    required this.onDismiss,
+  });
 
   final LeakSummary leak;
   final VoidCallback onViewDetail;
+  final VoidCallback onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -529,18 +532,17 @@ class _SelectedLeakCard extends StatelessWidget {
       if (leak.municipalityName != null) leak.municipalityName!,
     ].join(' · ');
 
-    return Card(
-      key: const Key('map-selection-card'),
-      margin: EdgeInsets.zero,
-      elevation: 8,
-      shadowColor: AppColors.text.withValues(alpha: 0.12),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Card(
+          key: const Key('map-selection-card'),
+          margin: EdgeInsets.zero,
+          elevation: 8,
+          shadowColor: AppColors.text.withValues(alpha: 0.12),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _LeakPhotoThumbnail(leak: leak),
@@ -588,6 +590,19 @@ class _SelectedLeakCard extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                 ),
                           ),
+                          const Spacer(),
+                          TextButton(
+                            key: const Key('map-view-detail-button'),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            onPressed: onViewDetail,
+                            child: const Text('Ver detalle'),
+                          ),
                         ],
                       ),
                     ],
@@ -595,29 +610,37 @@ class _SelectedLeakCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.sm),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                key: const Key('map-view-detail-button'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+        ),
+        // Botón X: solo visible en el mapa (la tarjeta no se usa fuera).
+        Positioned(
+          top: -8,
+          right: -8,
+          child: GestureDetector(
+            onTap: onDismiss,
+            child: Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.text.withValues(alpha: 0.10),
+                    blurRadius: 4,
                   ),
-                ),
-                onPressed: onViewDetail,
-                child: const Text(
-                  'Ver detalle',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
+                ],
+              ),
+              child: const Icon(
+                Icons.close,
+                size: 13,
+                color: AppColors.textMuted,
               ),
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -731,11 +754,6 @@ class _LeakPhotoThumbnail extends StatelessWidget {
         color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: color.withValues(alpha: 0.22)),
-      ),
-      child: Icon(
-        leak.isResolved ? Icons.check_circle_outline : Icons.water_drop_outlined,
-        color: color.withValues(alpha: 0.75),
-        size: size * 0.44,
       ),
     );
   }

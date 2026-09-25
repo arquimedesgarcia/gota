@@ -114,11 +114,6 @@ class _LeakThumbnail extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: color.withValues(alpha: 0.22)),
       ),
-      child: Icon(
-        leak.isResolved ? Icons.check_circle_outline : Icons.water_drop_outlined,
-        color: color.withValues(alpha: 0.75),
-        size: size * 0.44,
-      ),
     );
   }
 }
