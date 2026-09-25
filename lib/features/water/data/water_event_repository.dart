@@ -89,6 +89,24 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
           municipalityId: municipalityId,
           sectorId: sectorId,
         );
+      case 'CONFIRMED':
+        // Evento duplicado detectado: se confirmó el existente en vez de
+        // crear uno nuevo. Se devuelve el resumen del evento confirmado.
+        return WaterEventSummary(
+          id: data['event_id'] as String? ?? '',
+          type: type,
+          eventTime: _parseDate(data['event_time']) ?? eventTime,
+          comment: normalizedComment,
+          validationCount: (data['validation_count'] as num?)?.toInt() ?? 1,
+          createdAt: _parseDate(data['created_at']) ?? DateTime.now(),
+          municipalityId: municipalityId,
+          sectorId: sectorId,
+        );
+      case 'ALREADY_REPORTED':
+        throw AlreadyReportedException(
+          data['message'] as String? ??
+              'Ya registraste un evento similar hace menos de 4 horas.',
+        );
       case 'VALIDATION_ERROR':
       case 'INVALID_SECTOR':
       case 'NOT_FOUND':

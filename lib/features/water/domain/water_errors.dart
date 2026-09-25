@@ -43,6 +43,14 @@ class WaterNotFoundException extends WaterException {
   ]);
 }
 
+/// El usuario ya reportó o confirmó un evento idéntico reciente
+/// (`ALREADY_REPORTED`). Resultado determinista, sin fallo de red.
+class AlreadyReportedException extends WaterException {
+  const AlreadyReportedException([
+    super.userMessage = 'Ya registraste un evento similar hace menos de 4 horas.',
+  ]);
+}
+
 /// El backend limitó la acción por frecuencia (`RATE_LIMIT_EXCEEDED`):
 /// el mensaje (con la hora de reintento) ya viene redactado para el
 /// usuario final.
