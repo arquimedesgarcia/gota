@@ -76,12 +76,22 @@ class _SectorList extends StatelessWidget {
             ),
           )
         else
-          for (final s in sectors)
-            _SectorTile(
-              sector: s,
-              isSelected: s.id == selectedId,
-              onSelected: () => onSelected(s),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 220),
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: const ClampingScrollPhysics(),
+              itemCount: sectors.length,
+              itemBuilder: (context, index) {
+                final s = sectors[index];
+                return _SectorTile(
+                  sector: s,
+                  isSelected: s.id == selectedId,
+                  onSelected: () => onSelected(s),
+                );
+              },
             ),
+          ),
       ],
     );
   }

@@ -57,12 +57,22 @@ class _MunicipalityList extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 12),
-        for (final m in municipalities)
-          _MunicipalityTile(
-            municipality: m,
-            isSelected: m.id == selectedId,
-            onSelected: () => onSelected(m),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 220),
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
+            itemCount: municipalities.length,
+            itemBuilder: (context, index) {
+              final m = municipalities[index];
+              return _MunicipalityTile(
+                municipality: m,
+                isSelected: m.id == selectedId,
+                onSelected: () => onSelected(m),
+              );
+            },
           ),
+        ),
       ],
     );
   }

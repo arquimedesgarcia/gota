@@ -32,6 +32,8 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
   void initState() {
     super.initState();
     _currentType = widget.initialType ?? WaterEventType.arrived;
+    // Siempre limpia el formulario al entrar, incluso si hay estado previo.
+    ref.invalidate(waterRegisterControllerProvider);
   }
 
   Future<void> _submit() async {
@@ -80,7 +82,28 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
                           .read(waterRegisterControllerProvider.notifier)
                           .previousStep()
                     : null,
-                  steps: [
+                controlsBuilder: (context, details) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.md),
+                    child: Row(
+                      children: [
+                        if (details.currentStep < 3)
+                          FilledButton.tonal(
+                            onPressed: details.onStepContinue,
+                            child: const Text('Continuar'),
+                          ),
+                        if (details.currentStep > 0) ...[
+                          const SizedBox(width: AppSpacing.sm),
+                          TextButton(
+                            onPressed: details.onStepCancel,
+                            child: const Text('Atrás'),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                },
+                steps: [
                     Step(
                       title: const Text(WaterCopy.stepType),
                       content: WaterRegisterStepType(
