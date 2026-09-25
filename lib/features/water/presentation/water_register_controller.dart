@@ -11,6 +11,10 @@ import 'water_providers.dart';
 
 enum WaterRegisterSubmitStatus { idle, submitting, done, error }
 
+/// Resultado de un submit exitoso: `created` = evento nuevo;
+/// `confirmed` = se confirmó un evento reciente de otro vecino.
+enum WaterSubmitOutcome { created, confirmed }
+
 /// Estado del flujo de registro de un evento de agua (municipio → sector →
 /// hora → comentario → revisar). El tipo se elige fuera o en el primer paso
 /// y se confirma al enviar.
@@ -25,6 +29,7 @@ class WaterRegisterState {
     this.comment = '',
     this.submitStatus = WaterRegisterSubmitStatus.idle,
     this.errorMessage,
+    this.currentStep = 0,
   });
 
   final String? municipalityId;
@@ -36,6 +41,10 @@ class WaterRegisterState {
   final WaterRegisterSubmitStatus submitStatus;
   final String? errorMessage;
 
+  /// Paso actual del Stepper (0-3). Vive aquí y no en el widget para
+  /// sobrevivir a cambios de configuración (p. ej. rotación).
+  final int currentStep;
+
   WaterRegisterState copyWith({
     String? municipalityId,
     String? municipalityName,
@@ -45,6 +54,7 @@ class WaterRegisterState {
     String? comment,
     WaterRegisterSubmitStatus? submitStatus,
     String? errorMessage,
+    int? currentStep,
     bool clearError = false,
   }) => WaterRegisterState(
     municipalityId: municipalityId ?? this.municipalityId,
@@ -55,6 +65,7 @@ class WaterRegisterState {
     comment: comment ?? this.comment,
     submitStatus: submitStatus ?? this.submitStatus,
     errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+    currentStep: currentStep ?? this.currentStep,
   );
 }
 
@@ -86,12 +97,23 @@ class WaterRegisterController extends Notifier<WaterRegisterState> {
   void setComment(String comment) =>
       state = state.copyWith(comment: comment, clearError: true);
 
-  /// Envía el evento. Devuelve true solo cuando el backend confirmó la
-  /// creación (CREATED); cualquier otro resultado queda como estado de
-  /// error con mensaje y no debe cerrar el flujo.
-  Future<bool> submit(WaterEventType type) async {
+  /// Navegación del Stepper (0 = tipo, 1 = municipio, 2 = sector, 3 = resumen).
+  void goToStep(int step) {
+    if (step >= 0 && step <= 3) {
+      state = state.copyWith(currentStep: step);
+    }
+  }
+
+  void nextStep() => goToStep(state.currentStep + 1);
+
+  void previousStep() => goToStep(state.currentStep - 1);
+
+  /// Envía el evento. Devuelve el resultado cuando el backend confirma la
+  /// operación (`created` o `confirmed`); devuelve `null` si hay error (el
+  /// mensaje queda en `state.errorMessage` y el flujo no se cierra).
+  Future<WaterSubmitOutcome?> submit(WaterEventType type) async {
     if (state.submitStatus == WaterRegisterSubmitStatus.submitting) {
-      return false;
+      return null;
     }
 
     // Validación local: sin llamada al backend.
@@ -101,21 +123,21 @@ class WaterRegisterController extends Notifier<WaterRegisterState> {
         submitStatus: WaterRegisterSubmitStatus.error,
         errorMessage: 'Indica el municipio y el sector del evento.',
       );
-      return false;
+      return null;
     }
     if (eventTime == null) {
       state = state.copyWith(
         submitStatus: WaterRegisterSubmitStatus.error,
         errorMessage: 'Indica la hora del evento.',
       );
-      return false;
+      return null;
     }
     if (eventTime.isAfter(DateTime.now())) {
       state = state.copyWith(
         submitStatus: WaterRegisterSubmitStatus.error,
         errorMessage: 'La hora del evento no puede estar en el futuro.',
       );
-      return false;
+      return null;
     }
 
     state = state.copyWith(
@@ -123,7 +145,7 @@ class WaterRegisterController extends Notifier<WaterRegisterState> {
       clearError: true,
     );
     try {
-      await ref
+      final (_, isConfirmation) = await ref
           .read(waterEventRepositoryProvider)
           .register(
             municipalityId: state.municipalityId!,
@@ -136,27 +158,26 @@ class WaterRegisterController extends Notifier<WaterRegisterState> {
         submitStatus: WaterRegisterSubmitStatus.done,
         clearError: true,
       );
-      // R2: Refresh water event history after successful registration
       ref.read(waterHistoryControllerProvider.notifier).refresh();
-      return true;
+      return isConfirmation ? WaterSubmitOutcome.confirmed : WaterSubmitOutcome.created;
     } on WaterException catch (e) {
       state = state.copyWith(
         submitStatus: WaterRegisterSubmitStatus.error,
         errorMessage: e.userMessage,
       );
-      return false;
+      return null;
     } on AppException catch (e) {
       state = state.copyWith(
         submitStatus: WaterRegisterSubmitStatus.error,
         errorMessage: e.userMessage,
       );
-      return false;
+      return null;
     } on Exception {
       state = state.copyWith(
         submitStatus: WaterRegisterSubmitStatus.error,
         errorMessage: 'No pudimos registrar el evento. Intenta de nuevo.',
       );
-      return false;
+      return null;
     }
   }
 }

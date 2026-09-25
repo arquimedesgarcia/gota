@@ -226,8 +226,9 @@ void main() {
     testWidgets('muestra estado vacío cuando no hay fugas', (tester) async {
       await _pumpMapScreen(tester, repository, reports: []);
 
-      expect(find.byKey(mapEmptyStateKey), findsOneWidget);
-      expect(find.text('Sin fugas para mostrar'), findsOneWidget);
+      // El mapa sigue montado — no se muestra overlay de área vacía.
+      expect(find.byKey(gotaMapContainerKey), findsOneWidget);
+      expect(find.text('Sin fugas para mostrar'), findsNothing);
     });
 
     testWidgets('muestra error de red con botón de reintento', (tester) async {
@@ -284,6 +285,22 @@ void main() {
           _summary(id: 'r2', status: 'RESOLVED'),
         ],
       );
+
+      // El filtro por defecto ("Todas") ya usa status=ACTIVE; limpiamos las
+      // interacciones previas para aislar la llamada del tap en "Activas".
+      clearInteractions(repository);
+      when(
+        () => repository.mapReports(
+          status: any(named: 'status'),
+          sectorId: any(named: 'sectorId'),
+          minLat: any(named: 'minLat'),
+          minLng: any(named: 'minLng'),
+          maxLat: any(named: 'maxLat'),
+          maxLng: any(named: 'maxLng'),
+          orderBy: any(named: 'orderBy'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer((_) async => [_summary(id: 'r1')]);
 
       // H: "Activas" ahora es un chip directo, no un ítem de popup.
       await tester.tap(find.text('Activas'));
@@ -355,7 +372,7 @@ void main() {
       ).called(1);
     });
 
-    testWidgets('filtro Recientes usa orderBy recent sin filtro de estado', (
+    testWidgets('filtro Recientes usa orderBy recent con status ACTIVE', (
       tester,
     ) async {
       await _pumpMapScreen(tester, repository, reports: [_summary(id: 'r1')]);
@@ -394,7 +411,7 @@ void main() {
 
       verify(
         () => repository.mapReports(
-          status: null,
+          status: 'ACTIVE',
           sectorId: any(named: 'sectorId'),
           minLat: any(named: 'minLat'),
           minLng: any(named: 'minLng'),
@@ -441,16 +458,15 @@ void main() {
     ) async {
       await _pumpMapScreen(tester, repository, reports: []);
 
-      // El mapa siempre debe estar montado (C1).
+      // El mapa siempre debe estar montado; sin overlay flotante de área vacía.
       expect(find.byKey(gotaMapContainerKey), findsOneWidget);
-      // El overlay de área vacía también debe estar visible (C1).
-      expect(find.byKey(mapEmptyStateKey), findsOneWidget);
+      expect(find.byKey(mapEmptyStateKey), findsNothing);
     });
 
-    testWidgets('el overlay vacío no se muestra con la consulta en vuelo', (
+    testWidgets('el mapa sigue montado durante y después de una recarga vacía', (
       tester,
     ) async {
-      // Carga inicial con resultado vacío.
+      // Carga inicial vacía.
       when(
         () => repository.mapReports(
           status: any(named: 'status'),
@@ -474,10 +490,10 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      // Overlay visible tras la primera carga vacía.
-      expect(find.byKey(mapEmptyStateKey), findsOneWidget);
+      expect(find.byKey(gotaMapContainerKey), findsOneWidget);
+      expect(find.byKey(mapEmptyStateKey), findsNothing);
 
-      // Re-fetch con respuesta lenta: simula consulta en vuelo.
+      // Re-fetch con respuesta lenta (consulta en vuelo).
       when(
         () => repository.mapReports(
           status: any(named: 'status'),
@@ -497,12 +513,10 @@ void main() {
       ProviderScope.containerOf(element).invalidate(mapReportsProvider);
       await tester.pump(); // inicia la recarga
 
-      // Durante la recarga (isLoading=true, datos previos=[]): sin overlay (C6).
-      expect(find.byKey(mapEmptyStateKey), findsNothing);
-      // El mapa sigue montado (C1).
+      // Durante la recarga: mapa montado, sin overlay (C1/C6).
       expect(find.byKey(gotaMapContainerKey), findsOneWidget);
+      expect(find.byKey(mapEmptyStateKey), findsNothing);
 
-      // Avanzar el clock para que el timer pendiente se resuelva.
       await tester.pump(const Duration(milliseconds: 600));
       await tester.pumpAndSettle();
     });
@@ -741,10 +755,10 @@ void main() {
       await tester.tap(find.byKey(mapMarkerKey('r1')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('map-selection-card')), findsOneWidget);
-      expect(find.text('Ver detalle'), findsOneWidget);
+      expect(find.text('Ver detalle'), findsNothing);
       verifyNever(() => observer.didPush(any(), any()));
 
-      await tester.tap(find.byKey(const Key('map-view-detail-button')));
+      await tester.tap(find.byKey(const Key('map-selection-card')));
       await tester.pump();
       verify(() => observer.didPush(any(), any())).called(1);
     });

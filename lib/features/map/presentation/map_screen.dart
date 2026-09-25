@@ -12,7 +12,6 @@ import '../../../../features/leaks/presentation/leak_detail_screen.dart';
 import '../../../../features/notifications/presentation/notification_providers.dart';
 import '../../../../shared/widgets/gota_filter_chip.dart';
 import '../../../../shared/widgets/gota_icon_tile.dart';
-import '../../../../shared/widgets/gota_status_badge.dart';
 import '../domain/map_filter.dart';
 import '../domain/leak_map_status.dart';
 import 'map_providers.dart'
@@ -47,16 +46,28 @@ bool _isMySectorWithoutSelection(MapFilterState filterState) =>
 ///
 /// Muestra fugas geolocalizadas con filtros y vista Mapa/Lista.
 /// Seleccionar un marker abre el detalle existente (Sprint 02/03).
-///
-/// Sprint 09-UI: superficie de filtros con chips (patrón prototipo) y
-/// botón "más filtros" con el menú popup existente; leyenda Activa/
-/// Resuelta sobre el mapa; lista y estados visuales alineados al
-/// Design System. Sin cambios funcionales.
-class MapScreen extends ConsumerWidget {
+/// Al abrirse, centra automáticamente en la ubicación del usuario.
+class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MapScreen> createState() => _MapScreenState();
+}
+
+class _MapScreenState extends ConsumerState<MapScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Centra el mapa en la ubicación del usuario al abrir la pantalla,
+    // igual que si el usuario presionara el botón "Mi ubicación".
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(mapLocationActionProvider).locateUser();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final filterState = ref.watch(mapFilterProvider);
     final reportsAsync = filterState.viewMode == MapViewMode.list
         ? ref.watch(listReportsProvider)
@@ -116,8 +127,8 @@ class MapScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: _LocateButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      // El botón de ubicación vive en el overlay del mapa (debajo de +/−).
+      // No se muestra como FAB en ningún modo.
     );
   }
 }
@@ -166,20 +177,39 @@ Widget _buildMapWithOverlays(
           }
         },
       ),
-      if (selectedLeak != null)
-        Positioned(
-          left: AppSpacing.lg,
-          right: AppSpacing.lg,
-          bottom: AppSpacing.lg,
-          child: _SelectedLeakCard(
-            leak: selectedLeak,
-            onViewDetail: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => LeakDetailScreen(reportId: selectedLeak.id),
+          // Botón de localizar debajo de los botones +/−: top:12 + 40 + 8 + 40 + 8 = 108.
+      const Positioned(
+        right: AppSpacing.md,
+        top: 108.0,
+        child: _LocateButton(),
+      ),
+      // Leyenda y tarjeta en la parte inferior.
+      Positioned(
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        bottom: AppSpacing.lg,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _MapLegend(),
+            if (selectedLeak != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              _SelectedLeakCard(
+                leak: selectedLeak,
+                onViewDetail: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) =>
+                        LeakDetailScreen(reportId: selectedLeak.id),
+                  ),
+                ),
+                onDismiss: () =>
+                    ref.read(selectedMarkerProvider.notifier).clear(),
               ),
-            ),
-          ),
+            ],
+          ],
         ),
+      ),
       if (reportsAsync.isLoading && !reportsAsync.hasValue)
         const _MapLoadingView(),
       if (reportsAsync.hasError)
@@ -187,10 +217,6 @@ Widget _buildMapWithOverlays(
           message: _mapErrorMessage(reportsAsync.error!),
           onRetry: () => ref.invalidate(mapReportsProvider),
         ),
-      if (reportsAsync.hasValue &&
-          reportsAsync.value!.isEmpty &&
-          !reportsAsync.isLoading)
-        const _MapEmptyOverlay(),
     ],
   );
 }
@@ -382,21 +408,31 @@ class _ViewModeToggle extends ConsumerWidget {
 }
 
 /// Botón para centrar en la ubicación del usuario (§13).
+/// Estilo círculo consistente con los botones de zoom; funciona como FAB
+/// en modo lista y como overlay en modo mapa.
 class _LocateButton extends ConsumerWidget {
   const _LocateButton();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FloatingActionButton.small(
+    return Material(
       key: mapLocateButtonKey,
-      tooltip: 'Mi ubicación',
-      backgroundColor: AppColors.surface,
-      foregroundColor: AppColors.primary,
-      onPressed: () async {
-        final action = ref.read(mapLocationActionProvider);
-        await action.locateUser();
-      },
-      child: const Icon(Icons.my_location),
+      color: AppColors.surface.withValues(alpha: 0.95),
+      shape: const CircleBorder(side: BorderSide(color: AppColors.border)),
+      elevation: 2,
+      shadowColor: AppColors.text.withValues(alpha: 0.12),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: () => ref.read(mapLocationActionProvider).locateUser(),
+        child: const SizedBox(
+          width: 40,
+          height: 40,
+          child: Tooltip(
+            message: 'Mi ubicación',
+            child: Icon(Icons.my_location, size: 20, color: AppColors.primary),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -478,10 +514,15 @@ class _MapViewContent extends ConsumerWidget {
 }
 
 class _SelectedLeakCard extends StatelessWidget {
-  const _SelectedLeakCard({required this.leak, required this.onViewDetail});
+  const _SelectedLeakCard({
+    required this.leak,
+    required this.onViewDetail,
+    required this.onDismiss,
+  });
 
   final LeakSummary leak;
   final VoidCallback onViewDetail;
+  final VoidCallback onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -489,41 +530,118 @@ class _SelectedLeakCard extends StatelessWidget {
       if (leak.sectorName != null) leak.sectorName!,
       if (leak.municipalityName != null) leak.municipalityName!,
     ].join(' · ');
-    return Card(
-      key: const Key('map-selection-card'),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Card(
+          key: const Key('map-selection-card'),
+          margin: EdgeInsets.zero,
+          elevation: 8,
+          shadowColor: AppColors.text.withValues(alpha: 0.12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            onTap: onViewDetail,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    place.isEmpty ? 'Reporte de fuga' : place,
-                    style: Theme.of(context).textTheme.titleMedium,
+                  _LeakPhotoThumbnail(leak: leak),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              leak.isResolved ? 'Resuelta' : 'Activa',
+                              style: TextStyle(
+                                color: leak.isResolved
+                                    ? AppColors.success
+                                    : AppColors.danger,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              describeLeakAge(leak.createdAt),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: AppColors.textMuted),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          place.isEmpty ? 'Reporte de fuga' : place,
+                          style: Theme.of(context).textTheme.titleMedium,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.check_circle_outline,
+                              size: 13,
+                              color: AppColors.primary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              leak.validationCount == 1
+                                  ? '1 validación'
+                                  : '${leak.validationCount} validaciones',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(leak.isResolved ? 'Resuelta' : 'Activa'),
                 ],
               ),
             ),
-            TextButton(
-              key: const Key('map-view-detail-button'),
-              onPressed: onViewDetail,
-              child: const Text('Ver detalle'),
-            ),
-          ],
+          ),
         ),
-      ),
+        // Botón X: solo visible en el mapa (la tarjeta no se usa fuera).
+        Positioned(
+          top: -8,
+          right: -8,
+          child: GestureDetector(
+            onTap: onDismiss,
+            child: Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.text.withValues(alpha: 0.10),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.close,
+                size: 13,
+                color: AppColors.textMuted,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
 
-/// Sprint 09-UI: patrón de tarjeta del prototipo — dot de estado + badge
-/// semántico y texto + validaciones acentuadas (texto + color, nunca solo
-/// color). Reutiliza [StatusBadgePresets] y tokens del Design System.
 class _MapListView extends StatelessWidget {
   const _MapListView({required this.leaks, required this.onLeakTapped});
 
@@ -547,18 +665,14 @@ class _MapListView extends StatelessWidget {
           key: mapLeakCardKey(leak.id),
           margin: const EdgeInsets.only(bottom: AppSpacing.md),
           child: InkWell(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
             onTap: () => onLeakTapped(leak),
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GotaIconTile(
-                    icon: leak.isResolved
-                        ? Icons.check_circle_outline
-                        : Icons.water_drop_outlined,
-                    color: leakMapStatusColor(leakMapStatusOf(leak)),
-                  ),
+                  _LeakPhotoThumbnail(leak: leak, size: 76),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Column(
@@ -570,16 +684,21 @@ class _MapListView extends StatelessWidget {
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: leakMapStatusColor(
-                                  leakMapStatusOf(leak),
-                                ),
+                                color: leakMapStatusColor(leakMapStatusOf(leak)),
                                 shape: BoxShape.circle,
                               ),
                             ),
                             const SizedBox(width: AppSpacing.sm),
-                            leak.isResolved
-                                ? StatusBadgePresets.resolved(context)
-                                : StatusBadgePresets.active(context),
+                            Text(
+                              leak.isResolved ? 'Resuelta' : 'Activa',
+                              style: TextStyle(
+                                color: leak.isResolved
+                                    ? AppColors.success
+                                    : AppColors.danger,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
                             const Spacer(),
                             Text(
                               describeLeakAge(leak.createdAt),
@@ -615,6 +734,34 @@ class _MapListView extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// Miniatura de foto de una fuga: placeholder con color e icono por estado.
+/// Cuando las fotos reales estén disponibles se reemplaza el interior
+/// manteniendo el mismo tamaño y radio.
+class _LeakPhotoThumbnail extends StatelessWidget {
+  const _LeakPhotoThumbnail({required this.leak, this.size = 64.0});
+
+  final LeakSummary leak;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Icon(
+        leak.isResolved ? Icons.check_circle_outline : Icons.water_drop_outlined,
+        size: size * 0.45,
+        color: AppColors.textMuted,
+      ),
     );
   }
 }
@@ -733,49 +880,63 @@ class _MapEmptyView extends StatelessWidget {
   }
 }
 
-/// Overlay no intrusivo sobre el mapa cuando el área está vacía (C1/C6).
-///
-/// No bloquea gestos del mapa. Reutiliza [mapEmptyStateKey] y la misma
-/// copy que [_MapEmptyView] para el caso de área vacía.
-class _MapEmptyOverlay extends StatelessWidget {
-  const _MapEmptyOverlay();
+/// Leyenda de colores del mapa: punto rojo = Activa, punto verde = Resuelta.
+class _MapLegend extends StatelessWidget {
+  const _MapLegend();
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      child: Container(
-        key: mapEmptyStateKey,
-        margin: const EdgeInsets.all(AppSpacing.xl),
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: AppColors.surface.withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const GotaIconTile(
-              icon: Icons.map_outlined,
+    return Container(
+      key: mapLegendKey,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.surface.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const _LegendDot(color: AppColors.danger),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            'Activa',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: AppColors.textMuted,
-              size: 48,
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              'Sin fugas para mostrar',
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.center,
+          ),
+          const SizedBox(width: AppSpacing.md),
+          const _LegendDot(color: AppColors.success),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            'Resuelta',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: AppColors.textMuted,
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Cambia los filtros o amplía el área para ver más resultados.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium
-                  ?.copyWith(color: AppColors.textMuted),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
+
+class _LegendDot extends StatelessWidget {
+  const _LegendDot({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 9,
+      height: 9,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+  }
+}
+

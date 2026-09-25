@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -147,6 +149,9 @@ class _MapLibreMapView extends StatefulWidget {
 class _MapLibreMapViewState extends State<_MapLibreMapView> {
   MapLibreMapController? _controller;
   final Map<Circle, LeakSummary> _circleToLeak = {};
+  final List<Circle> _haloCircles = [];
+  Timer? _haloTimer;
+  bool _haloExpanded = false;
   double? _lastCenteredLat;
   double? _lastCenteredLng;
   bool _mapCreated = false;
@@ -243,15 +248,33 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
     if (!_mapCreated || !_styleLoaded) return;
 
     try {
+      _haloTimer?.cancel();
+      _haloTimer = null;
+      _haloCircles.clear();
+
       await c.clearCircles();
       _circleToLeak.clear();
 
       for (final leak in widget.leaks) {
         if (!leak.hasCoordinates) continue;
 
-        // Estado visual derivado: reportada/validada/resuelta (§leyenda).
-        final color = leakMapStatusColor(leakMapStatusOf(leak));
+        final status = leakMapStatusOf(leak);
+        final color = leakMapStatusColor(status);
         final hexColor = _colorToHex(color);
+
+        // Halo animado para fugas confirmadas (validadas).
+        if (leakMapHasHalo(status)) {
+          final halo = await c.addCircle(
+            CircleOptions(
+              geometry: LatLng(leak.latitude!, leak.longitude!),
+              circleColor: hexColor,
+              circleRadius: 12.0,
+              circleStrokeWidth: 0,
+              circleOpacity: 0.28,
+            ),
+          );
+          _haloCircles.add(halo);
+        }
 
         final isSelected = widget.selectedLeak?.id == leak.id;
         final circle = await c.addCircle(
@@ -266,8 +289,32 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
         );
         _circleToLeak[circle] = leak;
       }
+
+      if (_haloCircles.isNotEmpty) {
+        _haloTimer = Timer.periodic(
+          const Duration(milliseconds: 1300),
+          _pulseHalo,
+        );
+      }
     } catch (_) {
       // Ignorar errores transitorios del controlador nativo
+    }
+  }
+
+  Future<void> _pulseHalo(Timer _) async {
+    final c = _controller;
+    if (c == null || !_mapCreated || !_styleLoaded) return;
+    _haloExpanded = !_haloExpanded;
+    for (final halo in List<Circle>.from(_haloCircles)) {
+      try {
+        await c.updateCircle(
+          halo,
+          CircleOptions(
+            circleRadius: _haloExpanded ? 20.0 : 12.0,
+            circleOpacity: _haloExpanded ? 0.08 : 0.28,
+          ),
+        );
+      } catch (_) {}
     }
   }
 
@@ -280,6 +327,7 @@ class _MapLibreMapViewState extends State<_MapLibreMapView> {
 
   @override
   void dispose() {
+    _haloTimer?.cancel();
     _controller?.onCircleTapped.remove(_onCircleTappedCallback);
     _mapCreated = false;
     _styleLoaded = false;

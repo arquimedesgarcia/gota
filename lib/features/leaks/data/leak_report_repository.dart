@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/network/gota_auth.dart';
+import '../../../core/utils/rate_limit.dart';
 import '../../../core/network/gota_database.dart';
 import '../../../core/network/gota_storage.dart';
 import '../../../core/network/network_providers.dart';

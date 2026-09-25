@@ -123,10 +123,7 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
     return ListView(
       padding: EdgeInsets.all(AppSpacing.lg),
       children: [
-        // TODO: Photo carousel - reintroduce after test refactoring
-        // _PhotoCarousel(photoCount: detail.photoCount),
-        // SizedBox(height: AppSpacing.lg),
-        _StatusCard(detail: detail),
+              _StatusCard(detail: detail),
         SizedBox(height: AppSpacing.md),
         _InfoCard(detail: detail),
         SizedBox(height: AppSpacing.md),

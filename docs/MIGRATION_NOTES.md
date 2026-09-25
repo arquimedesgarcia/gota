@@ -108,7 +108,7 @@ descriptivas sin predicción).
 | Privacidad de created_by | La identidad del creador se persiste pero NUNCA se expone en consultas públicas (ni en `fetchRecentWaterEvents` ni en `get_water_event_detail`). |
 | Estadísticas | Descriptivas puras (REQ-077): cuentas, últimas llegadas/salidas, duraciones promedio de pares consecutivos (ARRIVED→LEFT, LEFT→ARRIVED) del mismo sector. Sin predicción, sin tendencias. Muestra "Sin datos suficientes" si no hay pares. |
 | Rate limiting | Declarado para Sprint 07 (mismo precedente Sprint 03). REQ-091 lo asigna a "Security & abuse". |
-| Paginación | Keyset (cursor: event_time + id), default limit 20. Implementación simplificada sin filtros OR anidados (compatibilidad client SDK). |
+| Paginación | Keyset (cursor: event_time + id), default limit 20. Implementación simplificada sin filtros OR anidados (compatibilidad client SDK). El filtro lte('event_time') aplica el keyset en la query. WaterHistoryController.loadMore() usa state.nextCursor. [Corregido en auditoría pre-beta 2026-09-24: H-02, H-19] |
 | Lectura de la UI | Lista pública de eventos por `fetchRecentWaterEvents` (sin `created_by`); detalle y estado propio vía RPC `get_water_event_detail`. |
 | RLS | `water_events` lectura pública, INSERT/UPDATE/DELETE solo por RPC. `water_event_validations` sin acceso cliente (igual que `report_validations`). |
 | Operación crítica | SQL protegido (`security definer`, `set search_path = ''`) para `register_water_event`, `validate_water_event`, `get_water_event_detail`. GRANT EXECUTE solo a `authenticated`. |

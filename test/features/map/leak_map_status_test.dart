@@ -55,9 +55,23 @@ void main() {
       expect(LeakMapStatus.values.length, 3);
     });
 
-    test('colores de leyenda distintos por estado', () {
-      final colors = LeakMapStatus.values.map(leakMapStatusColor).toSet();
-      expect(colors.length, 3);
+    test('reportada y validada comparten el rojo; resuelta es verde', () {
+      expect(
+        leakMapStatusColor(LeakMapStatus.reported),
+        leakMapStatusColor(LeakMapStatus.validated),
+        reason: 'activas usan el mismo rojo',
+      );
+      expect(
+        leakMapStatusColor(LeakMapStatus.resolved),
+        isNot(leakMapStatusColor(LeakMapStatus.reported)),
+        reason: 'resuelta usa verde distinto',
+      );
+    });
+
+    test('solo las validadas tienen halo', () {
+      expect(leakMapHasHalo(LeakMapStatus.reported), isFalse);
+      expect(leakMapHasHalo(LeakMapStatus.validated), isTrue);
+      expect(leakMapHasHalo(LeakMapStatus.resolved), isFalse);
     });
   });
 }

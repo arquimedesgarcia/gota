@@ -182,6 +182,7 @@ class SupabaseNotificationRepository implements NotificationRepository {
         throw QueryException(fallbackMessage);
     }
   }
+
 }
 
 final notificationRepositoryProvider = Provider<NotificationRepository>(

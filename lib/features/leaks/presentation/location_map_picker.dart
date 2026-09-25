@@ -49,7 +49,7 @@ class _LocationMapState extends State<_LocationMap> {
       _marker = await controller.addCircle(
         CircleOptions(
           geometry: LatLng(widget.latitude, widget.longitude),
-          circleColor: _colorToHex(AppColors.primary),
+          circleColor: _colorToHex(AppColors.danger),
           circleRadius: 10,
           circleStrokeColor: '#FFFFFF',
           circleStrokeWidth: 3,

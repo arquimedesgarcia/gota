@@ -57,12 +57,22 @@ class _MunicipalityList extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 12),
-        for (final m in municipalities)
-          _MunicipalityTile(
-            municipality: m,
-            isSelected: m.id == selectedId,
-            onSelected: () => onSelected(m),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 220),
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
+            itemCount: municipalities.length,
+            itemBuilder: (context, index) {
+              final m = municipalities[index];
+              return _MunicipalityTile(
+                municipality: m,
+                isSelected: m.id == selectedId,
+                onSelected: () => onSelected(m),
+              );
+            },
           ),
+        ),
       ],
     );
   }
@@ -89,13 +99,13 @@ class _MunicipalityTile extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(
             color: isSelected
-                ? Theme.of(context).primaryColor
+                ? Theme.of(context).colorScheme.primary
                 : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
           color: isSelected
-              ? Theme.of(context).primaryColor.withValues(alpha: 0.08)
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.08)
               : null,
         ),
         child: Row(
@@ -112,7 +122,7 @@ class _MunicipalityTile extends StatelessWidget {
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
               color: isSelected
-                  ? Theme.of(context).primaryColor
+                  ? Theme.of(context).colorScheme.primary
                   : Colors.grey[400],
             ),
           ],

@@ -6,12 +6,12 @@ import '../errors/app_exception.dart';
 class AppConfig {
   const AppConfig({
     required this.supabaseUrl,
-    required this.supabaseAnonKey,
+    required this.supabasePublishableKey,
     this.environment = 'development',
   });
 
   final String supabaseUrl;
-  final String supabaseAnonKey;
+  final String supabasePublishableKey;
 
   /// 'development' o 'production' (dart-define `SUPABASE_ENV`).
   final String environment;
@@ -29,7 +29,7 @@ class AppConfig {
   /// Lanza [ConfigMissingException] si faltan valores o la URL no es http(s).
   static AppConfig fromEnvironment() => fromValues(
     supabaseUrl: const String.fromEnvironment('SUPABASE_URL'),
-    supabaseAnonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
+    supabasePublishableKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
     environment: const String.fromEnvironment(
       'SUPABASE_ENV',
       defaultValue: 'development',
@@ -39,10 +39,10 @@ class AppConfig {
   /// Punto de entrada comprobable: valida los valores y construye el objeto.
   static AppConfig fromValues({
     required String supabaseUrl,
-    required String supabaseAnonKey,
+    required String supabasePublishableKey,
     String environment = 'development',
   }) {
-    if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
+    if (supabaseUrl.isEmpty || supabasePublishableKey.isEmpty) {
       throw const ConfigMissingException();
     }
     final uri = Uri.tryParse(supabaseUrl);
@@ -55,7 +55,7 @@ class AppConfig {
     }
     return AppConfig(
       supabaseUrl: supabaseUrl,
-      supabaseAnonKey: supabaseAnonKey,
+      supabasePublishableKey: supabasePublishableKey,
       environment: environment,
     );
   }

@@ -6,9 +6,11 @@ import '../data/municipality_repository.dart'
     show municipalityRepositoryProvider;
 import '../data/sector_repository.dart' show sectorRepositoryProvider;
 
-final municipalitiesProvider = FutureProvider<List<Municipality>>(
-  (ref) => ref.watch(municipalityRepositoryProvider).getActive(),
-);
+final municipalitiesProvider = FutureProvider<List<Municipality>>((ref) async {
+  final list =
+      List<Municipality>.of(await ref.watch(municipalityRepositoryProvider).getActive());
+  return list..sort((a, b) => a.name.compareTo(b.name));
+});
 
 /// Municipio seleccionado en la pantalla de datos de ubicación.
 final selectedMunicipalityProvider =
@@ -23,10 +25,13 @@ class SelectedMunicipality extends Notifier<String?> {
   void clear() => state = null;
 }
 
-final sectorsProvider = FutureProvider.autoDispose.family<List<Sector>, String>(
-  (ref, municipalityId) =>
-      ref.watch(sectorRepositoryProvider).getByMunicipality(municipalityId),
-);
+final sectorsProvider = FutureProvider.autoDispose
+    .family<List<Sector>, String>((ref, municipalityId) async {
+  final list = List<Sector>.of(await ref
+      .watch(sectorRepositoryProvider)
+      .getByMunicipality(municipalityId));
+  return list..sort((a, b) => a.name.compareTo(b.name));
+});
 
 /// Nombre de un sector por id (p. ej. para resolver el sector de interés
 /// guardado en preferencias).

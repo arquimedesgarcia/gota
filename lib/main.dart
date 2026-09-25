@@ -31,7 +31,7 @@ Future<void> main() async {
     try {
       await Supabase.initialize(
         url: config.supabaseUrl,
-        publishableKey: config.supabaseAnonKey,
+        publishableKey: config.supabasePublishableKey,
         // Timeout por solicitud: un intento que se cuelga se cancela y, tras
         // agotar los reintentos internos, llega a los repositorios como
         // TimeoutException, que se traduce a NetworkException.

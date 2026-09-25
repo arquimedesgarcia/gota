@@ -27,25 +27,29 @@ class WaterRegisterScreen extends ConsumerStatefulWidget {
 
 class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
   late WaterEventType _currentType;
-  int _currentStep = 0;
 
   @override
   void initState() {
     super.initState();
     _currentType = widget.initialType ?? WaterEventType.arrived;
+    // Siempre limpia el formulario al entrar, incluso si hay estado previo.
+    ref.invalidate(waterRegisterControllerProvider);
   }
 
   Future<void> _submit() async {
-    final success = await ref
+    final outcome = await ref
         .read(waterRegisterControllerProvider.notifier)
         .submit(_currentType);
 
     if (!mounted) return;
 
-    if (success) {
+    if (outcome != null) {
+      final message = outcome == WaterSubmitOutcome.confirmed
+          ? WaterCopy.confirmedSnack
+          : WaterCopy.registeredSnack;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(WaterCopy.registeredSnack),
+          content: Text(message),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -70,14 +74,39 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
           child: state.submitStatus == WaterRegisterSubmitStatus.submitting
               ? const LoadingView(message: 'Registrando evento…')
               : Stepper(
-                  currentStep: _currentStep,
-                  onStepContinue: _currentStep < 3
-                      ? () => setState(() => _currentStep++)
-                      : null,
-                  onStepCancel: _currentStep > 0
-                      ? () => setState(() => _currentStep--)
-                      : null,
-                  steps: [
+                currentStep: state.currentStep,
+                onStepContinue: state.currentStep < 3
+                    ? () => ref
+                          .read(waterRegisterControllerProvider.notifier)
+                          .nextStep()
+                    : null,
+                onStepCancel: state.currentStep > 0
+                    ? () => ref
+                          .read(waterRegisterControllerProvider.notifier)
+                          .previousStep()
+                    : null,
+                controlsBuilder: (context, details) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.md),
+                    child: Row(
+                      children: [
+                        if (details.currentStep < 3)
+                          FilledButton.tonal(
+                            onPressed: details.onStepContinue,
+                            child: const Text('Continuar'),
+                          ),
+                        if (details.currentStep > 0) ...[
+                          const SizedBox(width: AppSpacing.sm),
+                          TextButton(
+                            onPressed: details.onStepCancel,
+                            child: const Text('Atrás'),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                },
+                steps: [
                     Step(
                       title: const Text(WaterCopy.stepType),
                       content: WaterRegisterStepType(
@@ -86,17 +115,17 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
                           setState(() => _currentType = type);
                         },
                       ),
-                      isActive: _currentStep >= 0,
+                      isActive: state.currentStep >= 0,
                     ),
                     Step(
                       title: const Text(WaterCopy.stepMunicipality),
                       content: const WaterRegisterStepMunicipality(),
-                      isActive: _currentStep >= 1,
+                      isActive: state.currentStep >= 1,
                     ),
                     Step(
                       title: const Text(WaterCopy.stepSector),
                       content: const WaterRegisterStepSector(),
-                      isActive: _currentStep >= 2,
+                      isActive: state.currentStep >= 2,
                     ),
                     Step(
                       title: const Text('Resumen'),
@@ -111,14 +140,14 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
                           _WaterRegisterReview(),
                         ],
                       ),
-                      isActive: _currentStep >= 3,
+                      isActive: state.currentStep >= 3,
                     ),
                   ],
                 ),
         ),
         floatingActionButton:
             state.submitStatus != WaterRegisterSubmitStatus.submitting &&
-                _currentStep == 3
+                state.currentStep == 3
             ? FloatingActionButton.extended(
                 onPressed: _submit,
                 icon: const Icon(Icons.check),

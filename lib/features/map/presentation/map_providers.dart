@@ -50,14 +50,14 @@ class MapFilterNotifier extends Notifier<MapFilterState> {
         state.maxLat != null ||
         state.maxLng != null;
     if (hasExistingBounds) {
-      final dx = (state.minLat ?? minLat) - minLat;
-      final dy = (state.minLng ?? minLng) - minLng;
-      final dx2 = (state.maxLat ?? maxLat) - maxLat;
-      final dy2 = (state.maxLng ?? maxLng) - maxLng;
-      if (dx.abs() < _boundsTolerance &&
-          dy.abs() < _boundsTolerance &&
-          dx2.abs() < _boundsTolerance &&
-          dy2.abs() < _boundsTolerance) {
+      final dMinLat = (state.minLat ?? minLat) - minLat;
+      final dMinLng = (state.minLng ?? minLng) - minLng;
+      final dMaxLat = (state.maxLat ?? maxLat) - maxLat;
+      final dMaxLng = (state.maxLng ?? maxLng) - maxLng;
+      if (dMinLat.abs() < _boundsTolerance &&
+          dMinLng.abs() < _boundsTolerance &&
+          dMaxLat.abs() < _boundsTolerance &&
+          dMaxLng.abs() < _boundsTolerance) {
         return;
       }
     }
@@ -94,6 +94,39 @@ final selectedMarkerProvider =
       SelectedMarkerNotifier.new,
     );
 
+/// Traduce [MapFilterState.filterType] a los parámetros de consulta compartidos
+/// por [mapReportsProvider] y [listReportsProvider].
+({String? status, String? sectorId, String orderBy}) _buildFilterParams(
+  MapFilterState filterState,
+) {
+  String? status;
+  String? sectorId;
+  String orderBy = 'recent';
+
+  switch (filterState.filterType) {
+    case MapFilterType.all:
+      status = 'ACTIVE';
+      orderBy = 'recent';
+    case MapFilterType.active:
+      status = 'ACTIVE';
+      orderBy = 'recent';
+    case MapFilterType.resolved:
+      status = 'RESOLVED';
+      orderBy = 'recent';
+    case MapFilterType.recent:
+      status = 'ACTIVE';
+      orderBy = 'recent';
+    case MapFilterType.mostValidated:
+      status = 'ACTIVE';
+      orderBy = 'validated';
+    case MapFilterType.mySector:
+      status = 'ACTIVE';
+      sectorId = filterState.selectedSectorId;
+  }
+
+  return (status: status, sectorId: sectorId, orderBy: orderBy);
+}
+
 /// Provider de reportes para el mapa (§9): incluye filtros + bbox del viewport.
 ///
 /// La vista de mapa consume este provider para mostrar solo fugas dentro
@@ -103,13 +136,13 @@ final mapReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
   final repository = ref.watch(leakCommunityRepositoryProvider);
 
   final params = _buildFilterParams(filterState);
+  // "Mi sector" requiere selección explícita del sector vía setSectorId().
+  // No se infiere el sector desde GPS porque no existe un modelo de
+  // "sector del usuario" en Sprint 05; esa cadena (usuario → sector de
+  // interés → notificación) pertenece a Sprint 06. Documentado en
+  // MIGRATION_NOTES.md §Sprint-05-decisiones.
   if (filterState.filterType == MapFilterType.mySector &&
       params.sectorId == null) {
-    // "Mi sector" requiere selección explícita del sector vía setSectorId().
-    // No se infiere el sector desde GPS porque no existe un modelo de
-    // "sector del usuario" en Sprint 05; esa cadena (usuario → sector de
-    // interés → notificación) pertenece a Sprint 06. Documentado en
-    // MIGRATION_NOTES.md §Sprint-05-decisiones.
     return const <LeakSummary>[];
   }
 
@@ -152,38 +185,6 @@ final listReportsProvider = FutureProvider<List<LeakSummary>>((ref) async {
     limit: 100,
   );
 });
-
-/// Parámetros de filtro derivados de [MapFilterState], compartidos por
-/// `mapReportsProvider` y `listReportsProvider` (§9/§12).
-({String? status, String? sectorId, String orderBy}) _buildFilterParams(
-  MapFilterState filterState,
-) {
-  String? status;
-  String? sectorId;
-  String orderBy = 'recent';
-
-  switch (filterState.filterType) {
-    case MapFilterType.all:
-      status = null;
-      orderBy = 'recent';
-    case MapFilterType.active:
-      status = 'ACTIVE';
-      orderBy = 'recent';
-    case MapFilterType.resolved:
-      status = 'RESOLVED';
-      orderBy = 'recent';
-    case MapFilterType.recent:
-      status = null;
-      orderBy = 'recent';
-    case MapFilterType.mostValidated:
-      status = null;
-      orderBy = 'validated';
-    case MapFilterType.mySector:
-      sectorId = filterState.selectedSectorId;
-  }
-
-  return (status: status, sectorId: sectorId, orderBy: orderBy);
-}
 
 /// Servicio de ubicación bajo demanda para el mapa (§13).
 ///

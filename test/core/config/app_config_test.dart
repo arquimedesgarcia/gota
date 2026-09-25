@@ -17,18 +17,18 @@ void main() {
     test('fromValues con URL y clave válidas parsea los campos', () {
       final config = AppConfig.fromValues(
         supabaseUrl: 'https://demo.supabase.co',
-        supabaseAnonKey: 'anon-key',
+        supabasePublishableKey: 'anon-key',
       );
 
       expect(config.supabaseUrl, 'https://demo.supabase.co');
-      expect(config.supabaseAnonKey, 'anon-key');
+      expect(config.supabasePublishableKey, 'anon-key');
       expect(config.environment, 'development');
     });
 
     test('fromValues respeta el ambiente indicado', () {
       final config = AppConfig.fromValues(
         supabaseUrl: 'https://demo.supabase.co',
-        supabaseAnonKey: 'anon-key',
+        supabasePublishableKey: 'anon-key',
         environment: 'production',
       );
 
@@ -37,13 +37,13 @@ void main() {
 
     test('fromValues rechaza URL o clave vacías', () {
       expect(
-        () => AppConfig.fromValues(supabaseUrl: '', supabaseAnonKey: 'k'),
+        () => AppConfig.fromValues(supabaseUrl: '', supabasePublishableKey: 'k'),
         throwsA(isA<ConfigMissingException>()),
       );
       expect(
         () => AppConfig.fromValues(
           supabaseUrl: 'https://demo.supabase.co',
-          supabaseAnonKey: '',
+          supabasePublishableKey: '',
         ),
         throwsA(isA<ConfigMissingException>()),
       );
@@ -53,14 +53,14 @@ void main() {
       expect(
         () => AppConfig.fromValues(
           supabaseUrl: 'ftp://demo.supabase.co',
-          supabaseAnonKey: 'k',
+          supabasePublishableKey: 'k',
         ),
         throwsA(isA<ConfigMissingException>()),
       );
       expect(
         () => AppConfig.fromValues(
           supabaseUrl: 'no-es-una-url',
-          supabaseAnonKey: 'k',
+          supabasePublishableKey: 'k',
         ),
         throwsA(isA<ConfigMissingException>()),
       );

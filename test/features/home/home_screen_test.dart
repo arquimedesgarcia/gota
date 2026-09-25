@@ -96,7 +96,7 @@ void main() {
       await _pumpHomeScreenWithObserver(tester, observer);
 
       // Verifica que los textos esperados están presentes
-      expect(find.text('GOTA'), findsOneWidget);
+      expect(find.text('Gota'), findsOneWidget);
       expect(find.text('Reportar fuga'), findsOneWidget);
       expect(find.text('Reportar agua'), findsOneWidget);
       expect(find.text('Fugas activas en el mapa'), findsOneWidget);

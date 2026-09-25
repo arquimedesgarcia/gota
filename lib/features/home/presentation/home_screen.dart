@@ -158,7 +158,7 @@ class _GotaHeader extends StatelessWidget {
               ),
               SizedBox(width: AppSpacing.md),
               Text(
-                'GOTA',
+                'Gota',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -421,20 +421,20 @@ class _CommunitySummaryCard extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: _Metric(
+                      color: AppColors.success,
+                      value: '${summary.resolvedToday}',
+                      label: 'Resueltas hoy',
+                    ),
+                  ),
+                  const _MetricDivider(),
+                  Expanded(
+                    child: _Metric(
                       color: AppColors.danger,
                       value: '${summary.activeTotal}',
                       label: 'Fallas activas',
                       detail:
                           '${summary.activeReported} reportadas'
                           ' · ${summary.activeValidated} validadas',
-                    ),
-                  ),
-                  const _MetricDivider(),
-                  Expanded(
-                    child: _Metric(
-                      color: AppColors.success,
-                      value: '${summary.resolvedToday}',
-                      label: 'Resueltas hoy',
                     ),
                   ),
                   const _MetricDivider(),

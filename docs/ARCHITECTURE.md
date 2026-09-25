@@ -45,13 +45,14 @@ lib/
 │   ├── errors/
 │   ├── network/
 │   └── utils/
-├── features/
-│   ├── home/
-│   ├── leaks/
-│   ├── water/
-│   ├── map/
-│   ├── notifications/
-│   └── information/
+├── features/\\
+│   ├── home/\\
+│   ├── leaks/\\
+│   ├── water/\\
+│   ├── map/\\
+│   ├── notifications/\\
+│   ├── contact/\\
+│   └── location/\\
 └── shared/
     ├── models/
     ├── services/

@@ -43,8 +43,10 @@ class LeakReportScreen extends ConsumerWidget {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
         // En el primer paso y en resultado: cerrar la pantalla normalmente.
+        // pop() en lugar de maybePop(): con canPop:false, maybePop volvería
+        // a disparar onPopInvokedWithResult generando recursión infinita.
         if (step == ReportStep.location || step == ReportStep.result) {
-          Navigator.of(context).maybePop(false);
+          Navigator.of(context).pop(false);
           return;
         }
         ref.read(leakReportProvider.notifier).goToPrevious();
@@ -52,6 +54,14 @@ class LeakReportScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: 120,
+          // X siempre cierra el reporte sin pasar por el PopScope de pasos.
+          // Navigator.pop() bypasea canPop:false; el botón físico de Android
+          // sigue navegando hacia atrás paso a paso.
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            tooltip: 'Cerrar',
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
           title: Consumer(
             builder: (context, ref, _) {
               final s = ref.watch(
@@ -76,15 +86,24 @@ class LeakReportScreen extends ConsumerWidget {
           child: Consumer(
             builder: (context, ref, _) {
               final state = ref.watch(leakReportProvider);
-              // F: El banner de recuperación automática está deshabilitado
-              // para el piloto. La lógica de borrador persiste internamente.
-              return switch (state.currentStep) {
+              final stepView = switch (state.currentStep) {
                 ReportStep.location => const LocationStepView(),
                 ReportStep.photos => const PhotosStepView(),
                 ReportStep.data => const DataStepView(),
                 ReportStep.review => const ReviewStepView(),
                 ReportStep.result => const ResultStepView(),
               };
+              if (!state.hasDraftRestored) return stepView;
+              return Column(
+                children: [
+                  _DraftRestoredBanner(
+                    onDiscard: () => ref
+                        .read(leakReportProvider.notifier)
+                        .discardDraft(),
+                  ),
+                  Expanded(child: stepView),
+                ],
+              );
             },
           ),
         ),
@@ -129,7 +148,6 @@ class StatusBanner extends StatelessWidget {
   }
 }
 
-// ignore: unused_element
 class _DraftRestoredBanner extends StatelessWidget {
   const _DraftRestoredBanner({required this.onDiscard});
 
@@ -147,7 +165,7 @@ class _DraftRestoredBanner extends StatelessWidget {
             const SizedBox(width: 8),
             const Expanded(
               child: Text(
-                'Recuperamos tu reporte sin enviar',
+                'Reporte previo sin enviar',
                 style: TextStyle(fontSize: 13, color: AppColors.primary),
               ),
             ),
@@ -211,8 +229,8 @@ class LocationStepView extends ConsumerWidget {
                 label: const Text('Indicar ubicación manual'),
                 onPressed: () => _showManualLocationDialog(context, ref),
               ),
-              const SizedBox(height: 24),
-              // Indicador de carga mientras se resuelve el reverse-geocode.
+              const SizedBox(height: 16),
+              // Indicador de carga del reverse-geocode.
               if (state.suggestionLoading) ...[
                 const LinearProgressIndicator(),
                 const SizedBox(height: 8),
@@ -220,9 +238,51 @@ class LocationStepView extends ConsumerWidget {
                   'Buscando una ubicación aproximada…',
                   style: TextStyle(fontSize: 13, color: AppColors.textMuted),
                 ),
+                const SizedBox(height: 8),
+              ],
+              // Tarjeta "Ubicación aproximada" — antes del mapa para lectura
+              // rápida sin tener que hacer scroll.
+              if (state.locationSuggestion != null) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Ubicación aproximada',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          state.locationSuggestion!.displayText ??
+                              'No hay una descripción disponible.',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        if (state.locationSuggestion!.municipality != null ||
+                            state.locationSuggestion!.state != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            [
+                              state.locationSuggestion!.municipality,
+                              state.locationSuggestion!.state,
+                            ].whereType<String>().join(' · '),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textMuted,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 12),
               ],
-              // 2. Mapa de ajuste (visible cuando hay ubicación).
+              // Mapa de ajuste (visible cuando hay ubicación).
               if (location != null) ...[
                 SizedBox(
                   height: 220,
@@ -239,52 +299,7 @@ class LocationStepView extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
               ],
-              // 3. Tarjeta "Ubicación aproximada" (reverse-geocode).
-              if (state.locationSuggestion != null) ...[
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Ubicación aproximada',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          state.locationSuggestion!.displayText ??
-                              'No hay una descripción disponible.',
-                        ),
-                        if (state.locationSuggestion!.municipality != null ||
-                            state.locationSuggestion!.state != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            [
-                              state.locationSuggestion!.municipality,
-                              state.locationSuggestion!.state,
-                            ].whereType<String>().join(' · '),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textMuted,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Es una referencia aproximada. Municipio y sector se confirman por separado.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-              // 4. Leyenda "Precisión aproximada".
+              // Leyenda "Precisión aproximada".
               if (location?.accuracyMeters != null) ...[
                 Text(
                   location!.accuracyMeters! <= 25
@@ -1177,7 +1192,9 @@ class ResultStepView extends ConsumerWidget {
                   final created =
                       state.submitState == ReportSubmitState.done &&
                       outcome is ReportCreated;
-                  Navigator.of(context).maybePop(created);
+                  // pop() en lugar de maybePop() por la misma razón que en
+                  // PopScope.onPopInvokedWithResult: evita recursión infinita.
+                  Navigator.of(context).pop(created);
                 },
                 child: const Text('Volver al inicio'),
               ),
