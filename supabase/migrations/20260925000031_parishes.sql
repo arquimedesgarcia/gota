@@ -16,7 +16,7 @@ create table if not exists public.parishes (
   unique (municipality_id, name)
 );
 
-create trigger parishes_set_updated_at
+create or replace trigger parishes_set_updated_at
   before update on public.parishes
   for each row execute function public.set_updated_at();
 
