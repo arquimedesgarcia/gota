@@ -16,10 +16,18 @@ abstract class DraftPhotoStore {
     required String photoId,
   });
 
+  /// Copia la miniatura [thumbPath] a una ubicación durable como
+  /// `{photoId}_thumb.jpg`. Idempotente. Devuelve la ruta durable.
+  Future<String> copyThumbToDurable({
+    required String thumbPath,
+    required String photoId,
+  });
+
   /// Comprueba si [durablePath] existe en el almacenamiento durable.
   Future<bool> exists(String durablePath);
 
-  /// Borra todos los archivos de fotos durables de este borrador.
+  /// Borra todos los archivos de fotos durables de este borrador
+  /// (principal y miniatura).
   Future<void> clearAll();
 }
 
@@ -46,6 +54,18 @@ class FileDraftPhotoStore implements DraftPhotoStore {
   }
 
   @override
+  Future<String> copyThumbToDurable({
+    required String thumbPath,
+    required String photoId,
+  }) async {
+    final dir = await _dir();
+    final dst = path.join(dir.path, '${photoId}_thumb.jpg');
+    if (thumbPath == dst) return dst;
+    await File(thumbPath).copy(dst);
+    return dst;
+  }
+
+  @override
   Future<bool> exists(String durablePath) => File(durablePath).exists();
 
   @override
@@ -68,6 +88,16 @@ class InMemoryDraftPhotoStore implements DraftPhotoStore {
   }) async {
     final durable = '/memory/draft_photos/$photoId.jpg';
     _durableByPhotoId[photoId] = durable;
+    return durable;
+  }
+
+  @override
+  Future<String> copyThumbToDurable({
+    required String thumbPath,
+    required String photoId,
+  }) async {
+    final durable = '/memory/draft_photos/${photoId}_thumb.jpg';
+    _durableByPhotoId['${photoId}_thumb'] = durable;
     return durable;
   }
 

@@ -7,11 +7,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gota/app/theme/app_theme.dart';
 import 'package:gota/core/errors/app_exception.dart';
 import 'package:gota/features/leaks/data/leak_community_repository.dart';
+import 'package:gota/features/leaks/data/leak_photo_repository.dart';
 import 'package:gota/features/leaks/domain/community_activity.dart';
 import 'package:gota/features/leaks/domain/leak_community.dart';
 import 'package:gota/features/leaks/domain/leak_community_errors.dart';
+import 'package:gota/features/leaks/domain/leak_photo.dart';
 import 'package:gota/features/leaks/presentation/leak_detail_screen.dart';
 import 'package:gota/features/leaks/presentation/recent_activity_providers.dart';
+
+class _FakeLeakPhotoRepository implements LeakPhotoRepository {
+  @override
+  Future<List<LeakPhoto>> getPhotos(String reportId) async => const [];
+}
 
 const _reportId = 'r1';
 
@@ -128,10 +135,22 @@ Future<void> _pump(
   _FakeLeakCommunityRepository repository, {
   bool settle = true,
 }) async {
+  // Viewport alto para que el ListView nunca corte el contenido (los tests
+  // verifican widgets scrolled: _disabledReason, resolvedAt, etc.).
+  tester.view.physicalSize = const Size(800, 2400);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(() {
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
+  });
+
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
         leakCommunityRepositoryProvider.overrideWithValue(repository),
+        leakPhotoRepositoryProvider.overrideWithValue(
+          _FakeLeakPhotoRepository(),
+        ),
       ],
       child: MaterialApp(
         theme: AppTheme.light,

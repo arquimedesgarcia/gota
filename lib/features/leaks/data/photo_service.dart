@@ -130,13 +130,11 @@ class ImagePickerPhotoService implements PhotoService {
     // 1. Validación cliente (formato y tamaño antes de comprimir).
     validatePickedPhoto(path: path, sizeBytes: await original.length());
 
-    // 2. Un solo pase de compresión a JPEG, acotado por presupuesto
-    // (kReportPhotoCompressMaxDimension / kReportPhotoCompressQuality).
-    // `keepExif` es false por defecto: es el pase que borra el EXIF GPS que
-    // image_picker reinyecta (ExifDataCopier.java), por eso sigue existiendo.
+    // 2. Primera pasada: compresión principal a JPEG 1280 px.
+    // `keepExif` es false por defecto: borra el EXIF GPS que image_picker
+    // reinyecta (ExifDataCopier.java).
     // Ojo con los nombres: en flutter_image_compress `minWidth`/`minHeight`
-    // **acotan** el tamaño de salida (README §minWidth and minHeight y su FAQ
-    // «named that if it acts like a max»), no son mínimos.
+    // **acotan** el tamaño de salida, no son mínimos.
     final compressedPath = '${path}_gota.jpg';
     String? compressed;
     try {
@@ -159,9 +157,26 @@ class ImagePickerPhotoService implements PhotoService {
       );
     }
 
-    // 3. Validación cliente del resultado.
+    // 3. Validación cliente del resultado principal.
     final sizeBytes = await File(compressed).length();
     validateCompressedPhoto(sizeBytes: sizeBytes);
+
+    // 4. Segunda pasada: miniatura 128 px desde el original (no desde el
+    //    comprimido) para maximizar calidad de partida. EXIF irrelevante en
+    //    el thumb (la fuente original ya fue seleccionada/validada arriba).
+    final thumbPath = '${path}_gota_thumb.jpg';
+    String? thumbnail;
+    try {
+      thumbnail = await _compress(
+        srcPath: path,
+        dstPath: thumbPath,
+        minWidth: kReportPhotoThumbMaxDimension,
+        minHeight: kReportPhotoThumbMaxDimension,
+        quality: kReportPhotoThumbQuality,
+      );
+    } catch (_) {
+      thumbnail = null; // Thumb opcional: si falla, se continúa sin él.
+    }
 
     return PreparedPhoto(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
@@ -169,11 +184,9 @@ class ImagePickerPhotoService implements PhotoService {
       compressedPath: compressed,
       mimeType: kReportPhotoContentType,
       sizeBytes: sizeBytes,
-      // AUD-S2-08: este sprint NO genera miniaturas ni mide dimensiones
-      // (exclusión declarada en MIGRATION_NOTES §Sprint 02; width/height
-      // quedan en 0 y el servidor los persiste NULL, sin prometer nada).
       width: 0,
       height: 0,
+      thumbnailPath: thumbnail,
     );
   }
 

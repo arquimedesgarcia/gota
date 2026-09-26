@@ -132,6 +132,32 @@ Sprint 09 adaptó la interfaz al nuevo prototipo visual:
 
 El copy definitivo debe mantenerse centralizado y no ser inventado pantalla por pantalla.
 
+## 11. Cambios Sprint 13
+
+### Fotos comunitarias (Detalle de fuga)
+
+- `LeakDetailScreen`: si `photo_count > 0`, se muestra un carrusel horizontal
+  de fotos (miniatura si hay thumb, foto completa redimensionada si no). Tap
+  en una foto abre el visor a pantalla completa con PageView y zoom
+  (`InteractiveViewer`). Estados: loader por imagen, error con "Reintentar",
+  0 fotos no renderiza la sección.
+- `LeakSummaryTile`: si el reporte tiene fotos, reemplaza el placeholder con
+  la miniatura real (cargada bajo demanda, caché en disco via
+  `cached_network_image`). Placeholder queda cuando no hay fotos o mientras
+  carga.
+
+### Rescope del Sector de Interés en Home (Sprint 13)
+
+- **Tarjeta "Cobertura del piloto"** (antes "Hoy en tu comunidad"): los conteos
+  de fallas activas/resueltas son siempre GLOBALES (todos los sectores del
+  piloto). El encabezado es siempre "Cobertura del piloto".
+- **Estado del agua** (`_WaterMetric`): el filtro por sector de interés se
+  mantiene. Sin sector seleccionado, la tarjeta de agua muestra el mensaje
+  accionable "Selecciona tu sector para ver el estado del agua en tu zona"
+  (color accent, icono chevron). Toda la métrica de agua es tappable →
+  navega a `SectorSelectionScreen`. Al volver, los providers de agua y
+  preferencias se invalidan automáticamente.
+
 ## 10. Referencia visual
 
 `prototipo/index.html` es referencia de interacción y composición.

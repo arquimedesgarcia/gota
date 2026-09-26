@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +12,7 @@ import '../data/leak_community_repository.dart';
 import '../domain/leak_age.dart';
 import '../domain/leak_community.dart';
 import '../domain/leak_community_errors.dart';
+import '../domain/leak_photo.dart';
 import 'leak_community_microcopy.dart';
 import 'leak_community_providers.dart';
 import 'recent_activity_providers.dart';
@@ -123,7 +125,11 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
     return ListView(
       padding: EdgeInsets.all(AppSpacing.lg),
       children: [
-              _StatusCard(detail: detail),
+        if (detail.photoCount > 0) ...[
+          _PhotosSection(reportId: widget.reportId),
+          SizedBox(height: AppSpacing.md),
+        ],
+        _StatusCard(detail: detail),
         SizedBox(height: AppSpacing.md),
         _InfoCard(detail: detail),
         SizedBox(height: AppSpacing.md),
@@ -209,75 +215,215 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
   }
 }
 
-/// Carrusel de fotos con navegación y contador.
-class _PhotoCarousel extends StatefulWidget {
-  const _PhotoCarousel({required this.photoCount});
+/// Sección de fotos del reporte: carrusel horizontal con miniaturas.
+/// Solo se monta cuando [LeakDetail.photoCount] > 0.
+class _PhotosSection extends ConsumerStatefulWidget {
+  const _PhotosSection({required this.reportId});
 
-  final int photoCount;
+  final String reportId;
 
   @override
-  State<_PhotoCarousel> createState() => _PhotoCarouselState();
+  ConsumerState<_PhotosSection> createState() => _PhotosSectionState();
 }
 
-class _PhotoCarouselState extends State<_PhotoCarousel> {
-  final int _currentIndex = 0;
+class _PhotosSectionState extends ConsumerState<_PhotosSection> {
+  int _currentIndex = 0;
+
+  void _openViewer(List<LeakPhoto> photos, int initialIndex) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => _PhotoViewer(
+          photos: photos,
+          initialIndex: initialIndex,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 250,
-      decoration: const BoxDecoration(
-        color: AppColors.bg,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(AppRadius.lg),
-          bottomRight: Radius.circular(AppRadius.lg),
+    final photosAsync = ref.watch(leakPhotosProvider(widget.reportId));
+
+    return photosAsync.when(
+      loading: () => Container(
+        width: double.infinity,
+        height: 220,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(strokeWidth: 2),
         ),
       ),
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.primary.withValues(alpha: 0.1),
-                  AppColors.primary.withValues(alpha: 0.05),
-                ],
+      error: (_, _) => Container(
+        width: double.infinity,
+        height: 220,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.broken_image_outlined,
+                size: 40,
+                color: AppColors.textMuted,
               ),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.image_not_supported_outlined,
-                size: 64,
-                color: AppColors.textMuted.withValues(alpha: 0.3),
+              SizedBox(height: AppSpacing.sm),
+              TextButton(
+                onPressed: () =>
+                    ref.invalidate(leakPhotosProvider(widget.reportId)),
+                child: const Text('Reintentar'),
               ),
-            ),
+            ],
           ),
-          if (widget.photoCount > 0)
-            Positioned(
-              top: 12,
-              right: 12,
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.xs,
+        ),
+      ),
+      data: (photos) {
+        if (photos.isEmpty) return const SizedBox.shrink();
+
+        // Renovar si la URL expira en menos de 2 minutos.
+        if (photos.any((p) => p.isExpiringSoon())) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              ref.invalidate(leakPhotosProvider(widget.reportId));
+            }
+          });
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 220,
+              child: PageView.builder(
+                itemCount: photos.length,
+                onPageChanged: (i) => setState(() => _currentIndex = i),
+                itemBuilder: (context, i) {
+                  final photo = photos[i];
+                  return GestureDetector(
+                    onTap: () => _openViewer(photos, i),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                      child: CachedNetworkImage(
+                        imageUrl: photo.displayThumbnailUrl,
+                        fit: BoxFit.cover,
+                        placeholder: (_, _) => Container(
+                          color: AppColors.surface,
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                        errorWidget: (_, _, _) => Container(
+                          color: AppColors.surface,
+                          child: const Center(
+                            child: Icon(
+                              Icons.broken_image_outlined,
+                              color: AppColors.textMuted,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (photos.length > 1) ...[
+              SizedBox(height: AppSpacing.sm),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(photos.length, (i) {
+                  return Container(
+                    width: 6,
+                    height: 6,
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: i == _currentIndex
+                          ? AppColors.primary
+                          : AppColors.border,
+                    ),
+                  );
+                }),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Visor a pantalla completa con PageView y zoom básico (InteractiveViewer).
+class _PhotoViewer extends StatefulWidget {
+  const _PhotoViewer({required this.photos, required this.initialIndex});
+
+  final List<LeakPhoto> photos;
+  final int initialIndex;
+
+  @override
+  State<_PhotoViewer> createState() => _PhotoViewerState();
+}
+
+class _PhotoViewerState extends State<_PhotoViewer> {
+  late final PageController _controller;
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _controller = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        title: Text(
+          '${_currentIndex + 1} / ${widget.photos.length}',
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+      body: PageView.builder(
+        controller: _controller,
+        itemCount: widget.photos.length,
+        onPageChanged: (i) => setState(() => _currentIndex = i),
+        itemBuilder: (context, i) {
+          return InteractiveViewer(
+            child: Center(
+              child: CachedNetworkImage(
+                imageUrl: widget.photos[i].url,
+                fit: BoxFit.contain,
+                placeholder: (_, _) => const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
                 ),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.55),
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                ),
-                child: Text(
-                  '${_currentIndex + 1} / ${widget.photoCount}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white,
-                    fontSize: 10,
+                errorWidget: (_, _, _) => const Center(
+                  child: Icon(
+                    Icons.broken_image_outlined,
+                    color: Colors.white54,
+                    size: 64,
                   ),
                 ),
               ),
             ),
-        ],
+          );
+        },
       ),
     );
   }

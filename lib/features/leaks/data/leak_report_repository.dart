@@ -22,7 +22,7 @@ import '../domain/location_source.dart';
 ///
 /// La UI nunca consulta Supabase directamente (docs/ARCHITECTURE.md §4).
 abstract class LeakReportRepository {
-  /// Sube las fotos (1..3) y crea el reporte.
+  /// Sube las fotos (0..2) y crea el reporte.
   ///
   /// [ignoreDuplicate] es la confirmación explícita del usuario tras
   /// revisar un candidato ("es otra fuga", docs/REQUIREMENTS.md REQ-025).
@@ -70,9 +70,10 @@ class SupabaseLeakReportRepository implements LeakReportRepository {
     final uploadedPaths = <String>[];
     final photoPayload = <Map<String, dynamic>>[];
 
-    // ---------- 1. Subida de fotos ----------
+    // ---------- 1. Subida de fotos (principal + miniatura) ----------
     try {
       for (final (index, photo) in draft.photos.indexed) {
+        // Foto principal.
         final path = '$_folder/$userId/$uploadKey/${photo.id}.jpg';
         final bytes = await File(photo.compressedPath).readAsBytes();
         await _storage.upload(
@@ -82,8 +83,24 @@ class SupabaseLeakReportRepository implements LeakReportRepository {
           contentType: photo.mimeType,
         );
         uploadedPaths.add(path);
+
+        // Miniatura: si fue generada, se sube en la misma carpeta.
+        String? thumbPath;
+        if (photo.thumbnailPath != null) {
+          thumbPath = '$_folder/$userId/$uploadKey/${photo.id}_thumb.jpg';
+          final thumbBytes = await File(photo.thumbnailPath!).readAsBytes();
+          await _storage.upload(
+            bucket: bucket,
+            path: thumbPath,
+            bytes: thumbBytes,
+            contentType: photo.mimeType,
+          );
+          uploadedPaths.add(thumbPath);
+        }
+
         photoPayload.add({
           'storage_path': path,
+          'thumbnail_path': thumbPath,
           'mime_type': photo.mimeType,
           'size_bytes': photo.sizeBytes,
           'width': photo.width,

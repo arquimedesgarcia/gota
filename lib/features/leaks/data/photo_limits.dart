@@ -23,6 +23,10 @@ const kReportPhotoPickerMaxDimension = 1280;
 const kReportPhotoCompressMaxDimension = 1280;
 const kReportPhotoCompressQuality = 75;
 
+// Miniaturas (segunda pasada de compresión, cliente genera antes de subir).
+const kReportPhotoThumbMaxDimension = 128;
+const kReportPhotoThumbQuality = 70;
+
 /// Valida el archivo elegido por el usuario antes de comprimirlo.
 void validatePickedPhoto({required String path, required int sizeBytes}) {
   final extension = p.extension(path).toLowerCase();

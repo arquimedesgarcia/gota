@@ -195,7 +195,13 @@ void main() {
       expect(find.text('2 reportadas · 1 validadas'), findsOneWidget);
       expect(find.text('1'), findsOneWidget);
       expect(find.text('Resueltas hoy'), findsOneWidget);
-      expect(find.text('Sin información del agua'), findsOneWidget);
+      // Sin sector seleccionado → CTA (rescope S13).
+      expect(
+        find.text(
+          'Selecciona tu sector para ver el estado del agua en tu zona',
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('Caso 7: sin actividad muestra 0/0 sin ocultar la tarjeta', (
@@ -205,31 +211,41 @@ void main() {
 
       expect(find.text('Resumen de hoy'), findsNothing);
       expect(find.text('0'), findsNWidgets(2));
-      // Sin eventos de agua, la fila de estado degrada honestamente.
-      expect(find.text('Sin información del agua'), findsOneWidget);
+      // Sin sector → CTA (rescope S13); sin eventos de agua queda cubierto en home_water_cta_test.
+      expect(
+        find.text(
+          'Selecciona tu sector para ver el estado del agua en tu zona',
+        ),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('Caso 5: con sector de interés el resumen filtra por sector', (
+    testWidgets(
+      'Caso 5 (S13): el resumen es siempre global, incluso con sector seleccionado',
+      (tester) async {
+        final summary = _FakeSummaryRepository()
+          ..reported = 2
+          ..resolved = 0;
+        await _pumpHome(
+          tester,
+          summary: summary,
+          preferences: _prefs(sectorId: 's1'),
+        );
+
+        // El encabezado nuevo es "Cobertura del piloto".
+        expect(find.text('Cobertura del piloto'), findsOneWidget);
+        // Los conteos nunca se filtran por sector (siempre null en el repo).
+        expect(summary.lastSectorId, isNull);
+      },
+    );
+
+    testWidgets('Caso 6: sin sector el alcance sigue siendo global', (
       tester,
     ) async {
-      final summary = _FakeSummaryRepository()
-        ..reported = 2
-        ..resolved = 0;
-      await _pumpHome(
-        tester,
-        summary: summary,
-        preferences: _prefs(sectorId: 's1'),
-      );
-
-      expect(find.text('Resumen de hoy'), findsNothing);
-      expect(summary.lastSectorId, 's1');
-    });
-
-    testWidgets('Caso 6: sin sector el alcance es global', (tester) async {
       final summary = _FakeSummaryRepository();
       await _pumpHome(tester, summary: summary);
 
-      expect(find.text('Resumen de hoy'), findsNothing);
+      expect(find.text('Cobertura del piloto'), findsOneWidget);
       expect(summary.lastSectorId, isNull);
     });
 

@@ -52,14 +52,25 @@ Unique: `(municipality_id, name)`.
 ### report_photos
 - id UUID
 - report_id
-- storage_path
-- thumbnail_path
+- storage_path (ruta en Storage; NUNCA expuesta al cliente)
+- thumbnail_path (ruta de miniatura 128 px; NULL en fotos anteriores al Sprint 13)
 - mime_type
 - size_bytes
 - width
 - height
 - sort_order
 - created_at
+
+**Contrato de lectura (Sprint 13):** `report_photos` no tiene GRANT SELECT
+para `anon` ni `authenticated`. El único acceso para clientes es la RPC
+`get_report_photos`, que devuelve signed URLs temporales (TTL 900 s). Nunca
+se expone `storage_path` ni `thumbnail_path` crudos al cliente.
+
+**Thumbnails:** generados por el cliente en el mismo flujo de compresión
+(`photo_service.dart`: segunda pasada a 128 px, q70). Se suben a
+`report_photos/{uid}/{uploadKey}/{photoId}_thumb.jpg`. Fotos anteriores al
+Sprint 13 tienen `thumbnail_path = NULL`; el visor usa la foto completa
+redimensionada como fallback (no se retrogeneran thumbs).
 
 ### report_validations
 - id UUID

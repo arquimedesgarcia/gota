@@ -10,19 +10,18 @@ import '../../notifications/presentation/notification_providers.dart';
 import '../../water/data/water_event_repository.dart';
 import '../../water/domain/water_event.dart';
 
-/// Resumen "Hoy en tu comunidad" (S10-C), ampliado con los acumulados de
-/// fallas activas (reportadas + validadas, umbral comunitario del mapa).
+/// Resumen comunitario de cobertura global del piloto (S10-C, rescope S13).
 ///
-/// El ámbito efectivo sale de las preferencias existentes: sector de
-/// interés cuando hay uno, cobertura global del piloto cuando no.
+/// Los conteos son SIEMPRE globales (todos los sectores del piloto): no se
+/// filtra por el sector de interés del usuario. El filtro por sector queda
+/// únicamente en [sectorWaterStatusProvider] (estado del agua).
+///
 /// Como `HomeScreen` vive en el `IndexedStack`, el provider conserva su
-/// estado y solo reconsulta al invalidarse (retorno `true` del flujo de
-/// Reportar, reintento manual), igual que `recentLeaksProvider` (S10-B).
-final communitySummaryProvider = FutureProvider<CommunitySummary>((ref) async {
-  final prefs = await ref.watch(notificationPreferencesProvider.future);
+/// estado y solo reconsulta al invalidarse.
+final communitySummaryProvider = FutureProvider<CommunitySummary>((ref) {
   return ref
       .watch(communitySummaryRepositoryProvider)
-      .todaySummary(sectorId: prefs?.preferredSectorId);
+      .todaySummary();
 });
 
 /// Estado actual del agua del ámbito efectivo: último evento registrado

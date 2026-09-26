@@ -62,6 +62,10 @@ abstract class GotaCommunityDatabase {
     String orderBy = 'recent',
     int limit = 100,
   });
+
+  /// RPC `get_report_photos`: fotos de un reporte con signed URLs (Sprint 13).
+  /// Nunca devuelve storage_path crudo; la privacidad la garantiza la RPC.
+  Future<Map<String, dynamic>> rpcGetReportPhotos(String reportId);
 }
 
 class SupabaseGotaCommunityDatabase implements GotaCommunityDatabase {
@@ -225,6 +229,15 @@ class SupabaseGotaCommunityDatabase implements GotaCommunityDatabase {
           .toList();
     }
     throw StateError('get_map_reports devolvió un formato inesperado.');
+  }
+
+  @override
+  Future<Map<String, dynamic>> rpcGetReportPhotos(String reportId) async {
+    final data = await _client.rpc<dynamic>(
+      'get_report_photos',
+      params: {'p_report_id': reportId},
+    );
+    return _asMap(data, 'get_report_photos');
   }
 
   Map<String, dynamic> _asMap(Object? data, String rpcName) {
