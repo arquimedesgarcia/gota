@@ -27,3 +27,10 @@ enable_anonymous_sign_ins = true
 # (docs/SETUP.md).
 [functions.notify-push]
 verify_jwt = true
+
+# Sprint 13 / PROMPT 15: lectura de fotos de un reporte con signed URLs. La
+# invoca la app con el JWT del usuario (functions.invoke), por eso verifica
+# JWT; internamente firma las rutas con el service role key
+# (docs/PROMPT_15_FIX_FOTOS_SIGNED_URLS_2026-09-26.md).
+[functions.get-report-photos]
+verify_jwt = true

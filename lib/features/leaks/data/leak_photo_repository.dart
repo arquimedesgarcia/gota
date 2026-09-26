@@ -16,9 +16,10 @@ const _kSignedUrlTtlSeconds = 900;
 
 /// Repositorio de fotos de un reporte de fuga (Sprint 13).
 ///
-/// Llama a la RPC `get_report_photos` (SECURITY DEFINER, autenticados) y
-/// convierte la respuesta en [LeakPhoto] con URLs listas para usar.
-/// El cliente nunca recibe `storage_path` crudo.
+/// Invoca la Edge Function `get-report-photos` (que aplica el gating vía RPC
+/// `get_report_photo_paths` y firma las rutas con service_role) y convierte la
+/// respuesta en [LeakPhoto] con URLs listas para usar. El cliente nunca recibe
+/// `storage_path` crudo (docs/PROMPT_15_FIX_FOTOS_SIGNED_URLS_2026-09-26).
 abstract class LeakPhotoRepository {
   /// Fotos del reporte [reportId], ordenadas por `sort_order`.
   /// Lanza [LeakReportNotFoundException] si el reporte no existe.
@@ -43,6 +44,10 @@ class SupabaseLeakPhotoRepository implements LeakPhotoRepository {
       throw const NetworkException();
     } on http.ClientException {
       throw const NetworkException();
+    } on supabase.FunctionException {
+      // Fallo de transporte de la Edge Function (5xx/no-2xx). Los errores de
+      // dominio llegan como status_code en el cuerpo, no como excepción.
+      throw const QueryException();
     } on supabase.PostgrestException {
       throw const QueryException();
     } on supabase.AuthException {

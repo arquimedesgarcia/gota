@@ -1,4 +1,5 @@
-/// Foto de un reporte de fuga, tal como la entrega la RPC `get_report_photos`.
+/// Foto de un reporte de fuga, tal como la entrega la Edge Function
+/// `get-report-photos`.
 ///
 /// El cliente NUNCA recibe `storage_path` crudo: solo signed URLs temporales
 /// (TTL 900 s). El campo [expiresAt] permite saber cuándo renovar.

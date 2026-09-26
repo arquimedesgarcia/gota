@@ -63,8 +63,12 @@ abstract class GotaCommunityDatabase {
     int limit = 100,
   });
 
-  /// RPC `get_report_photos`: fotos de un reporte con signed URLs (Sprint 13).
-  /// Nunca devuelve storage_path crudo; la privacidad la garantiza la RPC.
+  /// Fotos de un reporte con signed URLs (Sprint 13).
+  ///
+  /// Invoca la Edge Function `get-report-photos`, que verifica al llamador,
+  /// aplica el gating vía RPC `get_report_photo_paths` (service_role) y firma
+  /// las rutas. Nunca devuelve `storage_path` crudo: el cliente solo recibe
+  /// signed URLs temporales (docs/PROMPT_15_FIX_FOTOS_SIGNED_URLS_2026-09-26).
   Future<Map<String, dynamic>> rpcGetReportPhotos(String reportId);
 }
 
@@ -233,11 +237,14 @@ class SupabaseGotaCommunityDatabase implements GotaCommunityDatabase {
 
   @override
   Future<Map<String, dynamic>> rpcGetReportPhotos(String reportId) async {
-    final data = await _client.rpc<dynamic>(
-      'get_report_photos',
-      params: {'p_report_id': reportId},
+    // Las signed URLs de Storage no pueden firmarse desde SQL; la firma vive en
+    // la Edge Function (service_role). El JWT del usuario viaja en la cabecera
+    // Authorization que agrega el SDK automáticamente.
+    final response = await _client.functions.invoke(
+      'get-report-photos',
+      body: {'report_id': reportId},
     );
-    return _asMap(data, 'get_report_photos');
+    return _asMap(response.data, 'get-report-photos');
   }
 
   Map<String, dynamic> _asMap(Object? data, String rpcName) {
