@@ -806,9 +806,7 @@ class _ActionRow extends StatelessWidget {
         Expanded(
           child: _ActionTile(
             widgetKey: leakValidateButtonKey,
-            label: detail.alreadyValidated
-                ? LeakCommunityCopy.alreadyValidated
-                : 'Validar',
+            label: 'Validar',
             icon: Icons.thumb_up_alt_outlined,
             accentColor: AppColors.accent,
             enabled: detail.canValidate && !running,
