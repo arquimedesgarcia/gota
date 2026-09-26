@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/app_theme.dart';
+import '../../features/notifications/data/daily_digest_service.dart';
 import '../../features/home/presentation/community_summary_providers.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/leaks/presentation/leak_community_providers.dart';
@@ -14,22 +15,35 @@ import '../../features/notifications/presentation/settings_screen.dart';
 import '../../features/water/presentation/water_screen.dart';
 import '../../shared/widgets/placeholder_screen.dart';
 
+/// Notifier para la navegación entre pestañas del shell.
+class _ShellTabNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void setTab(int index) {
+    state = index;
+  }
+}
+
+/// Provider que permite a cualquier widget dentro del árbol solicitar
+/// un cambio de pestaña del shell. [AppShell] escucha los cambios y
+/// actualiza [_index] en consecuencia. Se mantiene en sincronía con
+/// la pestaña activa real para que cambios repetidos al mismo valor
+/// no sean ignorados por el listener.
+final shellTabProvider = NotifierProvider<_ShellTabNotifier, int>(
+  _ShellTabNotifier.new,
+);
+
 /// Shell de navegación con cinco posiciones:
 /// Inicio · Mapa · Reportar (acción central) · Agua · Más.
-class AppShell extends StatefulWidget {
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
 
   @override
-  State<AppShell> createState() => _AppShellState();
+  ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
-  void resetLeakReportDraft() {
-    // Reinicia el borrador del reporte para el próximo flujo.
-    final container = ProviderScope.containerOf(context, listen: false);
-    container.invalidate(leakReportProvider);
-  }
-
+class _AppShellState extends ConsumerState<AppShell> {
   int _index = 0;
 
   static const _tabs = [
@@ -40,10 +54,16 @@ class _AppShellState extends State<AppShell> {
     SettingsScreen(),
   ];
 
-  /// Abre el flujo completo de Reportar fuga (Sprint 02) y reinicia el
-  /// borrador al volver, para que el próximo reporte empiece limpio.
-  /// S10-B: si el flujo devolvió true (ReportCreated), invalida
-  /// recentLeaksProvider para que Home reconsulte (mismo patrón que Agua).
+  @override
+  void initState() {
+    super.initState();
+    // Sincroniza el provider con el índice inicial.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(shellTabProvider.notifier).setTab(_index);
+    });
+  }
+
+  /// Abre el flujo completo de Reportar fuga.
   Future<void> _openReportFlow() async {
     final created = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
@@ -55,28 +75,38 @@ class _AppShellState extends State<AppShell> {
     if (created == true) {
       final container = ProviderScope.containerOf(context, listen: false);
       container.invalidate(recentLeaksProvider);
-      // S10-C: la tarjeta "Hoy en tu comunidad" también depende del
-      // reporte recién creado.
       container.invalidate(communitySummaryProvider);
-      // La tarjeta "Actividad reciente" muestra el nuevo REPORTED.
       container.invalidate(latestActivityProvider);
-      // El mapa conserva su resultado cacheado si no se invalida explícitamente.
       container.invalidate(mapReportsProvider);
     }
-    resetLeakReportDraft();
+    _resetLeakReportDraft();
+  }
+
+  void _resetLeakReportDraft() {
+    final container = ProviderScope.containerOf(context, listen: false);
+    container.invalidate(leakReportProvider);
   }
 
   void _onDestinationSelected(int index) {
     if (index == 2) {
-      // "Reportar" es una acción, no un destino navegable.
       _openReportFlow();
       return;
     }
     setState(() => _index = index);
+    // Sincroniza el provider para que el listener no vuelva a dispararse.
+    ref.read(shellTabProvider.notifier).setTab(index);
   }
 
   @override
   Widget build(BuildContext context) {
+    // Escucha solicitudes de navegación de pestaña desde widgets hijos.
+    ref.listen<int>(shellTabProvider, (prev, next) {
+      if (_index != next) setState(() => _index = next);
+    });
+
+    // Arranca el servicio de resumen diario (notificación a las 8 pm).
+    ref.watch(dailyDigestBootstrapProvider);
+
     return Scaffold(
       body: IndexedStack(index: _index, children: _tabs),
       bottomNavigationBar: NavigationBar(

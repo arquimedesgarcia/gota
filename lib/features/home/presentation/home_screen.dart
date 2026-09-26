@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/router/app_shell.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../leaks/presentation/leak_community_providers.dart';
 import '../../leaks/presentation/leak_report_controller.dart';
@@ -10,7 +11,6 @@ import '../../leaks/presentation/recent_activity_providers.dart';
 import '../../map/presentation/map_providers.dart';
 import '../../map/presentation/map_screen.dart';
 import '../../notifications/presentation/notification_providers.dart';
-import '../../notifications/presentation/sector_selection_screen.dart';
 import '../../water/domain/water_event_type.dart';
 import '../../water/presentation/water_register_screen.dart';
 import 'community_summary_providers.dart';
@@ -388,15 +388,6 @@ class _CommunitySummaryCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            HomeCopy.communitySummaryTitle,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppColors.textMuted,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            ),
-          ),
-          SizedBox(height: AppSpacing.sm),
           summaryAsync.when(
             loading: () => const Row(
               children: [
@@ -443,7 +434,7 @@ class _CommunitySummaryCard extends ConsumerWidget {
                     child: _Metric(
                       color: AppColors.danger,
                       value: '${summary.activeTotal}',
-                      label: 'Fallas activas',
+                      label: 'Fugas activas',
                       detail:
                           '${summary.activeReported} reportadas'
                           ' · ${summary.activeValidated} validadas',
@@ -539,16 +530,7 @@ class _WaterMetric extends ConsumerWidget {
 
     if (noSector) {
       return GestureDetector(
-        onTap: () => Navigator.of(context)
-            .push(
-              MaterialPageRoute<void>(
-                builder: (_) => const SectorSelectionScreen(),
-              ),
-            )
-            .then((_) {
-          ref.invalidate(sectorWaterStatusProvider);
-          ref.invalidate(notificationPreferencesProvider);
-        }),
+        onTap: () => ref.read(shellTabProvider.notifier).setTab(4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -568,10 +550,11 @@ class _WaterMetric extends ConsumerWidget {
                     HomeCopy.waterNoSectorCta,
                     style: const TextStyle(
                       color: AppColors.accent,
-                      fontSize: 11,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                       height: 1.3,
                     ),
-                    maxLines: 3,
+                    maxLines: 2,
                   ),
                 ),
                 const Icon(

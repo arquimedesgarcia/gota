@@ -199,7 +199,7 @@ void main() {
 
         expect(
           find.text(
-            'Selecciona tu sector para ver el estado del agua en tu zona',
+            'Selecciona tu sector',
           ),
           findsOneWidget,
         );
@@ -220,7 +220,7 @@ void main() {
         expect(find.text('Sin información del agua'), findsOneWidget);
         expect(
           find.text(
-            'Selecciona tu sector para ver el estado del agua en tu zona',
+            'Selecciona tu sector',
           ),
           findsNothing,
         );
@@ -249,7 +249,7 @@ void main() {
         expect(find.text('Llegó'), findsOneWidget);
         expect(
           find.text(
-            'Selecciona tu sector para ver el estado del agua en tu zona',
+            'Selecciona tu sector',
           ),
           findsNothing,
         );
@@ -283,7 +283,7 @@ void main() {
         await _pumpHome(tester); // sin sector → muestra CTA
 
         final cta = find.text(
-          'Selecciona tu sector para ver el estado del agua en tu zona',
+          'Selecciona tu sector',
         );
         expect(cta, findsOneWidget);
 

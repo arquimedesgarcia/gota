@@ -191,14 +191,14 @@ void main() {
 
       expect(find.text('Resumen de hoy'), findsNothing);
       expect(find.text('3'), findsOneWidget); // 2 reportadas + 1 validada
-      expect(find.text('Fallas activas'), findsOneWidget);
+      expect(find.text('Fugas activas'), findsOneWidget);
       expect(find.text('2 reportadas · 1 validadas'), findsOneWidget);
       expect(find.text('1'), findsOneWidget);
       expect(find.text('Resueltas hoy'), findsOneWidget);
       // Sin sector seleccionado → CTA (rescope S13).
       expect(
         find.text(
-          'Selecciona tu sector para ver el estado del agua en tu zona',
+          'Selecciona tu sector',
         ),
         findsOneWidget,
       );
@@ -214,7 +214,7 @@ void main() {
       // Sin sector → CTA (rescope S13); sin eventos de agua queda cubierto en home_water_cta_test.
       expect(
         find.text(
-          'Selecciona tu sector para ver el estado del agua en tu zona',
+          'Selecciona tu sector',
         ),
         findsOneWidget,
       );
@@ -232,10 +232,10 @@ void main() {
           preferences: _prefs(sectorId: 's1'),
         );
 
-        // El encabezado nuevo es "Cobertura del piloto".
-        expect(find.text('Cobertura del piloto'), findsOneWidget);
         // Los conteos nunca se filtran por sector (siempre null en el repo).
         expect(summary.lastSectorId, isNull);
+        // Verifica que la tarjeta de resumen se muestra (sin el título).
+        expect(find.text('Fugas activas'), findsOneWidget);
       },
     );
 
@@ -245,8 +245,9 @@ void main() {
       final summary = _FakeSummaryRepository();
       await _pumpHome(tester, summary: summary);
 
-      expect(find.text('Cobertura del piloto'), findsOneWidget);
       expect(summary.lastSectorId, isNull);
+      // Verifica que la tarjeta de resumen se muestra.
+      expect(find.text('Fugas activas'), findsOneWidget);
     });
 
     testWidgets('Caso 8: error no se convierte en ceros y admite retry', (

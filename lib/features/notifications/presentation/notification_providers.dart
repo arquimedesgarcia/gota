@@ -43,7 +43,10 @@ class NotificationPreferencesController
     }
   }
 
-  Future<void> selectSector(String sectorId) => _save(sectorId: sectorId);
+  /// Al seleccionar un sector, activa automáticamente las notificaciones
+  /// de agua para ese sector.
+  Future<void> selectSector(String sectorId) =>
+      _save(sectorId: sectorId, enabled: true);
 
   Future<void> clearSector() => _save(clearSector: true);
 
