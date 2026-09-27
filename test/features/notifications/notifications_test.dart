@@ -128,6 +128,7 @@ class _FakeWaterRepository implements WaterEventRepository {
     required WaterEventType type,
     required DateTime eventTime,
     String? comment,
+    String? address,
   }) => throw UnimplementedError();
   @override
   Future<int> validate(String eventId) => throw UnimplementedError();

@@ -7,14 +7,15 @@ import '../domain/water_event_type.dart';
 import 'water_copy.dart';
 import 'water_register_controller.dart';
 import 'water_register_step_type.dart';
-import 'water_register_step_municipality.dart';
-import 'water_register_step_sector.dart';
+import 'water_register_step_location.dart';
 
 /// Pantalla del flujo completo de registro de evento de agua
-/// (municipio → sector → hora → comentario → revisar).
+/// (tipo → ubicación → resumen).
 ///
-/// El tipo se puede elegir arriba (initialType) o en el primer paso.
-/// El flujo devuelve `true` al cerrar si el evento se creó exitosamente.
+/// La ubicación se captura por GPS + reverse geocoding (paridad con Reportar
+/// fuga): el municipio y el sector se autocompletan desde la ubicación y se
+/// pueden corregir. El tipo se puede elegir arriba (initialType) o en el
+/// primer paso. El flujo devuelve `true` al cerrar si el evento se creó.
 class WaterRegisterScreen extends ConsumerStatefulWidget {
   const WaterRegisterScreen({super.key, this.initialType});
 
@@ -75,7 +76,7 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
               ? const LoadingView(message: 'Registrando evento…')
               : Stepper(
                 currentStep: state.currentStep,
-                onStepContinue: state.currentStep < 3
+                onStepContinue: state.currentStep < 2
                     ? () => ref
                           .read(waterRegisterControllerProvider.notifier)
                           .nextStep()
@@ -86,13 +87,18 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
                           .previousStep()
                     : null,
                 controlsBuilder: (context, details) {
+                  // El paso Ubicación exige municipio + sector antes de
+                  // avanzar (paridad con la validación de Reportar fuga).
+                  final canContinue = details.currentStep != 1 ||
+                      (state.municipalityId != null && state.sectorId != null);
                   return Padding(
                     padding: const EdgeInsets.only(top: AppSpacing.md),
                     child: Row(
                       children: [
-                        if (details.currentStep < 3)
+                        if (details.currentStep < 2)
                           FilledButton.tonal(
-                            onPressed: details.onStepContinue,
+                            onPressed:
+                                canContinue ? details.onStepContinue : null,
                             child: const Text('Continuar'),
                           ),
                         if (details.currentStep > 0) ...[
@@ -118,14 +124,9 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
                       isActive: state.currentStep >= 0,
                     ),
                     Step(
-                      title: const Text(WaterCopy.stepMunicipality),
-                      content: const WaterRegisterStepMunicipality(),
+                      title: const Text(WaterCopy.stepLocation),
+                      content: const WaterRegisterStepLocation(),
                       isActive: state.currentStep >= 1,
-                    ),
-                    Step(
-                      title: const Text(WaterCopy.stepSector),
-                      content: const WaterRegisterStepSector(),
-                      isActive: state.currentStep >= 2,
                     ),
                     Step(
                       title: const Text('Resumen'),
@@ -140,14 +141,14 @@ class _WaterRegisterScreenState extends ConsumerState<WaterRegisterScreen> {
                           _WaterRegisterReview(),
                         ],
                       ),
-                      isActive: state.currentStep >= 3,
+                      isActive: state.currentStep >= 2,
                     ),
                   ],
                 ),
         ),
         floatingActionButton:
             state.submitStatus != WaterRegisterSubmitStatus.submitting &&
-                state.currentStep == 3
+                state.currentStep == 2
             ? FloatingActionButton.extended(
                 onPressed: _submit,
                 icon: const Icon(Icons.check),
@@ -185,6 +186,13 @@ class _WaterRegisterReview extends ConsumerWidget {
           label: 'Sector',
           value: state.sectorName ?? '—',
         ),
+        if (state.address != null) ...[
+          const SizedBox(height: 12),
+          _ReviewField(
+            label: 'Dirección',
+            value: state.address!,
+          ),
+        ],
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(12),

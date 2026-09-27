@@ -162,6 +162,24 @@ class _WaterEventDetailScreenState
                             now: now,
                           ),
                         ),
+                        if (detail.address != null &&
+                            detail.address!.isNotEmpty) ...[
+                          const Divider(),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Dirección',
+                                  style: Theme.of(context).textTheme.labelSmall,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(detail.address!),
+                              ],
+                            ),
+                          ),
+                        ],
                         if (detail.comment != null &&
                             detail.comment!.isNotEmpty) ...[
                           const Divider(),

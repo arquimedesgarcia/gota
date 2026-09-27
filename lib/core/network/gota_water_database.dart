@@ -29,6 +29,7 @@ abstract class GotaWaterDatabase {
     required String eventType,
     required DateTime eventTime,
     String? comment,
+    String? address,
   });
 
   /// RPC `validate_water_event`.
@@ -69,6 +70,7 @@ class SupabaseGotaWaterDatabase implements GotaWaterDatabase {
     required String eventType,
     required DateTime eventTime,
     String? comment,
+    String? address,
   }) async {
     final params = <String, dynamic>{
       'p_municipality_id': municipalityId,
@@ -77,6 +79,7 @@ class SupabaseGotaWaterDatabase implements GotaWaterDatabase {
       'p_event_time': eventTime.toUtc().toIso8601String(),
     };
     if (comment != null) params['p_comment'] = comment;
+    if (address != null) params['p_address'] = address;
     final data = await _client.rpc<dynamic>(
       'register_water_event',
       params: params,
