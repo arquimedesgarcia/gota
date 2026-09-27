@@ -7,11 +7,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gota/app/theme/app_theme.dart';
 import 'package:gota/core/errors/app_exception.dart';
 import 'package:gota/features/leaks/data/leak_community_repository.dart';
+import 'package:gota/features/leaks/data/leak_photo_repository.dart';
 import 'package:gota/features/leaks/domain/community_activity.dart';
 import 'package:gota/features/leaks/domain/leak_community.dart';
 import 'package:gota/features/leaks/domain/leak_community_errors.dart';
+import 'package:gota/features/leaks/domain/leak_photo.dart';
 import 'package:gota/features/leaks/presentation/leak_detail_screen.dart';
 import 'package:gota/features/leaks/presentation/recent_activity_providers.dart';
+
+class _FakeLeakPhotoRepository implements LeakPhotoRepository {
+  @override
+  Future<List<LeakPhoto>> getPhotos(String reportId) async => const [];
+}
 
 const _reportId = 'r1';
 
@@ -128,10 +135,22 @@ Future<void> _pump(
   _FakeLeakCommunityRepository repository, {
   bool settle = true,
 }) async {
+  // Viewport alto para que el ListView nunca corte el contenido (los tests
+  // verifican widgets scrolled: _disabledReason, resolvedAt, etc.).
+  tester.view.physicalSize = const Size(800, 2400);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(() {
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
+  });
+
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
         leakCommunityRepositoryProvider.overrideWithValue(repository),
+        leakPhotoRepositoryProvider.overrideWithValue(
+          _FakeLeakPhotoRepository(),
+        ),
       ],
       child: MaterialApp(
         theme: AppTheme.light,
@@ -153,13 +172,12 @@ void main() {
     await _pump(tester, repository);
 
     expect(find.text('Fuga activa'), findsOneWidget);
-    expect(find.text('2 validaciones'), findsOneWidget);
+    // Formato nuevo: "X o más" cuando validationCount >= umbral mínimo (1)
+    expect(find.text('2 o más'), findsOneWidget);
+    // Confirmaciones: "1 de 3" (por debajo del umbral de 3)
+    expect(find.text('1 de 3'), findsOneWidget);
     expect(
-      find.text('1 de 3 personas han confirmado que la fuga fue resuelta.'),
-      findsOneWidget,
-    );
-    expect(
-      tester.widget<FilledButton>(find.byKey(leakValidateButtonKey)).onPressed,
+      tester.widget<GestureDetector>(find.byKey(leakValidateButtonKey)).onTap,
       isNotNull,
     );
   });
@@ -190,10 +208,11 @@ void main() {
 
     expect(repository.validateCalls, 1);
     expect(find.text('Fuga validada. 3 validaciones.'), findsOneWidget);
-    expect(find.text('3 validaciones'), findsOneWidget);
-    // Tras validar, la acción queda deshabilitada y con mensaje claro.
+    // Formato nuevo: "X o más" cuando validationCount >= umbral mínimo (1)
+    expect(find.text('3 o más'), findsOneWidget);
+    // Tras validar, onTap es null (deshabilitado) y el label cambia.
     expect(
-      tester.widget<FilledButton>(find.byKey(leakValidateButtonKey)).onPressed,
+      tester.widget<GestureDetector>(find.byKey(leakValidateButtonKey)).onTap,
       isNull,
     );
     expect(find.text('Ya validaste este reporte'), findsWidgets);
@@ -207,13 +226,13 @@ void main() {
     await _pump(tester, repository);
 
     expect(
-      tester.widget<FilledButton>(find.byKey(leakValidateButtonKey)).onPressed,
+      tester.widget<GestureDetector>(find.byKey(leakValidateButtonKey)).onTap,
       isNull,
     );
     expect(find.text('No puedes validar tu propio reporte'), findsOneWidget);
     // B3: sin validaciones previas, el botón de confirmar queda deshabilitado.
     expect(
-      tester.widget<OutlinedButton>(find.byKey(leakConfirmButtonKey)).onPressed,
+      tester.widget<GestureDetector>(find.byKey(leakConfirmButtonKey)).onTap,
       isNull,
     );
   });
@@ -226,11 +245,11 @@ void main() {
     await _pump(tester, repository);
 
     expect(
-      tester.widget<FilledButton>(find.byKey(leakValidateButtonKey)).onPressed,
+      tester.widget<GestureDetector>(find.byKey(leakValidateButtonKey)).onTap,
       isNull,
     );
     expect(
-      tester.widget<OutlinedButton>(find.byKey(leakConfirmButtonKey)).onPressed,
+      tester.widget<GestureDetector>(find.byKey(leakConfirmButtonKey)).onTap,
       isNull,
     );
     expect(find.text('Tu acceso está bloqueado'), findsOneWidget);
@@ -261,10 +280,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Fuga resuelta'), findsNothing);
-    expect(
-      find.text('2 de 3 personas han confirmado que la fuga fue resuelta.'),
-      findsOneWidget,
-    );
+    // Formato nuevo: "2 de 3" (por debajo del umbral)
+    expect(find.text('2 de 3'), findsOneWidget);
   });
 
   testWidgets('confirmar resolución: el umbral alcanzado viene del backend', (
@@ -298,10 +315,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Fuga resuelta'), findsOneWidget);
-    expect(
-      find.text('3 de 3 personas han confirmado que la fuga fue resuelta.'),
-      findsOneWidget,
-    );
+    // Formato nuevo: "3 o más" (confirmations >= threshold = 3)
+    expect(find.text('3 o más'), findsOneWidget);
   });
 
   testWidgets('fuga resuelta: no muestra acciones incompatibles', (
@@ -376,7 +391,7 @@ void main() {
 
     // Mientras la acción está en vuelo el botón queda deshabilitado.
     expect(
-      tester.widget<FilledButton>(find.byKey(leakValidateButtonKey)).onPressed,
+      tester.widget<GestureDetector>(find.byKey(leakValidateButtonKey)).onTap,
       isNull,
     );
     expect(find.byKey(leakActionProgressKey), findsOneWidget);
@@ -427,6 +442,9 @@ void main() {
         ProviderScope(
           overrides: [
             leakCommunityRepositoryProvider.overrideWithValue(repository),
+            leakPhotoRepositoryProvider.overrideWithValue(
+              _FakeLeakPhotoRepository(),
+            ),
           ],
           child: MaterialApp(
             theme: AppTheme.light,

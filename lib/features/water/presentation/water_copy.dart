@@ -11,6 +11,7 @@ abstract final class WaterCopy {
 
   // Registro (pasos).
   static const stepType = '¿Qué pasó con el agua?';
+  static const stepLocation = '¿Dónde pasó?';
   static const stepMunicipality = 'Municipio';
   static const stepSector = 'Sector';
   static const stepTime = 'Hora del evento';

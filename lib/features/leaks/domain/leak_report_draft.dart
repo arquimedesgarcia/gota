@@ -27,6 +27,7 @@ class PreparedPhoto {
     required this.sizeBytes,
     required this.width,
     required this.height,
+    this.thumbnailPath,
   });
 
   /// Identificador local (uuid v4 simple) para reordenar/eliminar.
@@ -37,6 +38,10 @@ class PreparedPhoto {
   final int sizeBytes;
   final int width;
   final int height;
+
+  /// Ruta local de la miniatura (128 px, generada en la misma sesión de
+  /// compresión). Null en fotos anteriores a la migración de thumbnails.
+  final String? thumbnailPath;
 }
 
 /// Estado completo del borrador antes de enviar.

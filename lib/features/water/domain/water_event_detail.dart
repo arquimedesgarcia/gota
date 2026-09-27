@@ -14,6 +14,7 @@ class WaterEventDetail {
     required this.isBlocked,
     required this.alreadyValidated,
     this.comment,
+    this.address,
     this.updatedAt,
     this.municipalityId,
     this.municipalityName,
@@ -29,6 +30,7 @@ class WaterEventDetail {
             : WaterEventType.fromWire(json['event_type'] as String),
         eventTime: _parseDate(json['event_time']) ?? DateTime.now(),
         comment: json['comment'] as String?,
+        address: json['address'] as String?,
         validationCount: (json['validation_count'] as num?)?.toInt() ?? 0,
         createdAt: _parseDate(json['created_at']) ?? DateTime.now(),
         updatedAt: _parseDate(json['updated_at']),
@@ -45,6 +47,11 @@ class WaterEventDetail {
   final WaterEventType type;
   final DateTime eventTime;
   final String? comment;
+
+  /// Dirección completa sugerida por el reverse-geocoder al registrar el
+  /// evento (p. ej. "Calle Bolívar, Los Pinos, Porlamar"). Nullable: eventos
+  /// antiguos y los registrados sin GPS no la tienen.
+  final String? address;
   final int validationCount;
   final DateTime createdAt;
   final DateTime? updatedAt;

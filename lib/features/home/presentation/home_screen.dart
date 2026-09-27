@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/router/app_shell.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../leaks/presentation/leak_community_providers.dart';
 import '../../leaks/presentation/leak_report_controller.dart';
@@ -9,9 +10,11 @@ import '../../leaks/presentation/recent_activity_card.dart';
 import '../../leaks/presentation/recent_activity_providers.dart';
 import '../../map/presentation/map_providers.dart';
 import '../../map/presentation/map_screen.dart';
+import '../../notifications/presentation/notification_providers.dart';
 import '../../water/domain/water_event_type.dart';
 import '../../water/presentation/water_register_screen.dart';
 import 'community_summary_providers.dart';
+import 'home_copy.dart';
 
 /// Pantalla principal: pulso de la comunidad (fallas activas, resueltas hoy
 /// y estado del agua) y las tres acciones principales.
@@ -395,7 +398,7 @@ class _CommunitySummaryCard extends ConsumerWidget {
                 ),
                 SizedBox(width: 12),
                 Text(
-                  'Cargando actividad…',
+                  HomeCopy.communitySummaryLoading,
                   style: TextStyle(color: AppColors.textMuted, fontSize: 13),
                 ),
               ],
@@ -404,14 +407,14 @@ class _CommunitySummaryCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'No pudimos cargar la actividad de hoy.',
+                  HomeCopy.communitySummaryError,
                   style: TextStyle(color: AppColors.textMuted, fontSize: 13),
                 ),
                 const SizedBox(height: 4),
                 TextButton(
                   key: communitySummaryRetryKey,
                   onPressed: () => ref.invalidate(communitySummaryProvider),
-                  child: const Text('Reintentar'),
+                  child: const Text(HomeCopy.communitySummaryRetry),
                 ),
               ],
             ),
@@ -431,7 +434,7 @@ class _CommunitySummaryCard extends ConsumerWidget {
                     child: _Metric(
                       color: AppColors.danger,
                       value: '${summary.activeTotal}',
-                      label: 'Fallas activas',
+                      label: 'Fugas activas',
                       detail:
                           '${summary.activeReported} reportadas'
                           ' · ${summary.activeValidated} validadas',
@@ -512,13 +515,60 @@ class _Metric extends StatelessWidget {
   }
 }
 
-/// Estado del agua del ámbito efectivo (último evento comunitario).
-/// Si la consulta falla o no hay eventos, degrada a un texto honesto.
+/// Estado del agua del sector de interés.
+///
+/// Sin sector seleccionado: muestra un CTA accionable que lleva a
+/// [SectorSelectionScreen]. Con sector: muestra el último evento o "Sin info".
 class _WaterMetric extends ConsumerWidget {
   const _WaterMetric();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final prefsAsync = ref.watch(notificationPreferencesProvider);
+    final prefs = prefsAsync.value;
+    final noSector = prefsAsync.hasValue && prefs?.preferredSectorId == null;
+
+    if (noSector) {
+      return GestureDetector(
+        onTap: () => ref.read(shellTabProvider.notifier).setTab(4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              HomeCopy.waterMetricLabel,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.text,
+                fontWeight: FontWeight.w600,
+                height: 1.25,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    HomeCopy.waterNoSectorCta,
+                    style: const TextStyle(
+                      color: AppColors.accent,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      height: 1.3,
+                    ),
+                    maxLines: 2,
+                  ),
+                ),
+                const Icon(
+                  Icons.chevron_right,
+                  size: 14,
+                  color: AppColors.accent,
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
     final statusAsync = ref.watch(sectorWaterStatusProvider);
     final textTheme = Theme.of(context).textTheme;
     final event = statusAsync.value;
@@ -529,7 +579,7 @@ class _WaterMetric extends ConsumerWidget {
         : (arrived ? AppColors.success : AppColors.danger);
     final value = event == null ? '—' : (arrived ? 'Llegó' : 'Se fue');
     final detail = event == null
-        ? 'Sin información del agua'
+        ? HomeCopy.waterNoInfo
         : _timeAgo(event.eventTime);
 
     return Column(
@@ -547,7 +597,7 @@ class _WaterMetric extends ConsumerWidget {
         ),
         const SizedBox(height: 2),
         Text(
-          'Agua en tu sector',
+          HomeCopy.waterMetricLabel,
           style: textTheme.bodySmall?.copyWith(
             color: AppColors.text,
             fontWeight: FontWeight.w600,

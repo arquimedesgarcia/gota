@@ -112,6 +112,10 @@ class _FakeCommunityDatabase implements GotaCommunityDatabase {
   Future<Map<String, dynamic>> rpcConfirmLeakResolution(
     String reportId,
   ) async => _respond('confirm_leak_resolution', reportId, confirmResponse);
+
+  @override
+  Future<Map<String, dynamic>> rpcGetReportPhotos(String reportId) =>
+      throw UnimplementedError();
 }
 
 LeakCommunityRepository _repo(_FakeCommunityDatabase database) =>

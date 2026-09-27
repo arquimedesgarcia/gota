@@ -88,6 +88,10 @@ class _FakeCommunityDatabase implements GotaCommunityDatabase {
   @override
   Future<Map<String, dynamic>> rpcConfirmLeakResolution(String reportId) =>
       throw UnimplementedError();
+
+  @override
+  Future<Map<String, dynamic>> rpcGetReportPhotos(String reportId) =>
+      throw UnimplementedError();
 }
 
 void main() {

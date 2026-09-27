@@ -31,6 +31,7 @@ abstract class WaterEventRepository {
     required WaterEventType type,
     required DateTime eventTime,
     String? comment,
+    String? address,
   });
 
   /// Valida un evento de otro usuario; devuelve el contador confirmado
@@ -63,11 +64,16 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
     required WaterEventType type,
     required DateTime eventTime,
     String? comment,
+    String? address,
   }) async {
     final trimmed = comment?.trim();
     final normalizedComment = trimmed == null || trimmed.isEmpty
         ? null
         : trimmed;
+
+    final trimmedAddress = address?.trim();
+    final normalizedAddress =
+        trimmedAddress == null || trimmedAddress.isEmpty ? null : trimmedAddress;
 
     final data = await callRpc(
       () => _database.rpcRegisterWaterEvent(
@@ -76,6 +82,7 @@ class SupabaseWaterEventRepository implements WaterEventRepository {
         eventType: type.wireName,
         eventTime: eventTime,
         comment: normalizedComment,
+        address: normalizedAddress,
       ),
     );
 

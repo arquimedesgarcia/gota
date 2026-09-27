@@ -192,7 +192,7 @@ Widget _buildMapWithOverlays(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _MapLegend(),
+            _MapLegend(reports: reportsAsync.value ?? const []),
             if (selectedLeak != null) ...[
               const SizedBox(height: AppSpacing.sm),
               _SelectedLeakCard(
@@ -880,14 +880,73 @@ class _MapEmptyView extends StatelessWidget {
   }
 }
 
-/// Leyenda de colores del mapa: punto rojo = Activa, punto verde = Resuelta.
-class _MapLegend extends StatelessWidget {
-  const _MapLegend();
+/// Leyenda de colores del mapa con panel de información al tocar (i).
+class _MapLegend extends StatefulWidget {
+  const _MapLegend({required this.reports});
+
+  final List<LeakSummary> reports;
+
+  @override
+  State<_MapLegend> createState() => _MapLegendState();
+}
+
+class _MapLegendState extends State<_MapLegend> {
+  OverlayEntry? _hintEntry;
+  final _legendKey = GlobalKey();
+
+  @override
+  void dispose() {
+    _removeHint();
+    super.dispose();
+  }
+
+  void _toggleHint() {
+    if (_hintEntry != null) {
+      _removeHint();
+      return;
+    }
+    _showHint();
+  }
+
+  void _showHint() {
+    final renderBox =
+        _legendKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final position = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+
+    // Conteos del estado actual de los reportes.
+    final sinValidar = widget.reports
+        .where((r) => !r.isResolved && r.validationCount == 0)
+        .length;
+    final confirmadas = widget.reports
+        .where((r) => !r.isResolved && r.validationCount > 0)
+        .length;
+    final resueltas = widget.reports.where((r) => r.isResolved).length;
+
+    _hintEntry = OverlayEntry(
+      builder: (_) => _LegendHintOverlay(
+        legendTopLeft: position,
+        legendSize: size,
+        sinValidar: sinValidar,
+        confirmadas: confirmadas,
+        resueltas: resueltas,
+        onDismiss: _removeHint,
+      ),
+    );
+    Overlay.of(context).insert(_hintEntry!);
+  }
+
+  void _removeHint() {
+    _hintEntry?.remove();
+    _hintEntry = null;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      key: mapLegendKey,
+      key: _legendKey,
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
         vertical: AppSpacing.sm,
@@ -919,8 +978,156 @@ class _MapLegend extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
+          const SizedBox(width: AppSpacing.md),
+          GestureDetector(
+            onTap: _toggleHint,
+            child: Icon(
+              Icons.info_outline_rounded,
+              size: 15,
+              color: _hintEntry != null
+                  ? AppColors.primary
+                  : AppColors.textMuted,
+            ),
+          ),
         ],
       ),
+    );
+  }
+}
+
+/// Overlay que cubre toda la pantalla con un fondo transparente (para
+/// cerrar al tocar fuera) y posiciona el panel de hint sobre la leyenda.
+class _LegendHintOverlay extends StatelessWidget {
+  const _LegendHintOverlay({
+    required this.legendTopLeft,
+    required this.legendSize,
+    required this.sinValidar,
+    required this.confirmadas,
+    required this.resueltas,
+    required this.onDismiss,
+  });
+
+  final Offset legendTopLeft;
+  final Size legendSize;
+  final int sinValidar;
+  final int confirmadas;
+  final int resueltas;
+  final VoidCallback onDismiss;
+
+  static const _panelWidth = 210.0;
+  static const _panelHeight = 110.0;
+
+  @override
+  Widget build(BuildContext context) {
+    // Posiciona el panel justo encima de la leyenda.
+    final top = legendTopLeft.dy - _panelHeight - 8;
+    final left = legendTopLeft.dx;
+
+    return Stack(
+      children: [
+        // Barrera transparente de toda la pantalla.
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onDismiss,
+          child: const SizedBox.expand(),
+        ),
+        // Panel de información.
+        Positioned(
+          left: left,
+          top: top,
+          child: GestureDetector(
+            // Consume el tap para que no llegue a la barrera.
+            onTap: () {},
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                width: _panelWidth,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.sm,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(color: AppColors.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.10),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _HintRow(
+                      color: AppColors.danger,
+                      label: 'Sin validar',
+                      count: sinValidar,
+                    ),
+                    const SizedBox(height: 6),
+                    _HintRow(
+                      color: AppColors.warning,
+                      label: 'Confirmadas',
+                      count: confirmadas,
+                    ),
+                    const SizedBox(height: 6),
+                    _HintRow(
+                      color: AppColors.success,
+                      label: 'Resueltas',
+                      count: resueltas,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HintRow extends StatelessWidget {
+  const _HintRow({
+    required this.color,
+    required this.label,
+    required this.count,
+  });
+
+  final Color color;
+  final String label;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textMuted,
+            ),
+          ),
+        ),
+        Text(
+          '$count',
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.text,
+          ),
+        ),
+      ],
     );
   }
 }

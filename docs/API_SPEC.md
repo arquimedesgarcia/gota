@@ -85,6 +85,29 @@ Respuesta (`jsonb`): `report_id`, `status`, `validation_count`,
 
 Códigos: `OK`, `NOT_FOUND`, `UNAUTHORIZED`.
 
+### get-report-photos (Sprint 13)
+
+RPC `get_report_photos(p_report_id uuid)`: fotos de un reporte con signed URLs
+temporales (TTL 900 s). El cliente NUNCA recibe `storage_path` ni
+`thumbnail_path` crudos. Sin SELECT sobre `report_photos` para el cliente: esta
+RPC es el único camino (igual que el patrón de `get-leak-report-detail`).
+
+Respuesta (`jsonb`): `status_code`, `photos` (array).
+
+Cada elemento de `photos`: `id`, `sort_order`, `width`, `height`, `url`
+(signed URL de la foto a 1280 px), `thumbnail_url` (signed URL de la miniatura
+128 px, o `null` si no existe; fotos anteriores al Sprint 13 no tienen thumb).
+
+Códigos: `OK`, `NOT_FOUND`, `FORBIDDEN`, `RATE_LIMIT_EXCEEDED`, `UNAUTHORIZED`.
+
+Grants: `revoke execute … from public, anon` + `grant execute … to authenticated`
+(solo usuarios autenticados pueden ver fotos, igual que el resto de las RPC de
+lectura de dominio).
+
+**Privacidad (REQ-100):** no expone `storage_path`, `thumbnail_path`, ni ningún
+identificador del creador. URLs firmadas caducan a los 900 s; el cliente renueva
+llamando de nuevo a la RPC cuando `expiresAt - now < 2 min`.
+
 ### get-latest-community-activity
 
 RPC `get_latest_community_activity()` (sin parámetros): el **último evento

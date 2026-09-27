@@ -128,6 +128,7 @@ class _FakeWaterRepository implements WaterEventRepository {
     required WaterEventType type,
     required DateTime eventTime,
     String? comment,
+    String? address,
   }) => throw UnimplementedError();
   @override
   Future<int> validate(String eventId) => throw UnimplementedError();
@@ -337,21 +338,22 @@ void main() {
         await container
             .read(notificationPreferencesControllerProvider.notifier)
             .selectSector('sector-x');
-        expect(repo.savedPreferences.last, ('sector-x', false));
-
-        await container
-            .read(notificationPreferencesControllerProvider.notifier)
-            .setWaterNotificationsEnabled(true);
+        // Selecting a sector automatically enables water notifications.
         expect(repo.savedPreferences.last, ('sector-x', true));
 
         await container
             .read(notificationPreferencesControllerProvider.notifier)
+            .setWaterNotificationsEnabled(false);
+        expect(repo.savedPreferences.last, ('sector-x', false));
+
+        await container
+            .read(notificationPreferencesControllerProvider.notifier)
             .clearSector();
-        expect(repo.savedPreferences.last, (null, true));
+        expect(repo.savedPreferences.last, (null, false));
 
         final state = container.read(notificationPreferencesControllerProvider);
         expect(state.value!.preferredSectorId, isNull);
-        expect(state.value!.waterNotificationsEnabled, isTrue);
+        expect(state.value!.waterNotificationsEnabled, isFalse);
       },
     );
 
