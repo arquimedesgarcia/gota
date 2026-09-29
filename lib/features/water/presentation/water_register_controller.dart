@@ -102,6 +102,7 @@ class WaterRegisterState {
     int? currentStep,
     bool clearError = false,
     bool clearSector = false,
+    bool clearLocation = false,
     bool clearLocationSuggestion = false,
     bool? manualModeEnabled,
   }) => WaterRegisterState(
@@ -109,13 +110,13 @@ class WaterRegisterState {
     municipalityName: municipalityName ?? this.municipalityName,
     sectorId: clearSector ? null : (sectorId ?? this.sectorId),
     sectorName: clearSector ? null : (sectorName ?? this.sectorName),
-    latitude: latitude ?? this.latitude,
-    longitude: longitude ?? this.longitude,
-    accuracyMeters: accuracyMeters ?? this.accuracyMeters,
-    isGpsLocation: isGpsLocation ?? this.isGpsLocation,
+    latitude: clearLocation ? null : (latitude ?? this.latitude),
+    longitude: clearLocation ? null : (longitude ?? this.longitude),
+    accuracyMeters: clearLocation ? null : (accuracyMeters ?? this.accuracyMeters),
+    isGpsLocation: clearLocation ? false : (isGpsLocation ?? this.isGpsLocation),
     manualModeEnabled: manualModeEnabled ?? this.manualModeEnabled,
-    address: clearLocationSuggestion ? null : (address ?? this.address),
-    locationSuggestion: clearLocationSuggestion
+    address: (clearLocation || clearLocationSuggestion) ? null : (address ?? this.address),
+    locationSuggestion: (clearLocation || clearLocationSuggestion)
         ? null
         : (locationSuggestion ?? this.locationSuggestion),
     suggestionLoading: suggestionLoading ?? this.suggestionLoading,
@@ -161,12 +162,17 @@ class WaterRegisterController extends Notifier<WaterRegisterState> {
 
   // ---------- Ubicación (GPS + reverse geocoding) ----------
 
-  /// Activa el modo manual: el usuario completa municipio y sector
-  /// directamente desde los combos, sin necesidad de coordenadas GPS.
-  void enterManualMode() => state = state.copyWith(
-    manualModeEnabled: true,
-    clearError: true,
-  );
+  /// Activa el modo manual: descarta el GPS y oculta el mapa/sugerencia.
+  void enterManualMode() {
+    ++_locationRequestId;
+    state = state.copyWith(
+      manualModeEnabled: true,
+      clearLocation: true,
+      clearLocationSuggestion: true,
+      suggestionLoading: false,
+      clearError: true,
+    );
+  }
 
   /// Solicita la posición actual por GPS y dispara el reverse-geocode.
   Future<void> requestGps() async {

@@ -30,7 +30,7 @@ class WaterRegisterStepLocation extends ConsumerWidget {
             Expanded(
               child: FilledButton.tonalIcon(
                 icon: const Icon(Icons.gps_fixed),
-                label: const Text('Usar mi ubicación'),
+                label: const Text('Mi ubicación'),
                 onPressed: controller.requestGps,
               ),
             ),

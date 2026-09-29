@@ -244,7 +244,7 @@ class LocationStepView extends ConsumerWidget {
               FilledButton.icon(
                 style: AppComponents.primaryButtonStyle(),
                 icon: const Icon(Icons.gps_fixed),
-                label: const Text('Usar mi ubicación (GPS)'),
+                label: const Text('Mi ubicación'),
                 onPressed: controller.requestGps,
               ),
               const SizedBox(height: 12),
@@ -662,35 +662,6 @@ class _DataStepViewState extends ConsumerState<DataStepView> {
               ),
               const SizedBox(height: 12),
 
-              // Campo de dirección: pre-llenado por GPS (editable) o vacío en manual.
-              Focus(
-                onFocusChange: (f) => setState(() => _addrFocused = f),
-                child: TextField(
-                  controller: _addrController,
-                  decoration: InputDecoration(
-                    labelText: 'Dirección (opcional)',
-                    hintText: isGps
-                        ? null
-                        : 'Ej: Calle Bolívar, frente a la plaza principal',
-                    prefixIcon: const Icon(Icons.place_outlined, size: 18),
-                  ),
-                  maxLines: 2,
-                  maxLength: 300,
-                  onChanged: controller.setAddress,
-                ),
-              ),
-              if (isGps && state.locationSuggestion?.displayText != null) ...[
-                const SizedBox(height: 2),
-                const Padding(
-                  padding: EdgeInsets.only(left: 4),
-                  child: Text(
-                    'Pre-llenada según GPS — puedes editarla.',
-                    style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 12),
-
               municipalitiesState.when(
                 loading: () =>
                     const LoadingView(message: 'Cargando municipios…'),
@@ -725,6 +696,35 @@ class _DataStepViewState extends ConsumerState<DataStepView> {
                   selectedSectorId: effectiveSectorId,
                   onSelected: controller.selectSector,
                 ),
+              const SizedBox(height: 12),
+
+              // Campo de dirección: pre-llenado por GPS (editable) o vacío en manual.
+              Focus(
+                onFocusChange: (f) => setState(() => _addrFocused = f),
+                child: TextField(
+                  controller: _addrController,
+                  decoration: InputDecoration(
+                    labelText: 'Dirección (opcional)',
+                    hintText: isGps
+                        ? null
+                        : 'Ej: Calle Bolívar, frente a la plaza principal',
+                    prefixIcon: const Icon(Icons.place_outlined, size: 18),
+                  ),
+                  maxLines: 2,
+                  maxLength: 300,
+                  onChanged: controller.setAddress,
+                ),
+              ),
+              if (isGps && state.locationSuggestion?.displayText != null) ...[
+                const SizedBox(height: 2),
+                const Padding(
+                  padding: EdgeInsets.only(left: 4),
+                  child: Text(
+                    'Pre-llenada según GPS — puedes editarla.',
+                    style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
               TextField(
                 controller: _descController,

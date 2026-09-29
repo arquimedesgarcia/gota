@@ -192,7 +192,7 @@ Widget _buildMapWithOverlays(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _MapLegend(reports: reportsAsync.value ?? const []),
+            const _MapLegend(),
             if (selectedLeak != null) ...[
               const SizedBox(height: AppSpacing.sm),
               _SelectedLeakCard(
@@ -881,16 +881,16 @@ class _MapEmptyView extends StatelessWidget {
 }
 
 /// Leyenda de colores del mapa con panel de información al tocar (i).
-class _MapLegend extends StatefulWidget {
-  const _MapLegend({required this.reports});
-
-  final List<LeakSummary> reports;
+/// Los conteos del hint usan [listReportsProvider] (sin bbox) para coincidir
+/// con el total global que muestra el home — no el subset del viewport.
+class _MapLegend extends ConsumerStatefulWidget {
+  const _MapLegend();
 
   @override
-  State<_MapLegend> createState() => _MapLegendState();
+  ConsumerState<_MapLegend> createState() => _MapLegendState();
 }
 
-class _MapLegendState extends State<_MapLegend> {
+class _MapLegendState extends ConsumerState<_MapLegend> {
   OverlayEntry? _hintEntry;
   final _legendKey = GlobalKey();
 
@@ -916,14 +916,15 @@ class _MapLegendState extends State<_MapLegend> {
     final position = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
 
-    // Conteos del estado actual de los reportes.
-    final sinValidar = widget.reports
+    // Conteos totales (sin bbox) para coincidir con lo que ve el home.
+    final allReports = ref.read(listReportsProvider).value ?? const [];
+    final sinValidar = allReports
         .where((r) => !r.isResolved && r.validationCount == 0)
         .length;
-    final confirmadas = widget.reports
+    final confirmadas = allReports
         .where((r) => !r.isResolved && r.validationCount > 0)
         .length;
-    final resueltas = widget.reports.where((r) => r.isResolved).length;
+    final resueltas = allReports.where((r) => r.isResolved).length;
 
     _hintEntry = OverlayEntry(
       builder: (_) => _LegendHintOverlay(
