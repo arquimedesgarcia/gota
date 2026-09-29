@@ -38,6 +38,7 @@ class WaterRegisterState {
     this.longitude,
     this.accuracyMeters,
     this.isGpsLocation = false,
+    this.manualModeEnabled = false,
     this.address,
     this.locationSuggestion,
     this.suggestionLoading = false,
@@ -58,6 +59,10 @@ class WaterRegisterState {
   final double? longitude;
   final double? accuracyMeters;
   final bool isGpsLocation;
+
+  /// `true` cuando el usuario eligió completar la ubicación a mano (sin GPS),
+  /// seleccionando municipio y sector directamente en los combos del paso.
+  final bool manualModeEnabled;
 
   /// Dirección completa sugerida por el reverse-geocoder (se persiste con el
   /// evento y se muestra en su detalle).
@@ -98,6 +103,7 @@ class WaterRegisterState {
     bool clearError = false,
     bool clearSector = false,
     bool clearLocationSuggestion = false,
+    bool? manualModeEnabled,
   }) => WaterRegisterState(
     municipalityId: municipalityId ?? this.municipalityId,
     municipalityName: municipalityName ?? this.municipalityName,
@@ -107,6 +113,7 @@ class WaterRegisterState {
     longitude: longitude ?? this.longitude,
     accuracyMeters: accuracyMeters ?? this.accuracyMeters,
     isGpsLocation: isGpsLocation ?? this.isGpsLocation,
+    manualModeEnabled: manualModeEnabled ?? this.manualModeEnabled,
     address: clearLocationSuggestion ? null : (address ?? this.address),
     locationSuggestion: clearLocationSuggestion
         ? null
@@ -153,6 +160,13 @@ class WaterRegisterController extends Notifier<WaterRegisterState> {
   );
 
   // ---------- Ubicación (GPS + reverse geocoding) ----------
+
+  /// Activa el modo manual: el usuario completa municipio y sector
+  /// directamente desde los combos, sin necesidad de coordenadas GPS.
+  void enterManualMode() => state = state.copyWith(
+    manualModeEnabled: true,
+    clearError: true,
+  );
 
   /// Solicita la posición actual por GPS y dispara el reverse-geocode.
   Future<void> requestGps() async {

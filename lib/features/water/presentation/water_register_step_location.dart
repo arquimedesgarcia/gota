@@ -8,7 +8,6 @@ import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../leaks/presentation/location_map_picker.dart';
 import '../../location/presentation/location_providers.dart';
-import 'water_copy.dart';
 import 'water_register_controller.dart';
 
 /// Segundo paso del registro de agua: ubicación por GPS + reverse geocoding
@@ -26,11 +25,6 @@ class WaterRegisterStepLocation extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          WaterCopy.stepLocation,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
@@ -44,7 +38,7 @@ class WaterRegisterStepLocation extends ConsumerWidget {
             OutlinedButton.icon(
               icon: const Icon(Icons.pin_drop_outlined),
               label: const Text('Manual'),
-              onPressed: () => _showManualLocationDialog(context, controller),
+              onPressed: controller.enterManualMode,
             ),
           ],
         ),
@@ -112,13 +106,35 @@ class WaterRegisterStepLocation extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
         ] else if (!state.suggestionLoading) ...[
-          const Card(
+          Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'Sin ubicación todavía. Usa tu GPS o toca "Manual" para '
-                'continuar.',
-                style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Icon(
+                      state.manualModeEnabled
+                          ? Icons.edit_location_alt_outlined
+                          : Icons.info_outline,
+                      size: 16,
+                      color: AppColors.textMuted,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      state.manualModeEnabled
+                          ? 'Selecciona el municipio y sector de la falla en los campos de abajo.'
+                          : 'Sin ubicación todavía. Usa tu GPS o toca "Manual" para continuar.',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -149,78 +165,6 @@ class WaterRegisterStepLocation extends ConsumerWidget {
     );
   }
 
-  void _showManualLocationDialog(
-    BuildContext context,
-    WaterRegisterController controller,
-  ) {
-    final latController = TextEditingController();
-    final lngController = TextEditingController();
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Ubicación manual'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: latController,
-              decoration: const InputDecoration(labelText: 'Latitud'),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-            ),
-            TextField(
-              controller: lngController,
-              decoration: const InputDecoration(labelText: 'Longitud'),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Escribe las coordenadas o toca el punto en el mapa después.',
-              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final lat = double.tryParse(
-                latController.text.replaceAll(',', '.'),
-              );
-              final lng = double.tryParse(
-                lngController.text.replaceAll(',', '.'),
-              );
-              if (lat == null ||
-                  lng == null ||
-                  lat < -90 ||
-                  lat > 90 ||
-                  lng < -180 ||
-                  lng > 180) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Coordenadas inválidas. Revisa los números e intenta '
-                      'de nuevo.',
-                    ),
-                  ),
-                );
-                return;
-              }
-              controller.setManualLocation(latitude: lat, longitude: lng);
-              Navigator.of(dialogContext).pop();
-            },
-            child: const Text('Guardar'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _MunicipalityDropdown extends ConsumerWidget {

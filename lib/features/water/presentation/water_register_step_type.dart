@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_theme.dart';
 import '../domain/water_event_type.dart';
-import 'water_copy.dart';
 
 /// Primer paso: seleccionar el tipo de evento (Llegó / Se fue).
 class WaterRegisterStepType extends StatelessWidget {
@@ -20,11 +19,6 @@ class WaterRegisterStepType extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          WaterCopy.stepType,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 16),
         _TypeButton(
           type: WaterEventType.arrived,
           icon: Icons.water_drop,
