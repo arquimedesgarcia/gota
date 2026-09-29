@@ -50,7 +50,7 @@ class PhotoSnapshot {
 }
 
 class LeakDraftSnapshot {
-  static const currentSchemaVersion = 1;
+  static const currentSchemaVersion = 2;
 
   const LeakDraftSnapshot({
     required this.schemaVersion,
@@ -62,6 +62,7 @@ class LeakDraftSnapshot {
     this.accuracyMeters,
     this.municipalityId,
     this.sectorId,
+    this.address,
     this.description,
     this.photos = const [],
   });
@@ -79,6 +80,9 @@ class LeakDraftSnapshot {
   final double? accuracyMeters;
   final String? municipalityId;
   final String? sectorId;
+
+  /// Dirección en texto libre (opcional; añadida en esquema v2).
+  final String? address;
   final String? description;
   final List<PhotoSnapshot> photos;
 
@@ -92,6 +96,7 @@ class LeakDraftSnapshot {
         if (accuracyMeters != null) 'accuracyMeters': accuracyMeters,
         if (municipalityId != null) 'municipalityId': municipalityId,
         if (sectorId != null) 'sectorId': sectorId,
+        if (address != null) 'address': address,
         if (description != null) 'description': description,
         'photos': photos.map((p) => p.toJson()).toList(),
       };
@@ -107,6 +112,7 @@ class LeakDraftSnapshot {
         accuracyMeters: (json['accuracyMeters'] as num?)?.toDouble(),
         municipalityId: json['municipalityId'] as String?,
         sectorId: json['sectorId'] as String?,
+        address: json['address'] as String?,
         description: json['description'] as String?,
         photos: (json['photos'] as List<dynamic>? ?? [])
             .map((e) => PhotoSnapshot.fromJson(e as Map<String, dynamic>))

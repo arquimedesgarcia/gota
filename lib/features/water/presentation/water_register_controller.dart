@@ -38,6 +38,7 @@ class WaterRegisterState {
     this.longitude,
     this.accuracyMeters,
     this.isGpsLocation = false,
+    this.manualModeEnabled = false,
     this.address,
     this.locationSuggestion,
     this.suggestionLoading = false,
@@ -58,6 +59,10 @@ class WaterRegisterState {
   final double? longitude;
   final double? accuracyMeters;
   final bool isGpsLocation;
+
+  /// `true` cuando el usuario eligió completar la ubicación a mano (sin GPS),
+  /// seleccionando municipio y sector directamente en los combos del paso.
+  final bool manualModeEnabled;
 
   /// Dirección completa sugerida por el reverse-geocoder (se persiste con el
   /// evento y se muestra en su detalle).
@@ -97,18 +102,21 @@ class WaterRegisterState {
     int? currentStep,
     bool clearError = false,
     bool clearSector = false,
+    bool clearLocation = false,
     bool clearLocationSuggestion = false,
+    bool? manualModeEnabled,
   }) => WaterRegisterState(
     municipalityId: municipalityId ?? this.municipalityId,
     municipalityName: municipalityName ?? this.municipalityName,
     sectorId: clearSector ? null : (sectorId ?? this.sectorId),
     sectorName: clearSector ? null : (sectorName ?? this.sectorName),
-    latitude: latitude ?? this.latitude,
-    longitude: longitude ?? this.longitude,
-    accuracyMeters: accuracyMeters ?? this.accuracyMeters,
-    isGpsLocation: isGpsLocation ?? this.isGpsLocation,
-    address: clearLocationSuggestion ? null : (address ?? this.address),
-    locationSuggestion: clearLocationSuggestion
+    latitude: clearLocation ? null : (latitude ?? this.latitude),
+    longitude: clearLocation ? null : (longitude ?? this.longitude),
+    accuracyMeters: clearLocation ? null : (accuracyMeters ?? this.accuracyMeters),
+    isGpsLocation: clearLocation ? false : (isGpsLocation ?? this.isGpsLocation),
+    manualModeEnabled: manualModeEnabled ?? this.manualModeEnabled,
+    address: (clearLocation || clearLocationSuggestion) ? null : (address ?? this.address),
+    locationSuggestion: (clearLocation || clearLocationSuggestion)
         ? null
         : (locationSuggestion ?? this.locationSuggestion),
     suggestionLoading: suggestionLoading ?? this.suggestionLoading,
@@ -153,6 +161,18 @@ class WaterRegisterController extends Notifier<WaterRegisterState> {
   );
 
   // ---------- Ubicación (GPS + reverse geocoding) ----------
+
+  /// Activa el modo manual: descarta el GPS y oculta el mapa/sugerencia.
+  void enterManualMode() {
+    ++_locationRequestId;
+    state = state.copyWith(
+      manualModeEnabled: true,
+      clearLocation: true,
+      clearLocationSuggestion: true,
+      suggestionLoading: false,
+      clearError: true,
+    );
+  }
 
   /// Solicita la posición actual por GPS y dispara el reverse-geocode.
   Future<void> requestGps() async {

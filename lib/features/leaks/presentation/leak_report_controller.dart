@@ -19,8 +19,9 @@ import '../data/reverse_geocoding_service.dart';
 import '../domain/location_source.dart';
 import '../domain/location_suggestion.dart';
 
-/// Etapas del flujo Reportar fuga (UX_SPEC §4):
-/// Ubicación → Fotos → Datos → Revisar → Enviado.
+/// Etapas del flujo Reportar fuga.
+/// El orden visual es: Ubicación → Dirección → Fotos → Revisar → Enviado.
+/// La navegación usa [LeakReportController._navOrder], no el índice del enum.
 enum ReportStep { location, photos, data, review, result }
 
 enum ReportSubmitState { idle, submitting, done, duplicate, error }
@@ -38,6 +39,7 @@ class LeakReportState {
     this.suggestedMunicipalityId,
     this.suggestedSectorId,
     this.hasDraftRestored = false,
+    this.manualModeEnabled = false,
   });
 
   final ReportStep currentStep;
@@ -62,8 +64,11 @@ class LeakReportState {
   /// el banner "Recuperamos tu reporte sin enviar".
   final bool hasDraftRestored;
 
+  /// `true` cuando el usuario eligió modo manual (sin GPS). La ubicación
+  /// puede ser null; el municipio y sector son obligatorios igual.
+  final bool manualModeEnabled;
+
   bool get canSubmit =>
-      draft.location != null &&
       draft.municipalityId != null &&
       draft.sectorId != null;
 
@@ -80,6 +85,7 @@ class LeakReportState {
     String? suggestedMunicipalityId,
     String? suggestedSectorId,
     bool? hasDraftRestored,
+    bool? manualModeEnabled,
   }) => LeakReportState(
     currentStep: currentStep ?? this.currentStep,
     draft: draft ?? this.draft,
@@ -98,6 +104,7 @@ class LeakReportState {
         ? null
         : (suggestedSectorId ?? this.suggestedSectorId),
     hasDraftRestored: hasDraftRestored ?? this.hasDraftRestored,
+    manualModeEnabled: manualModeEnabled ?? this.manualModeEnabled,
   );
 }
 
@@ -202,6 +209,7 @@ class LeakReportController extends Notifier<LeakReportState> {
         photos: photos,
         municipalityId: snapshot.municipalityId,
         sectorId: snapshot.sectorId,
+        address: snapshot.address,
         description: snapshot.description,
       ),
       hasDraftRestored: true,
@@ -290,6 +298,7 @@ class LeakReportController extends Notifier<LeakReportState> {
         accuracyMeters: location?.accuracyMeters,
         municipalityId: state.draft.municipalityId,
         sectorId: state.draft.sectorId,
+        address: state.draft.address,
         description: state.draft.description,
         photos: durablePhotos,
       ));
@@ -445,6 +454,31 @@ class LeakReportController extends Notifier<LeakReportState> {
     return unique;
   }
 
+  /// Activa el modo manual: limpia la ubicación GPS, avanza al paso de
+  /// dirección/datos y deja que el usuario llene municipio y sector a mano.
+  void enterManualMode() {
+    ++_locationRequestId;
+    state = state.copyWith(
+      manualModeEnabled: true,
+      draft: state.draft.copyWith(clearLocation: true, clearAddress: true),
+      clearMessage: true,
+      clearLocationSuggestion: true,
+      suggestionLoading: false,
+    );
+    // Avanza directamente al paso Dirección.
+    state = state.copyWith(currentStep: ReportStep.data);
+    unawaited(_saveDraft());
+  }
+
+  /// Vuelve a modo GPS: desactiva el modo manual y regresa al paso Ubicación.
+  void switchToGpsMode() {
+    state = state.copyWith(
+      manualModeEnabled: false,
+      clearMessage: true,
+    );
+    goTo(ReportStep.location);
+  }
+
   void setManualLocation({
     required double latitude,
     required double longitude,
@@ -586,6 +620,11 @@ class LeakReportController extends Notifier<LeakReportState> {
     unawaited(_saveDraft());
   }
 
+  void setAddress(String value) {
+    state = state.copyWith(draft: state.draft.copyWith(address: value));
+    unawaited(_saveDraft());
+  }
+
   void setDescription(String value) {
     state = state.copyWith(draft: state.draft.copyWith(description: value));
     unawaited(_saveDraft());
@@ -593,27 +632,34 @@ class LeakReportController extends Notifier<LeakReportState> {
 
   // ---------- Navegación del flujo ----------
 
+  // Orden visual: Ubicación → Dirección → Fotos → Revisar → Enviado.
+  static const _navOrder = [
+    ReportStep.location,
+    ReportStep.data,
+    ReportStep.photos,
+    ReportStep.review,
+    ReportStep.result,
+  ];
+
   void goTo(ReportStep step) => state = state.copyWith(
     currentStep: step,
     clearMessage: state.submitState == ReportSubmitState.idle,
   );
 
   void goToNext() {
-    final order = ReportStep.values;
-    final index = order.indexOf(state.currentStep);
-    if (index < order.length - 1) {
+    final index = _navOrder.indexOf(state.currentStep);
+    if (index >= 0 && index < _navOrder.length - 1) {
       state = state.copyWith(
-        currentStep: order[index + 1],
+        currentStep: _navOrder[index + 1],
         clearMessage: state.submitState == ReportSubmitState.idle,
       );
     }
   }
 
   void goToPrevious() {
-    final order = ReportStep.values;
-    final index = order.indexOf(state.currentStep);
+    final index = _navOrder.indexOf(state.currentStep);
     if (index > 0) {
-      state = state.copyWith(currentStep: order[index - 1]);
+      state = state.copyWith(currentStep: _navOrder[index - 1]);
     }
   }
 

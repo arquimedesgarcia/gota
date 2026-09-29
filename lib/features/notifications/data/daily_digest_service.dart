@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../leaks/data/community_summary_repository.dart';
 import '../../leaks/domain/community_summary.dart';
+import 'notification_repository.dart';
 
 /// Servicio que programa y envía la notificación local de resumen diario
 /// a las 8:00 pm hora de Caracas (UTC-4, sin horario de verano).
@@ -20,11 +21,14 @@ class DailyDigestService {
   DailyDigestService({
     required FlutterLocalNotificationsPlugin notifications,
     required CommunitySummaryRepository summaryRepository,
+    required NotificationRepository notificationRepository,
   })  : _notifications = notifications,
-        _summaryRepository = summaryRepository;
+        _summaryRepository = summaryRepository,
+        _notificationRepository = notificationRepository;
 
   final FlutterLocalNotificationsPlugin _notifications;
   final CommunitySummaryRepository _summaryRepository;
+  final NotificationRepository _notificationRepository;
   Timer? _timer;
   bool _initialized = false;
 
@@ -61,9 +65,28 @@ class DailyDigestService {
 
   Future<void> _onTimerFired() async {
     try {
-      final summary = await _summaryRepository.todaySummary();
-      if (summary.reportedToday > 0 || summary.resolvedToday > 0) {
-        await _showNotification(summary);
+      // Intenta obtener el sector preferido del usuario (best-effort).
+      String? preferredSectorId;
+      try {
+        final prefs = await _notificationRepository.getPreferences();
+        preferredSectorId = prefs?.preferredSectorId;
+      } catch (_) {}
+
+      final globalSummary = await _summaryRepository.todaySummary();
+      final sectorSummary = preferredSectorId != null
+          ? await _summaryRepository.todaySummary(sectorId: preferredSectorId)
+          : null;
+
+      final hasActivity = globalSummary.reportedToday > 0 ||
+          globalSummary.resolvedToday > 0 ||
+          globalSummary.activeTotal > 0 ||
+          (sectorSummary?.activeTotal ?? 0) > 0;
+
+      if (hasActivity) {
+        await _showNotification(
+          global: globalSummary,
+          sector: sectorSummary,
+        );
       }
     } catch (_) {
       // Error silencioso: la notificación simplemente no se muestra.
@@ -72,26 +95,48 @@ class DailyDigestService {
     }
   }
 
-  Future<void> _showNotification(CommunitySummary summary) async {
+  Future<void> _showNotification({
+    required CommunitySummary global,
+    CommunitySummary? sector,
+  }) async {
     final parts = <String>[];
-    if (summary.reportedToday > 0) {
-      final n = summary.reportedToday;
-      parts.add('$n ${n == 1 ? "fuga reportada" : "fugas reportadas"}');
+
+    // Fallas activas (prioridad: sector propio, luego global).
+    final activeSector = sector?.activeTotal ?? 0;
+    final activeGlobal = global.activeTotal;
+    if (activeSector > 0) {
+      parts.add(
+        '$activeSector ${activeSector == 1 ? "falla activa en tu sector" : "fallas activas en tu sector"}',
+      );
+    } else if (activeGlobal > 0) {
+      parts.add(
+        '$activeGlobal ${activeGlobal == 1 ? "falla activa en tu comunidad" : "fallas activas en tu comunidad"}',
+      );
     }
-    if (summary.resolvedToday > 0) {
-      final n = summary.resolvedToday;
-      parts.add('$n ${n == 1 ? "resuelta" : "resueltas"}');
+
+    // Actividad de hoy.
+    if (global.reportedToday > 0) {
+      final n = global.reportedToday;
+      parts.add('$n ${n == 1 ? "nueva fuga reportada hoy" : "nuevas fugas reportadas hoy"}');
     }
+    if (global.resolvedToday > 0) {
+      final n = global.resolvedToday;
+      parts.add('$n ${n == 1 ? "resuelta hoy" : "resueltas hoy"}');
+    }
+
     if (parts.isEmpty) return;
 
-    final body = parts.join(', ');
-    final bodyCapitalized =
-        '${body[0].toUpperCase()}${body.substring(1)} en tu comunidad.';
+    final summary = parts.join('. ');
+    final summaryCapitalized =
+        '${summary[0].toUpperCase()}${summary.substring(1)}.';
+    final body = (activeSector > 0 || activeGlobal > 0)
+        ? '$summaryCapitalized ¿Puedes validar alguna y reportarla como resuelta?'
+        : summaryCapitalized;
 
     await _notifications.show(
       _kNotificationId,
       'Resumen del día · Gota',
-      bodyCapitalized,
+      body,
       const NotificationDetails(
         android: AndroidNotificationDetails(
           _kChannelId,
@@ -135,10 +180,12 @@ class DailyDigestService {
 /// y se destruye con el scope (salida de sesión).
 final dailyDigestServiceProvider = Provider<DailyDigestService>((ref) {
   final notifications = FlutterLocalNotificationsPlugin();
-  final repository = ref.watch(communitySummaryRepositoryProvider);
+  final summaryRepo = ref.watch(communitySummaryRepositoryProvider);
+  final notificationRepo = ref.watch(notificationRepositoryProvider);
   final service = DailyDigestService(
     notifications: notifications,
-    summaryRepository: repository,
+    summaryRepository: summaryRepo,
+    notificationRepository: notificationRepo,
   );
   ref.onDispose(service.dispose);
   return service;

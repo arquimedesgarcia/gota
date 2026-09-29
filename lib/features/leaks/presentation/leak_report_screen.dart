@@ -26,8 +26,8 @@ class LeakReportScreen extends ConsumerWidget {
 
   static const _titles = {
     ReportStep.location: 'Ubicación',
+    ReportStep.data: 'Dirección',
     ReportStep.photos: 'Fotos',
-    ReportStep.data: 'Datos',
     ReportStep.review: 'Revisar',
     ReportStep.result: 'Resultado',
   };
@@ -76,7 +76,7 @@ class LeakReportScreen extends ConsumerWidget {
                         ?.copyWith(color: Colors.white),
                   ),
                   SizedBox(height: AppSpacing.lg),
-                  _StepIndicator(currentStep: s.index),
+                  _StepIndicator(currentStep: s),
                 ],
               );
             },
@@ -194,7 +194,9 @@ class LocationStepView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(leakReportProvider);
+    final controller = ref.read(leakReportProvider.notifier);
     final location = state.draft.location;
+    final isManual = state.manualModeEnabled;
 
     return Column(
       children: [
@@ -206,30 +208,54 @@ class LocationStepView extends ConsumerWidget {
                 StatusBanner(message: state.message!),
                 const SizedBox(height: 12),
               ],
-              // R1: leyenda 'Usa tu GPS…' eliminada; solo queda el título.
               Text(
                 '¿Dónde está la fuga?',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 16),
+
+              // Banner "Modo manual activo" (cuando el usuario vuelve atrás).
+              if (isManual) ...[
+                Card(
+                  color: AppColors.primary.withValues(alpha: 0.07),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.edit_location_alt_outlined,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        const Expanded(
+                          child: Text(
+                            'Modo manual activo. Municipio y sector se llenan en el siguiente paso.',
+                            style: TextStyle(fontSize: 13),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+
               FilledButton.icon(
                 style: AppComponents.primaryButtonStyle(),
                 icon: const Icon(Icons.gps_fixed),
-                label: const Text('Usar mi ubicación (GPS)'),
-                onPressed: () =>
-                    ref.read(leakReportProvider.notifier).requestGps(),
+                label: const Text('Mi ubicación'),
+                onPressed: controller.requestGps,
               ),
               const SizedBox(height: 12),
-              // Selección manual provisional: coordenadas de contexto.
-              // Sprint 05 la reemplaza por el punto en el mapa (MapLibre)
-              // usando el mismo método manual del controller.
               OutlinedButton.icon(
                 style: AppComponents.secondaryButtonStyle(),
                 icon: const Icon(Icons.pin_drop_outlined),
-                label: const Text('Indicar ubicación manual'),
-                onPressed: () => _showManualLocationDialog(context, ref),
+                label: const Text('Indicar dirección manualmente'),
+                onPressed: controller.enterManualMode,
               ),
               const SizedBox(height: 16),
+
               // Indicador de carga del reverse-geocode.
               if (state.suggestionLoading) ...[
                 const LinearProgressIndicator(),
@@ -240,9 +266,9 @@ class LocationStepView extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
               ],
-              // Tarjeta "Ubicación aproximada" — antes del mapa para lectura
-              // rápida sin tener que hacer scroll.
-              if (state.locationSuggestion != null) ...[
+
+              // Tarjeta "Ubicación aproximada" — solo para modo GPS.
+              if (!isManual && state.locationSuggestion != null) ...[
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(12),
@@ -282,29 +308,29 @@ class LocationStepView extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
               ],
-              // Mapa de ajuste (visible cuando hay ubicación).
-              if (location != null) ...[
+
+              // Mapa de ajuste (solo cuando hay coordenadas GPS).
+              if (!isManual && location != null) ...[
                 SizedBox(
                   height: 220,
                   child: ref.watch(locationMapBuilderProvider)(
                     latitude: location.latitude,
                     longitude: location.longitude,
-                    onMapTapped: (point) => ref
-                        .read(leakReportProvider.notifier)
-                        .setAdjustedLocation(
-                          latitude: point.latitude,
-                          longitude: point.longitude,
-                        ),
+                    onMapTapped: (point) => controller.setAdjustedLocation(
+                      latitude: point.latitude,
+                      longitude: point.longitude,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
               ],
-              // Leyenda "Precisión aproximada".
-              if (location?.accuracyMeters != null) ...[
+
+              // Leyenda precisión GPS.
+              if (!isManual && location?.accuracyMeters != null) ...[
                 Text(
                   location!.accuracyMeters! <= 25
                       ? 'Precisión aproximada: buena (${location.accuracyMeters!.round()} m)'
-                      : 'Precisión aproximada: ${location.accuracyMeters!.round()} m. Puedes continuar y confirmar el punto.',
+                      : 'Precisión aproximada: ${location.accuracyMeters!.round()} m. Puedes continuar.',
                   style: const TextStyle(
                     fontSize: 13,
                     color: AppColors.textMuted,
@@ -312,54 +338,15 @@ class LocationStepView extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
               ],
-              // 5. Tarjeta de coordenadas ("Ubicación por GPS" / manual).
-              if (location != null) ...[
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              location.source == LocationSource.gps
-                                  ? Icons.gps_fixed
-                                  : Icons.pin_drop,
-                              color: location.isGps
-                                  ? AppColors.success
-                                  : AppColors.primary,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                location.source.label,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Lat: ${location.latitude.toStringAsFixed(5)}, '
-                          'Lng: ${location.longitude.toStringAsFixed(5)}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-              // Sin ubicación todavía (cuando location == null).
-              if (location == null && !state.suggestionLoading)
+
+              // Sin ubicación todavía (modo GPS sin haber pulsado el botón).
+              if (!isManual && location == null && !state.suggestionLoading)
                 const Card(
                   child: Padding(
                     padding: EdgeInsets.all(16),
                     child: Text(
-                      'Sin ubicación todavía. Elige GPS o manual para continuar.',
+                      'Usa tu GPS para detectar la ubicación, o toca '
+                      '"Indicar dirección manualmente" para continuar sin coordenadas.',
                       style: TextStyle(
                         fontSize: 13,
                         color: AppColors.textMuted,
@@ -378,9 +365,9 @@ class LocationStepView extends ConsumerWidget {
               Expanded(
                 child: FilledButton(
                   style: AppComponents.primaryButtonStyle(),
-                  onPressed: location == null
+                  onPressed: (location == null && !isManual)
                       ? null
-                      : () => ref.read(leakReportProvider.notifier).goToNext(),
+                      : controller.goToNext,
                   child: const Text('Continuar'),
                 ),
               ),
@@ -388,79 +375,6 @@ class LocationStepView extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-
-  void _showManualLocationDialog(BuildContext context, WidgetRef ref) {
-    final latController = TextEditingController();
-    final lngController = TextEditingController();
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Ubicación manual'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: latController,
-              decoration: const InputDecoration(labelText: 'Latitud'),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-            ),
-            TextField(
-              controller: lngController,
-              decoration: const InputDecoration(labelText: 'Longitud'),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              LeakReportCopy.manualHint,
-              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
-            onPressed: () {
-              final lat = double.tryParse(
-                latController.text.replaceAll(',', '.'),
-              );
-              final lng = double.tryParse(
-                lngController.text.replaceAll(',', '.'),
-              );
-              if (lat == null ||
-                  lng == null ||
-                  lat < -90 ||
-                  lat > 90 ||
-                  lng < -180 ||
-                  lng > 180) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Coordenadas inválidas. Revisa los números e intenta '
-                      'de nuevo.',
-                    ),
-                  ),
-                );
-                return;
-              }
-              ref
-                  .read(leakReportProvider.notifier)
-                  .setManualLocation(latitude: lat, longitude: lng);
-              Navigator.of(dialogContext).pop();
-            },
-            child: const Text('Guardar'),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -629,7 +543,7 @@ class PhotosStepView extends ConsumerWidget {
   }
 }
 
-/// ---------- Etapa 3: Datos (municipio/sector/descripción) ----------
+/// ---------- Etapa 2 (visual): Dirección (municipio/sector/dirección/descripción) ----------
 
 class DataStepView extends ConsumerStatefulWidget {
   const DataStepView({super.key});
@@ -639,18 +553,25 @@ class DataStepView extends ConsumerStatefulWidget {
 }
 
 class _DataStepViewState extends ConsumerState<DataStepView> {
+  late final TextEditingController _addrController;
   late final TextEditingController _descController;
+  bool _addrFocused = false;
 
   @override
   void initState() {
     super.initState();
+    final s = ref.read(leakReportProvider);
+    _addrController = TextEditingController(
+      text: s.draft.address ?? s.locationSuggestion?.displayText ?? '',
+    );
     _descController = TextEditingController(
-      text: ref.read(leakReportProvider).draft.description ?? '',
+      text: s.draft.description ?? '',
     );
   }
 
   @override
   void dispose() {
+    _addrController.dispose();
     _descController.dispose();
     super.dispose();
   }
@@ -660,6 +581,22 @@ class _DataStepViewState extends ConsumerState<DataStepView> {
     final state = ref.watch(leakReportProvider);
     final controller = ref.read(leakReportProvider.notifier);
     final municipalitiesState = ref.watch(municipalitiesProvider);
+    final isGps = !state.manualModeEnabled;
+
+    // Pre-llena dirección desde el geocoder cuando llega después de abrir el paso.
+    ref.listen(
+      leakReportProvider.select((s) => s.locationSuggestion?.displayText),
+      (prev, next) {
+        if (next != null &&
+            next.isNotEmpty &&
+            state.draft.address == null &&
+            !_addrFocused &&
+            _addrController.text.isEmpty) {
+          _addrController.text = next;
+          controller.setAddress(next);
+        }
+      },
+    );
 
     // Valor efectivo = selección explícita del usuario ?? sugerencia GPS.
     final effectiveMunicipalityId =
@@ -670,12 +607,6 @@ class _DataStepViewState extends ConsumerState<DataStepView> {
         (effectiveMunicipalityId == state.suggestedMunicipalityId
             ? state.suggestedSectorId
             : null);
-
-    // Texto "Sugerido según ubicación GPS" se muestra una sola vez,
-    // debajo de la tarjeta de dirección, cuando aplica.
-    final showGpsSuggestion =
-        state.locationSuggestion?.displayText != null &&
-        (state.draft.location?.isGps ?? false);
 
     return Column(
       children: [
@@ -688,52 +619,49 @@ class _DataStepViewState extends ConsumerState<DataStepView> {
                 const SizedBox(height: 12),
               ],
               Text('¿Dónde?', style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 12),
-              // Referencia de ubicación: texto completo sin truncar.
-              if (state.locationSuggestion?.displayText != null) ...[
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(top: 2),
-                          child: Icon(
-                            Icons.pin_drop_outlined,
-                            size: 16,
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            state.locationSuggestion!.displayText!,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textMuted,
-                            ),
-                          ),
-                        ),
-                      ],
+              const SizedBox(height: 8),
+
+              // Indicador de modo GPS / Manual con botón de intercambio.
+              Row(
+                children: [
+                  Icon(
+                    isGps ? Icons.gps_fixed : Icons.edit_location_alt_outlined,
+                    size: 14,
+                    color: isGps ? AppColors.success : AppColors.textMuted,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    isGps ? 'Modo GPS' : 'Modo manual',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textMuted,
                     ),
                   ),
-                ),
-                if (showGpsSuggestion) ...[
-                  const SizedBox(height: 4),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4),
-                    child: Text(
-                      'Sugerido según ubicación GPS',
-                      style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  const Spacer(),
+                  TextButton.icon(
+                    icon: Icon(
+                      isGps
+                          ? Icons.edit_location_alt_outlined
+                          : Icons.gps_fixed,
+                      size: 14,
                     ),
+                    label: Text(isGps ? 'Cambiar a manual' : 'Usar GPS'),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      foregroundColor: AppColors.primary,
+                    ),
+                    onPressed:
+                        isGps ? controller.enterManualMode : controller.switchToGpsMode,
                   ),
                 ],
-                const SizedBox(height: 8),
-              ],
+              ),
+              const SizedBox(height: 12),
+
               municipalitiesState.when(
                 loading: () =>
                     const LoadingView(message: 'Cargando municipios…'),
@@ -769,6 +697,35 @@ class _DataStepViewState extends ConsumerState<DataStepView> {
                   onSelected: controller.selectSector,
                 ),
               const SizedBox(height: 12),
+
+              // Campo de dirección: pre-llenado por GPS (editable) o vacío en manual.
+              Focus(
+                onFocusChange: (f) => setState(() => _addrFocused = f),
+                child: TextField(
+                  controller: _addrController,
+                  decoration: InputDecoration(
+                    labelText: 'Dirección (opcional)',
+                    hintText: isGps
+                        ? null
+                        : 'Ej: Calle Bolívar, frente a la plaza principal',
+                    prefixIcon: const Icon(Icons.place_outlined, size: 18),
+                  ),
+                  maxLines: 2,
+                  maxLength: 300,
+                  onChanged: controller.setAddress,
+                ),
+              ),
+              if (isGps && state.locationSuggestion?.displayText != null) ...[
+                const SizedBox(height: 2),
+                const Padding(
+                  padding: EdgeInsets.only(left: 4),
+                  child: Text(
+                    'Pre-llenada según GPS — puedes editarla.',
+                    style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 12),
               TextField(
                 controller: _descController,
                 decoration: const InputDecoration(
@@ -786,11 +743,10 @@ class _DataStepViewState extends ConsumerState<DataStepView> {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // G: botón Atrás → paso Fotos
               Expanded(
                 child: OutlinedButton(
                   style: AppComponents.secondaryButtonStyle(),
-                  onPressed: () => controller.goToPrevious(),
+                  onPressed: controller.goToPrevious,
                   child: const Text('Atrás'),
                 ),
               ),
@@ -952,11 +908,23 @@ class ReviewStepView extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Text(
                         draft.location == null
-                            ? 'Sin ubicación'
-                            : (state.locationSuggestion?.displayText ??
-                                draft.location!.source.label),
+                            ? (state.manualModeEnabled
+                                ? 'Modo manual (sin GPS)'
+                                : 'Sin ubicación')
+                            : draft.location!.source.label,
                         style: const TextStyle(color: AppColors.textMuted),
                       ),
+                      if (draft.address != null &&
+                          draft.address!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          draft.address!,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                      ],
                       if (draft.photos.isNotEmpty) ...[
                         const SizedBox(height: 12),
                         Text(
@@ -1206,55 +1174,60 @@ class ResultStepView extends ConsumerWidget {
   }
 }
 
-/// Indicador visual de progreso de pasos (4 pasos: ubicación → fotos → datos → revisar).
+/// Indicador visual de progreso (4 pasos: Ubicación → Dirección → Fotos → Revisar).
 class _StepIndicator extends StatelessWidget {
   const _StepIndicator({required this.currentStep});
 
-  final int currentStep; // 0-indexed: 0=location, 1=photos, 2=data, 3=review, 4=result
-  static const _stepLabels = ['Ubicación', 'Fotos', 'Datos', 'Revisar'];
+  final ReportStep currentStep;
+
+  // Orden visual del indicador (≠ orden del enum).
+  static const _displayOrder = [
+    ReportStep.location,
+    ReportStep.data,
+    ReportStep.photos,
+    ReportStep.review,
+  ];
+  static const _stepLabels = ['Ubicación', 'Dirección', 'Fotos', 'Revisar'];
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: List.generate(_stepLabels.length, (index) {
-            final isCompleted = index < currentStep;
-            final isCurrent = index == currentStep;
+    final displayIndex = _displayOrder.indexOf(currentStep);
 
-            return Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: isCompleted || isCurrent
-                          ? AppColors.primary
-                          : AppColors.border,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  SizedBox(height: AppSpacing.sm),
-                  Text(
-                    _stepLabels[index],
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: isCompleted || isCurrent
-                          ? Colors.white
-                          : Colors.white.withValues(alpha: 0.6),
-                      fontSize: 11,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+    return Row(
+      children: List.generate(_stepLabels.length, (index) {
+        final isCompleted = displayIndex > index;
+        final isCurrent = displayIndex == index;
+
+        return Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isCompleted || isCurrent
+                      ? AppColors.primary
+                      : AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            );
-          }).toList(),
-        ),
-      ],
+              SizedBox(height: AppSpacing.sm),
+              Text(
+                _stepLabels[index],
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: isCompleted || isCurrent
+                      ? Colors.white
+                      : Colors.white.withValues(alpha: 0.6),
+                  fontSize: 11,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }

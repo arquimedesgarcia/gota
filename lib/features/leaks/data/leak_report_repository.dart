@@ -53,9 +53,7 @@ class SupabaseLeakReportRepository implements LeakReportRepository {
     bool ignoreDuplicate = false,
   }) async {
     final location = draft.location;
-    if (location == null) {
-      throw const LeakFlowException('Falta la ubicación del reporte.');
-    }
+    // location puede ser null en modo manual (sin GPS); el backend valida.
 
     final userId = _auth.currentSession()?.user.id;
     if (userId == null) {
@@ -135,9 +133,9 @@ class SupabaseLeakReportRepository implements LeakReportRepository {
       data = await _database.rpcCreateLeakReport({
         'p_municipality_id': draft.municipalityId,
         'p_sector_id': draft.sectorId,
-        'p_latitude': location.latitude,
-        'p_longitude': location.longitude,
-        'p_location_source': location.source.wireName,
+        'p_latitude': location?.latitude,
+        'p_longitude': location?.longitude,
+        'p_location_source': location?.source.wireName ?? 'MANUAL',
         'p_description': draft.description,
         'p_photos': photoPayload,
         'p_ignore_duplicate': ignoreDuplicate,
