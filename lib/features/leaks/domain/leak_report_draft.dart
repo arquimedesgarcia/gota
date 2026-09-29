@@ -51,6 +51,7 @@ class LeakReportDraft {
     this.photos = const [],
     this.municipalityId,
     this.sectorId,
+    this.address,
     this.description,
   });
 
@@ -60,17 +61,25 @@ class LeakReportDraft {
   final String? sectorId;
   final String? description;
 
+  /// Dirección en texto libre: pre-llenada desde el geocoder en modo GPS,
+  /// vacía u opcional en modo manual.
+  final String? address;
+
   LeakReportDraft copyWith({
     SelectedLocation? location,
     List<PreparedPhoto>? photos,
     String? municipalityId,
     String? sectorId,
+    String? address,
     String? description,
+    bool clearLocation = false,
+    bool clearAddress = false,
   }) => LeakReportDraft(
-    location: location ?? this.location,
+    location: clearLocation ? null : (location ?? this.location),
     photos: photos ?? this.photos,
     municipalityId: municipalityId ?? this.municipalityId,
     sectorId: sectorId ?? this.sectorId,
+    address: clearAddress ? null : (address ?? this.address),
     description: description ?? this.description,
   );
 
