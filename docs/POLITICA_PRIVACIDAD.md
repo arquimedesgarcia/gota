@@ -33,11 +33,17 @@ Los reportes de fuga (ubicación aproximada, dirección, fotos y descripción) s
 - Los reportes permanecen publicados mientras sean útiles para la comunidad.
 - Puedes solicitar la eliminación de tus reportes o de todo tu identificador anónimo escribiendo a **arquimedesgr@gmail.com**. Atendemos la solicitud en un plazo máximo de 30 días.
 
-## 7. Menores
+## 7. Uso indebido y fraude
+El envío intencional de reportes falsos, el uso automatizado o masivo de la app, o cualquier intento de fraude o interferencia con el servicio puede derivar en la eliminación de los reportes, la suspensión del identificador anónimo infractor y, cuando corresponda, el reporte del hecho a las autoridades competentes. Con fines de seguridad podemos conservar registros técnicos mínimos (timestamp y hash anónimo de sesión) vinculados a reportes denunciados como abusivos, para investigación y moderación.
+
+## 8. Cumplimiento normativo
+Tratamos los datos conforme a esta política y a las políticas de distribución de Google Play (Developer Program Policies, incluida la sección de Datos y Seguridad, y la política de Contenido Generado por Usuarios). Si detectas un uso de la app que viole tus derechos o esas políticas, repórtalo a arquimedesgr@gmail.com y lo atenderemos con la mayor diligencia posible.
+
+## 9. Menores
 La app no está dirigida a menores de 13 años y no recolectamos intencionalmente datos de menores.
 
-## 8. Cambios
+## 10. Cambios
 Publicaremos cualquier cambio de esta política en esta misma página y, si es significativo, lo avisaremos dentro de la app.
 
-## 9. Contacto
+## 11. Contacto
 Dudas o solicitudes sobre tus datos: **arquimedesgr@gmail.com**
