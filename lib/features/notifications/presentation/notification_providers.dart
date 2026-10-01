@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/providers.dart';
 import '../data/notification_repository.dart';
 import '../data/push_service.dart';
+import '../../privacy/data/permission_prefs.dart';
 import '../domain/notification_preferences.dart';
 import '../domain/water_notification.dart';
 import 'push_navigation.dart';
@@ -252,6 +253,11 @@ final unreadCountProvider = Provider<int>((ref) {
 final pushBootstrapProvider = FutureProvider<PushPermissionStatus>((ref) async {
   final push = ref.watch(pushServiceProvider);
   final repo = ref.watch(notificationRepositoryProvider);
+
+  // Compuerta: no solicitar permiso hasta que el usuario haya visto el
+  // diálogo de razonamiento. Primer arranque sin rationale: skip silencioso.
+  final rationaleShown = await ref.watch(notifRationaleShownProvider.future);
+  if (!rationaleShown) return PushPermissionStatus.unavailable;
 
   PushPermissionStatus status;
   try {
