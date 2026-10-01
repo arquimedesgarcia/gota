@@ -281,7 +281,7 @@ class _LocationStepViewState extends ConsumerState<LocationStepView> {
               FilledButton.icon(
                 style: AppComponents.primaryButtonStyle(),
                 icon: const Icon(Icons.gps_fixed),
-                label: const Text('Mi ubicación'),
+                label: const Text('Usar mi ubicación (GPS)'),
                 onPressed: _onGpsTap,
               ),
               const SizedBox(height: 12),
@@ -382,8 +382,7 @@ class _LocationStepViewState extends ConsumerState<LocationStepView> {
                   child: Padding(
                     padding: EdgeInsets.all(16),
                     child: Text(
-                      'Usa tu GPS para detectar la ubicación, o toca '
-                      '"Indicar dirección manualmente" para continuar sin coordenadas.',
+                      'Sin ubicación todavía. Elige GPS o indica la dirección manualmente para continuar.',
                       style: TextStyle(
                         fontSize: 13,
                         color: AppColors.textMuted,

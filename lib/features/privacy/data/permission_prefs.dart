@@ -26,9 +26,19 @@ final permissionPrefsProvider = FutureProvider<PermissionPrefs>(
   (ref) => PermissionPrefs.load(),
 );
 
-/// True cuando el usuario ya vio el diálogo de razonamiento de notificaciones.
-/// pushBootstrapProvider lo mira como compuerta antes de pedir el permiso del SO.
-final notifRationaleShownProvider = FutureProvider<bool>((ref) async {
-  final prefs = await ref.watch(permissionPrefsProvider.future);
-  return prefs.notifRationaleShown;
-});
+/// Compuerta síncrona para pushBootstrapProvider.
+/// Empieza en false; app.dart lo inicializa desde SharedPreferences y lo
+/// establece en true cuando el usuario acepta el diálogo de razonamiento.
+/// Al ser NotifierProvider los tests pueden sobreescribirlo sin necesitar
+/// un mock de SharedPreferences.
+final notifRationaleShownProvider =
+    NotifierProvider<NotifRationaleNotifier, bool>(
+      NotifRationaleNotifier.new,
+    );
+
+class NotifRationaleNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void setShown() => state = true;
+}

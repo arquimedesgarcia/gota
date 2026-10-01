@@ -99,14 +99,20 @@ class _ReportAbuseDialogState extends State<_ReportAbuseDialog> {
           children: [
             const Text('¿Por qué deseas reportar este reporte?'),
             const SizedBox(height: 12),
-            ..._reasons.map(
-              (r) => RadioListTile<String>(
-                title: Text(r.$2),
-                value: r.$1,
-                groupValue: _selectedReason,
-                onChanged: (v) => setState(() => _selectedReason = v!),
-                dense: true,
-                contentPadding: EdgeInsets.zero,
+            RadioGroup<String>(
+              groupValue: _selectedReason,
+              onChanged: (v) => setState(() => _selectedReason = v!),
+              child: Column(
+                children: _reasons
+                    .map(
+                      (r) => RadioListTile<String>(
+                        title: Text(r.$2),
+                        value: r.$1,
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    )
+                    .toList(),
               ),
             ),
             if (_selectedReason == 'other') ...[

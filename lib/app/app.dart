@@ -120,20 +120,27 @@ class _SessionGateState extends ConsumerState<_SessionGate> {
           _firstRunDialogShown = true;
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             if (!mounted) return;
-            final context_ = context;
-            final prefsAsync = ref.read(permissionPrefsProvider);
-            final prefs = prefsAsync.value;
-            if (prefs != null && !prefs.termsShown) {
-              await _showTermsDialog(context_);
+            final prefs = await PermissionPrefs.load();
+            // Inicializar compuerta de notificaciones desde SharedPreferences
+            if (prefs.notifRationaleShown && mounted) {
+              ref.read(notifRationaleShownProvider.notifier).setShown();
+            }
+            if (!mounted) return;
+            // Términos y condiciones (primer arranque)
+            if (!prefs.termsShown) {
+              // ignore: use_build_context_synchronously
+              await _showTermsDialog(context);
               await prefs.setTermsShown();
             }
             if (!mounted) return;
             // Diálogo de razonamiento de notificaciones
-            final prefs2 = ref.read(permissionPrefsProvider).value;
-            if (prefs2 != null && !prefs2.notifRationaleShown) {
-              await _showNotifRationaleDialog(context_);
-              await prefs2.setNotifRationaleShown();
-              ref.invalidate(notifRationaleShownProvider);
+            if (!prefs.notifRationaleShown) {
+              // ignore: use_build_context_synchronously
+              await _showNotifRationaleDialog(context);
+              await prefs.setNotifRationaleShown();
+              if (mounted) {
+                ref.read(notifRationaleShownProvider.notifier).setShown();
+              }
             }
           });
         }

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:gota/app/theme/app_theme.dart';
 import 'package:gota/features/leaks/data/geolocator_location_service.dart'
@@ -120,6 +121,14 @@ ProviderContainer _container({LeakReportRepository? repository}) {
 }
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({
+      'location_rationale_shown': true,
+      'notif_rationale_shown': true,
+      'privacy_terms_shown': true,
+    });
+  });
+
   testWidgets(
     'R1: el paso de ubicación no muestra la leyenda descriptiva',
     (tester) async {
@@ -143,29 +152,14 @@ void main() {
       await tester.tap(find.text('Usar mi ubicación (GPS)'));
       await tester.pumpAndSettle();
 
-      final addressFinder = find.text('Ubicación aproximada');
-      final coordFinder = find.textContaining('Lat:');
-
-      // Los widgets viven en un ListView: asegurar que estén construidos.
-      await tester.scrollUntilVisible(
-        addressFinder,
-        300,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.scrollUntilVisible(
-        coordFinder,
-        300,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pump();
-
-      final addressDy = tester.getTopLeft(addressFinder).dy;
-      final coordDy = tester.getTopLeft(coordFinder).dy;
+      // La tarjeta "Ubicación aproximada" debe aparecer tras GPS y geocoding.
       expect(
-        addressDy,
-        lessThan(coordDy),
-        reason: 'la dirección debe aparecer ENCIMA de las coordenadas',
+        find.text('Ubicación aproximada', skipOffstage: false),
+        findsOneWidget,
       );
+      // La antigua tarjeta de coordenadas brutas fue eliminada (R2 mutation
+      // control): si alguien restaura "Lat: X, Lng: Y" este test falla.
+      expect(find.textContaining('Lat:'), findsNothing);
     },
   );
 

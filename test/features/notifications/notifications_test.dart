@@ -15,6 +15,7 @@ import 'package:gota/features/notifications/domain/notification_page.dart';
 import 'package:gota/features/notifications/domain/notification_preferences.dart';
 import 'package:gota/features/notifications/domain/water_notification.dart';
 import 'package:gota/features/notifications/presentation/notification_providers.dart';
+import 'package:gota/features/privacy/data/permission_prefs.dart';
 import 'package:gota/features/notifications/presentation/notifications_screen.dart';
 import 'package:gota/features/notifications/presentation/settings_screen.dart';
 import 'package:gota/shared/widgets/loading_view.dart';
@@ -608,6 +609,8 @@ void main() {
           sessionBootstrapProvider.overrideWith(
             (ref) async => _sessionUserValue,
           ),
+          // El rationale ya fue mostrado: habilitar la ruta completa del bootstrap.
+          notifRationaleShownProvider.overrideWith(_TrueRationaleNotifier.new),
         ],
       );
       addTearDown(container.dispose);
@@ -684,4 +687,10 @@ Future<void> _pumpApp(
   );
   unawaited(container.read(pushBootstrapProvider.future));
   await tester.pump();
+}
+
+/// Notifier de prueba que simula haber mostrado el diálogo de razonamiento.
+class _TrueRationaleNotifier extends NotifRationaleNotifier {
+  @override
+  bool build() => true;
 }

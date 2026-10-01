@@ -254,9 +254,26 @@ final pushBootstrapProvider = FutureProvider<PushPermissionStatus>((ref) async {
   final push = ref.watch(pushServiceProvider);
   final repo = ref.watch(notificationRepositoryProvider);
 
-  // Compuerta: no solicitar permiso hasta que el usuario haya visto el
-  // diálogo de razonamiento. Primer arranque sin rationale: skip silencioso.
-  final rationaleShown = await ref.watch(notifRationaleShownProvider.future);
+  // Listeners de mensajes: siempre activos para que la navegación desde push
+  // funcione independientemente del estado del permiso.
+  final fgSub = push.onMessageForeground.listen((_) {
+    ref.invalidate(notificationInboxControllerProvider);
+  });
+  final openSub = push.onMessageOpenedApp.listen(navigateFromPush);
+  ref.onDispose(() {
+    fgSub.cancel();
+    openSub.cancel();
+  });
+
+  // Cold start: la app fue lanzada tocando una notificación (terminated).
+  try {
+    final initialMessage = await push.getInitialMessage();
+    if (initialMessage != null) navigateFromPush(initialMessage);
+  } catch (_) {}
+
+  // Compuerta síncrona: no solicitar permiso hasta que el usuario haya visto
+  // el diálogo de razonamiento. app.dart lo activa tras la aceptación.
+  final rationaleShown = ref.watch(notifRationaleShownProvider);
   if (!rationaleShown) return PushPermissionStatus.unavailable;
 
   PushPermissionStatus status;
@@ -276,21 +293,7 @@ final pushBootstrapProvider = FutureProvider<PushPermissionStatus>((ref) async {
   await registerToken(await _safeToken(push));
 
   final refreshSub = push.tokenRefresh.listen(registerToken);
-  final fgSub = push.onMessageForeground.listen((_) {
-    ref.invalidate(notificationInboxControllerProvider);
-  });
-  final openSub = push.onMessageOpenedApp.listen(navigateFromPush);
-  ref.onDispose(() {
-    refreshSub.cancel();
-    fgSub.cancel();
-    openSub.cancel();
-  });
-
-  // Cold start: la app fue lanzada tocando una notificación (terminated).
-  try {
-    final initialMessage = await push.getInitialMessage();
-    if (initialMessage != null) navigateFromPush(initialMessage);
-  } catch (_) {}
+  ref.onDispose(refreshSub.cancel);
 
   return status;
 });

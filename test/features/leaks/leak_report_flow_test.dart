@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:gota/app/theme/app_theme.dart';
 import 'package:gota/features/leaks/data/geolocator_location_service.dart'
@@ -130,10 +131,32 @@ ProviderContainer _container({ReverseGeocodingService? geocoder}) {
 }
 
 void main() {
-  testWidgets('flujo completo con GPS: ubicación → fotos → datos → revisar', (
+  setUp(() {
+    SharedPreferences.setMockInitialValues({
+      'location_rationale_shown': true,
+      'notif_rationale_shown': true,
+      'privacy_terms_shown': true,
+    });
+  });
+
+  testWidgets('flujo completo con GPS: ubicación → datos → fotos → revisar', (
     tester,
   ) async {
-    await tester.pumpWidget(_app());
+    // Geocoder que coincide con el municipio del FakeMunicipalityRepository
+    // para que la sugerencia de municipio se active en el paso de datos.
+    await tester.pumpWidget(
+      _app(
+        geocoder: _FakeReverseGeocoder(
+          builder: (lat, lng) => LocationSuggestion(
+            latitude: lat,
+            longitude: lng,
+            municipality: 'Maneiro',
+            locality: 'La Caranta',
+            provider: 'test',
+          ),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
 
     // Etapa 1: ubicación.
@@ -141,12 +164,18 @@ void main() {
     await tester.tap(find.text('Usar mi ubicación (GPS)'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Ubicación por GPS', skipOffstage: false), findsOneWidget);
+    expect(find.text('Ubicación aproximada', skipOffstage: false), findsOneWidget);
 
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
 
-    // Etapa 2: fotos. Las fotos son opcionales — continuar sin fotos es permitido.
+    // Etapa 2: datos (dirección, municipio, sector). Nuevo orden: location → data → photos.
+    expect(find.text('¿Dónde?'), findsOneWidget);
+    // Con sugerencia GPS (Maneiro), Continuar está habilitado.
+    await tester.tap(find.widgetWithText(FilledButton, 'Continuar'));
+    await tester.pumpAndSettle();
+
+    // Etapa 3: fotos. Las fotos son opcionales — continuar sin fotos es permitido.
     // kReportPhotoMaxCount = 2 (C1); el título refleja que son opcionales.
     expect(
       find.text('Fotos de la fuga (opcional, máx. 2)'),
@@ -210,19 +239,13 @@ void main() {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Indicar ubicación manual'));
+    await tester.tap(find.text('Indicar dirección manualmente'));
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.widgetWithText(TextField, 'Latitud'), '10.99');
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Longitud'),
-      '-63.87',
-    );
-    await tester.tap(find.text('Guardar'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Ubicación manual', skipOffstage: false), findsOneWidget);
-    expect(find.text('Ubicación por GPS'), findsNothing);
+    // enterManualMode() avanza directamente al paso Dirección con
+    // manualModeEnabled = true. El indicador muestra "Modo manual".
+    expect(find.text('Modo manual', skipOffstage: false), findsOneWidget);
+    expect(find.text('Modo GPS'), findsNothing);
   });
 
   testWidgets('estado inicial muestra carga de municipios y sin GPS', (
@@ -560,9 +583,13 @@ void main() {
 
       expect(container.read(leakReportProvider).draft.municipalityId, 'm1');
       expect(container.read(leakReportProvider).draft.sectorId, 's1');
+      // Tras avanzar desde Dirección se llega a Fotos (paso siguiente).
       expect(
-        find.widgetWithText(FilledButton, 'Continuar'),
-        findsNothing,
+        find.text(
+          'Fotos de la fuga (opcional, máx. ${LeakReportController.photoMaxCount})',
+          skipOffstage: false,
+        ),
+        findsOneWidget,
       );
     },
   );
