@@ -24,6 +24,14 @@ class AppConfig {
   /// operador vía `SUPABASE_URL`/`SUPABASE_ANON_KEY`).
   bool get isProduction => environment == 'production';
 
+  // URLs públicas (GitHub Pages). Definidas aquí como constantes para facilitar
+  // cambio centralizado antes del deploy de Pages.
+  static const privacyUrl =
+      'https://arquimedesgarcia.github.io/gota/privacy.html';
+  static const termsUrl =
+      'https://arquimedesgarcia.github.io/gota/terms.html';
+  static const contactEmail = 'arquimedesgr@gmail.com';
+
   /// Lee la configuración de las variables de compilación.
   ///
   /// Lanza [ConfigMissingException] si faltan valores o la URL no es http(s).
