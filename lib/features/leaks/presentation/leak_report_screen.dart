@@ -197,7 +197,7 @@ class LocationStepView extends ConsumerStatefulWidget {
 }
 
 class _LocationStepViewState extends ConsumerState<LocationStepView> {
-  Future<void> _onGpsTap(BuildContext context, WidgetRef ref) async {
+  Future<void> _onGpsTap() async {
     final prefsAsync = ref.read(permissionPrefsProvider);
     final prefs = prefsAsync.value;
     if (prefs != null && !prefs.locationRationaleShown) {
@@ -282,7 +282,7 @@ class _LocationStepViewState extends ConsumerState<LocationStepView> {
                 style: AppComponents.primaryButtonStyle(),
                 icon: const Icon(Icons.gps_fixed),
                 label: const Text('Mi ubicación'),
-                onPressed: () => _onGpsTap(context, ref),
+                onPressed: _onGpsTap,
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(

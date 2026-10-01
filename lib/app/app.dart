@@ -97,7 +97,7 @@ class _SessionGateState extends ConsumerState<_SessionGate> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final session = ref.watch(sessionBootstrapProvider);
     return session.when(
       loading: () => const Scaffold(
@@ -120,16 +120,18 @@ class _SessionGateState extends ConsumerState<_SessionGate> {
           _firstRunDialogShown = true;
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             if (!mounted) return;
+            final context_ = context;
             final prefsAsync = ref.read(permissionPrefsProvider);
             final prefs = prefsAsync.value;
             if (prefs != null && !prefs.termsShown) {
-              await _showTermsDialog(context);
+              await _showTermsDialog(context_);
               await prefs.setTermsShown();
             }
+            if (!mounted) return;
             // Diálogo de razonamiento de notificaciones
             final prefs2 = ref.read(permissionPrefsProvider).value;
             if (prefs2 != null && !prefs2.notifRationaleShown) {
-              await _showNotifRationaleDialog(context);
+              await _showNotifRationaleDialog(context_);
               await prefs2.setNotifRationaleShown();
               ref.invalidate(notifRationaleShownProvider);
             }
