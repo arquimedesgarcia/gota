@@ -229,7 +229,7 @@ class _LocationStepViewState extends ConsumerState<LocationStepView> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final state = ref.watch(leakReportProvider);
     final controller = ref.read(leakReportProvider.notifier);
     final location = state.draft.location;
