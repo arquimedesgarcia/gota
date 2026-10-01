@@ -6,6 +6,7 @@ import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../contact/presentation/contact_screen.dart';
 import '../../location/presentation/location_providers.dart';
+import '../../privacy/presentation/privacy_screen.dart';
 import '../data/push_service.dart';
 import 'notification_providers.dart';
 import 'notifications_screen.dart';
@@ -53,6 +54,21 @@ class SettingsScreen extends ConsumerWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(builder: (_) => const ContactScreen()),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // K: Privacidad y Términos
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: const Text('Privacidad y Términos'),
+              subtitle: const Text('Política de datos y condiciones de uso'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const PrivacyScreen(),
+                ),
               ),
             ),
           ),
