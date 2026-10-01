@@ -17,6 +17,7 @@ import '../domain/leak_photo.dart';
 import 'leak_community_microcopy.dart';
 import 'leak_community_providers.dart';
 import 'recent_activity_providers.dart';
+import 'report_abuse_dialog.dart';
 
 const leakValidateButtonKey = Key('leak-validate-button');
 const leakConfirmButtonKey = Key('leak-confirm-button');
@@ -231,6 +232,25 @@ class _LeakDetailScreenState extends ConsumerState<LeakDetailScreen> {
                       ),
                     ),
                   ],
+                ],
+                // Botón Reportar (solo para reportes ajenos — requisito UGC Play)
+                if (!detail.isCreator) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  const Divider(),
+                  const SizedBox(height: AppSpacing.sm),
+                  TextButton.icon(
+                    icon: const Icon(Icons.flag_outlined, size: 16),
+                    label: const Text('Reportar contenido'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.textMuted,
+                      padding: EdgeInsets.zero,
+                    ),
+                    onPressed: () => showReportAbuseDialog(
+                      context,
+                      ref,
+                      widget.reportId,
+                    ),
+                  ),
                 ],
               ],
             ),
