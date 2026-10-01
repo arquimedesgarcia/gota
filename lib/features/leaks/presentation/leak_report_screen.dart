@@ -14,6 +14,7 @@ import 'location_map_picker.dart';
 import 'leak_detail_screen.dart';
 import 'leak_report_controller.dart';
 import 'leak_report_microcopy.dart';
+import '../../privacy/data/permission_prefs.dart';
 
 /// Pantalla raíz del flujo Reportar fuga: barra de progreso por etapa y
 /// la página de la etapa actual (UX_SPEC §4:
@@ -188,8 +189,44 @@ class _DraftRestoredBanner extends StatelessWidget {
 
 /// ---------- Etapa 1: Ubicación ----------
 
-class LocationStepView extends ConsumerWidget {
+class LocationStepView extends ConsumerStatefulWidget {
   const LocationStepView({super.key});
+
+  @override
+  ConsumerState<LocationStepView> createState() => _LocationStepViewState();
+}
+
+class _LocationStepViewState extends ConsumerState<LocationStepView> {
+  Future<void> _onGpsTap(BuildContext context, WidgetRef ref) async {
+    final prefsAsync = ref.read(permissionPrefsProvider);
+    final prefs = prefsAsync.value;
+    if (prefs != null && !prefs.locationRationaleShown) {
+      final proceed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Acceso a tu ubicación'),
+          content: const Text(
+            'Gota usa tu ubicación únicamente para registrar dónde está la '
+            'fuga que estás reportando. No se rastrea tu posición en segundo '
+            'plano.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Ahora no'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Continuar'),
+            ),
+          ],
+        ),
+      );
+      await prefs.setLocationRationaleShown();
+      if (proceed != true) return;
+    }
+    ref.read(leakReportProvider.notifier).requestGps();
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -245,7 +282,7 @@ class LocationStepView extends ConsumerWidget {
                 style: AppComponents.primaryButtonStyle(),
                 icon: const Icon(Icons.gps_fixed),
                 label: const Text('Mi ubicación'),
-                onPressed: controller.requestGps,
+                onPressed: () => _onGpsTap(context, ref),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
